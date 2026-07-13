@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bandmanager-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bandmanager
+      POSTGRES_PASSWORD: bandmanager
+      POSTGRES_DB: bandmanager
+    ports:
+      - "5432:5432"
+    volumes:
+      - bandmanager_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bandmanager -d bandmanager"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bandmanager_pgdata:

@@ -1,0 +1,484 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+  COLLABORATOR
+}
+
+enum EventType {
+  CONCERT
+  REHEARSAL
+  RECORDING
+  MEETING
+  PROMO
+  OTHER
+}
+
+enum EventStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+  PENDING
+}
+
+enum SongStatus {
+  PROPOSED
+  IN_PREPARATION
+  REHEARSED
+  READY
+  ARCHIVED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum SalesChannel {
+  WEB
+  CONCERT
+  DIRECT
+  OTHER
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+enum SyncProvider {
+  WOOCOMMERCE
+  GELATO
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum FileCategory {
+  CONTRACT
+  TECH_RIDER
+  HOSPITALITY_RIDER
+  POSTER
+  PHOTO
+  INVOICE
+  LYRICS
+  SHEET_MUSIC
+  AUDIO
+  INTERNAL
+  OTHER
+}
+
+enum SetlistItemType {
+  SONG
+  BREAK
+  ENCORE
+  NOTE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          UserRole  @default(MEMBER)
+  isActive      Boolean   @default(true)
+  resetToken    String?
+  resetTokenExp DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  profile            MemberProfile?
+  attendances        EventAttendance[]
+  assignedTasks      Task[]            @relation("TaskAssignee")
+  createdTasks       Task[]            @relation("TaskCreator")
+  taskComments       TaskComment[]
+  uploadedFiles      FileAsset[]
+  createdOrders      Order[]           @relation("OrderCreator")
+  inventoryMovements InventoryMovement[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model MemberProfile {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  name             String
+  photoUrl         String?
+  phone            String?
+  instrument       String?
+  bio              String?
+  joinedAt         DateTime?
+  emergencyContact String?
+  availability     String?
+  links            Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id              String      @id @default(cuid())
+  title           String
+  type            EventType
+  startAt         DateTime
+  endAt           DateTime
+  venue           String?
+  address         String?
+  mapsUrl         String?
+  description     String?
+  callTime        DateTime?
+  setupInfo       String?
+  soundcheckInfo  String?
+  expectedFeeCents Int?
+  expectedCostCents Int?
+  contactName     String?
+  contactPhone    String?
+  status          EventStatus @default(DRAFT)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  attendances EventAttendance[]
+  setlists    Setlist[]
+  tasks       Task[]
+  fileAssets  FileAsset[]
+
+  @@index([startAt])
+  @@index([type])
+  @@index([status])
+}
+
+model EventAttendance {
+  id        String           @id @default(cuid())
+  eventId   String
+  userId    String
+  status    AttendanceStatus @default(PENDING)
+  note      String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([status])
+}
+
+model Song {
+  id              String     @id @default(cuid())
+  title           String
+  artist          String?
+  composer        String?
+  durationSeconds Int?
+  keySignature    String?
+  tempo           Int?
+  timeSignature   String?
+  tuning          String?
+  leadVocal       String?
+  backingVocals   String?
+  instruments     String?
+  technicalNotes  String?
+  status          SongStatus @default(PROPOSED)
+  tags            String[]
+  referenceUrl    String?
+  lyrics          String?
+  chords          String?
+  sheetMusicPath  String?
+  audioPath       String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+
+  repertoireSongs RepertoireSong[]
+  setlistItems    SetlistItem[]
+
+  @@index([title])
+  @@index([status])
+  @@index([artist])
+}
+
+model Repertoire {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean   @default(false)
+  isArchived  Boolean   @default(false)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  songs    RepertoireSong[]
+  setlists Setlist[]
+
+  @@index([isActive])
+}
+
+model RepertoireSong {
+  id           String   @id @default(cuid())
+  repertoireId String
+  songId       String
+  position     Int
+  createdAt    DateTime @default(now())
+
+  repertoire Repertoire @relation(fields: [repertoireId], references: [id], onDelete: Cascade)
+  song       Song       @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([repertoireId, songId])
+  @@index([repertoireId, position])
+}
+
+model Setlist {
+  id           String    @id @default(cuid())
+  name         String
+  eventId      String?
+  repertoireId String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  event      Event?      @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  repertoire Repertoire? @relation(fields: [repertoireId], references: [id], onDelete: SetNull)
+  items      SetlistItem[]
+
+  @@index([eventId])
+}
+
+model SetlistItem {
+  id        String          @id @default(cuid())
+  setlistId String
+  type      SetlistItemType @default(SONG)
+  songId    String?
+  position  Int
+  comment   String?
+  createdAt DateTime        @default(now())
+
+  setlist Setlist @relation(fields: [setlistId], references: [id], onDelete: Cascade)
+  song    Song?   @relation(fields: [songId], references: [id], onDelete: SetNull)
+
+  @@index([setlistId, position])
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  assigneeId  String?
+  creatorId   String?
+  dueAt       DateTime?
+  priority    TaskPriority @default(MEDIUM)
+  status      TaskStatus   @default(PENDING)
+  category    String?
+  eventId     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  assignee User?  @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator  User?  @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  event    Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  comments TaskComment[]
+  files    FileAsset[]
+
+  @@index([status])
+  @@index([assigneeId])
+  @@index([dueAt])
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FileAsset {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  category     FileCategory @default(OTHER)
+  tags         String[]
+  mimeType     String
+  sizeBytes    Int
+  storagePath  String
+  uploadedById String
+  eventId      String?
+  taskId       String?
+  permissions  Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+
+  uploadedBy User   @relation(fields: [uploadedById], references: [id])
+  event      Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  task       Task?  @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@index([uploadedById])
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  name            String
+  description     String?
+  category        String
+  imagePaths      String[]
+  priceCents      Int
+  costCents       Int
+  sku             String        @unique
+  status          ProductStatus @default(ACTIVE)
+  minStock        Int           @default(5)
+  supplier        String?
+  externalId      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  variants           ProductVariant[]
+  orderItems         OrderItem[]
+  inventoryMovements InventoryMovement[]
+
+  @@index([category])
+  @@index([status])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  name       String
+  size       String?
+  color      String?
+  stock      Int      @default(0)
+  sku        String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model InventoryMovement {
+  id          String   @id @default(cuid())
+  productId   String
+  variantId   String?
+  quantity    Int
+  reason      String
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  customerName    String
+  customerEmail   String?
+  subtotalCents   Int
+  shippingCents   Int           @default(0)
+  totalCents      Int
+  paymentStatus   PaymentStatus @default(PENDING)
+  status          OrderStatus   @default(PENDING)
+  channel         SalesChannel  @default(WEB)
+  notes           String?
+  createdById     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  createdBy User?       @relation("OrderCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  items     OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  productId  String
+  variantId  String?
+  quantity   Int
+  unitPriceCents Int
+
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+}
+
+model SyncLog {
+  id        String       @id @default(cuid())
+  provider  SyncProvider
+  action    String
+  status    SyncStatus
+  payload   Json?
+  error     String?
+  createdAt DateTime     @default(now())
+
+  @@index([provider])
+  @@index([createdAt])
+}
+
+model CollaboratorAccess {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  areas     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
