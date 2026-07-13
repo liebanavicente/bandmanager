@@ -55,7 +55,10 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
         <CardDescription>
-          Accede al panel de gestión de tu banda.
+          Accede al panel de gestión de tu banda.{" "}
+          <Link href="/presentacion" className="text-primary hover:underline">
+            Ver presentación
+          </Link>
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>

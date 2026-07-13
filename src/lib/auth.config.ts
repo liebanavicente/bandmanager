@@ -10,13 +10,17 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       const isLoggedIn = Boolean(auth?.user);
-      const publicPaths = ["/login", "/forgot-password"];
+      const publicPaths = ["/login", "/forgot-password", "/presentacion"];
 
       if (publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-        if (isLoggedIn && pathname === "/login") {
+        if (isLoggedIn && (pathname === "/login" || pathname === "/presentacion")) {
           return Response.redirect(new URL("/", request.nextUrl));
         }
         return true;
+      }
+
+      if (pathname === "/" && !isLoggedIn) {
+        return Response.redirect(new URL("/presentacion", request.nextUrl));
       }
 
       if (pathname.startsWith("/api/auth")) return true;
