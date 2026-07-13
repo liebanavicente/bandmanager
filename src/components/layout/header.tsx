@@ -1,7 +1,7 @@
 "use client";
 
-import { signOut } from "next-auth/react";
-import { LogOut, Moon, Sun, User } from "lucide-react";
+import { Moon, Sun, User } from "lucide-react";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { useTheme } from "next-themes";
 import type { UserRole } from "@prisma/client";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -88,13 +88,7 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
               Mi perfil
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-            >
-              <LogOut className="size-4" />
-              Cerrar sesión
-            </DropdownMenuItem>
+            <LogoutButton />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

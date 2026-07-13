@@ -2,12 +2,17 @@
 
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
+import { signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
 import {
   requestPasswordResetSchema,
   resetPasswordSchema,
 } from "@/lib/validations";
+
+export async function logout() {
+  await signOut({ redirectTo: "/presentacion" });
+}
 
 export async function requestPasswordReset(input: unknown) {
   try {
