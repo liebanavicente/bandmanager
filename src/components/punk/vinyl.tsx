@@ -34,10 +34,11 @@ type VinylProps = {
   className?: string;
 };
 
-/** Vinilo 3D con carga diferida y fallback estático. Decorativo. */
+/** Vinilo 3D con carga diferida y fallback estático. Decorativo (oculto a lectores de pantalla),
+ *  pero con eventos de puntero activos para el parallax sutil al cursor. */
 export function Vinyl({ className }: VinylProps) {
   return (
-    <div aria-hidden="true" className={cn("pointer-events-none", className)}>
+    <div aria-hidden="true" className={cn(className)}>
       <VinylScene />
     </div>
   );
