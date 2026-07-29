@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { presentationSlides } from "@/lib/presentation-slides";
 import { Button } from "@/components/ui/button";
+import { Stamp } from "@/components/punk/stamp";
+import { Equalizer } from "@/components/punk/equalizer";
 import { cn } from "@/lib/utils";
 
 export function SlideDeck() {
@@ -20,7 +22,9 @@ export function SlideDeck() {
   const total = presentationSlides.length;
   const slide = presentationSlides[current];
   const Icon = slide.icon;
+  const isIntro = current === 0;
   const isLast = current === total - 1;
+  const number = String(current + 1).padStart(2, "0");
 
   const goTo = useCallback(
     (index: number) => {
@@ -56,13 +60,21 @@ export function SlideDeck() {
   }, [isPlaying, isLast, next]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-background via-background to-primary/5">
-      <header className="flex items-center justify-between border-b bg-background/80 px-4 py-3 backdrop-blur-sm sm:px-6">
+    <div className="flex min-h-screen flex-col bg-sidebar text-sidebar-foreground">
+      {/* Cabecera de revista */}
+      <header className="flex items-center justify-between border-b border-sidebar-border px-4 py-3 sm:px-6">
         <Link href="/presentacion" className="flex items-center gap-2.5">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex size-9 -rotate-6 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-poster-sm">
             <Music4 className="size-4" />
           </div>
-          <span className="font-heading font-semibold">BandManager</span>
+          <div className="leading-tight">
+            <span className="block font-display text-sm uppercase tracking-widest">
+              BandManager
+            </span>
+            <span className="block font-punk text-[10px] text-muted-foreground">
+              edición backstage · nº {number}
+            </span>
+          </div>
         </Link>
         <div className="flex items-center gap-2">
           <Button
@@ -70,57 +82,116 @@ export function SlideDeck() {
             size="sm"
             onClick={() => setIsPlaying((p) => !p)}
             aria-label={isPlaying ? "Pausar presentación" : "Reproducir presentación"}
+            className="text-muted-foreground hover:text-foreground"
           >
             {isPlaying ? <Pause /> : <Play />}
             <span className="hidden sm:inline">{isPlaying ? "Pausar" : "Auto"}</span>
           </Button>
-          <Button variant="outline" size="sm" render={<Link href="/login" />}>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href="/login" />}
+            className="border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground"
+          >
             <LogIn />
             Entrar
           </Button>
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-8">
+      {/* Página-póster */}
+      <main className="relative flex flex-1 flex-col justify-center overflow-hidden px-4 py-10 sm:px-8">
+        {/* Fondo: logo-hero solo en la portada */}
+        {isIntro && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/logo-hero.webp"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover object-left opacity-50"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-sidebar via-sidebar/55 to-sidebar/20"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="halftone pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true" />
+        {/* Marca de agua: sello No Flag Patriots */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/nfp-seal-paper.png"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-16 -right-16 size-72 rotate-12 opacity-[0.08] select-none sm:size-96"
+          draggable={false}
+        />
+
         <div
           key={slide.id}
-          className="w-full max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500"
+          className="relative mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500"
         >
-          <div
-            className={cn(
-              "mb-8 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br sm:size-20",
-              slide.accent,
+          <div className="mb-8 flex items-end gap-5">
+            <div className="flex size-16 -rotate-3 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-poster sm:size-20">
+              <Icon className="size-8 sm:size-10" aria-hidden />
+            </div>
+            <div className="pb-1">
+              <p className="font-punk text-sm text-muted-foreground sm:text-base">
+                {slide.subtitle}
+              </p>
+              <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
+                Pág. {number} / {String(total).padStart(2, "0")}
+              </p>
+            </div>
+            {isIntro && (
+              <div className="ml-auto hidden sm:block">
+                <Stamp tone="acid" animated>
+                  Solo personal autorizado
+                </Stamp>
+              </div>
             )}
-          >
-            <Icon className="size-8 text-primary sm:size-10" aria-hidden />
           </div>
 
-          <p className="mb-2 text-sm font-medium uppercase tracking-wider text-primary">
-            {slide.subtitle}
-          </p>
-          <h1 className="font-heading text-3xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="font-display text-4xl uppercase leading-[0.95] tracking-tight sm:text-6xl">
             {slide.title}
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <div className="mt-3 h-1 w-24 bg-primary" aria-hidden="true" />
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {slide.description}
           </p>
 
-          <ul className="mt-8 space-y-3">
-            {slide.highlights.map((item) => (
+          <ul className="mt-9 grid gap-3 sm:grid-cols-2">
+            {slide.highlights.map((item, i) => (
               <li
                 key={item}
-                className="flex items-start gap-3 rounded-lg border bg-card/60 px-4 py-3 text-sm sm:text-base"
+                className={cn(
+                  "card-lift relative flex items-start gap-3 rounded-md border border-sidebar-border bg-background/70 px-4 py-3 text-sm backdrop-blur-xs sm:text-base",
+                  i === 0 && "sm:col-span-2 sm:text-base",
+                )}
               >
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+                <span className="mt-1 font-mono text-xs font-bold text-primary">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
                 {item}
               </li>
             ))}
           </ul>
+
+          {isLast && (
+            <div className="mt-10">
+              <Button size="lg" render={<Link href="/login" />} className="shadow-poster">
+                <LogIn />
+                Empezar ahora
+              </Button>
+            </div>
+          )}
         </div>
       </main>
 
-      <footer className="border-t bg-background/80 px-4 py-4 backdrop-blur-sm sm:px-6">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Pie de revista */}
+      <footer className="border-t border-sidebar-border px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2" role="tablist" aria-label="Diapositivas">
             {presentationSlides.map((s, i) => (
               <button
@@ -138,12 +209,13 @@ export function SlideDeck() {
                 )}
               />
             ))}
-            <span className="ml-2 text-xs text-muted-foreground tabular-nums">
+            <span className="ml-2 font-mono text-xs text-muted-foreground tabular-nums">
               {current + 1} / {total}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Equalizer className="hidden text-primary sm:block" bars={5} />
             <Button
               variant="outline"
               size="icon"
@@ -153,12 +225,7 @@ export function SlideDeck() {
             >
               <ChevronLeft />
             </Button>
-            {isLast ? (
-              <Button size="lg" render={<Link href="/login" />}>
-                <LogIn />
-                Empezar ahora
-              </Button>
-            ) : (
+            {!isLast && (
               <Button onClick={next} size="lg">
                 Siguiente
                 <ChevronRight />
@@ -175,8 +242,8 @@ export function SlideDeck() {
             </Button>
           </div>
         </div>
-        <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-muted-foreground">
-          Usa las flechas del teclado ← → para navegar
+        <p className="mx-auto mt-3 max-w-4xl text-center font-punk text-[11px] text-muted-foreground">
+          Usa las flechas del teclado ← → para pasar página
         </p>
       </footer>
     </div>
