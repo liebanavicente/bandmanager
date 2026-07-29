@@ -32,6 +32,23 @@ export function EmptyState({
       )}
     >
       <div className="halftone pointer-events-none absolute inset-0 text-foreground opacity-[0.04]" aria-hidden="true" />
+      {/* Sello NFP de fondo para dar vida a las zonas vacías */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/nfp-seal-paper.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-10 size-44 rotate-12 opacity-[0.07] select-none"
+        draggable={false}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/nfp-seal-paper.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-12 -left-12 size-52 -rotate-6 opacity-[0.05] select-none"
+        draggable={false}
+      />
       <Tape className="absolute left-6 top-4 -rotate-6" />
       <div className="relative mb-4 flex size-14 -rotate-3 items-center justify-center rounded-md border bg-card text-primary shadow-poster-sm">
         <Icon className="size-7" />
