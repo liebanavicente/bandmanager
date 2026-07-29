@@ -43,10 +43,10 @@ async function DashboardContent() {
   return (
     <div className="space-y-8">
       {/* Hero editorial: nombre de banda + sello NFP + cuenta atrás */}
-      <section className="relative overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-poster">
+      <section className="torn-bottom relative overflow-hidden rounded-xl border-2 bg-sidebar text-sidebar-foreground shadow-poster">
         <div className="halftone pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden="true" />
-        <Tape className="absolute -top-1 left-8 -rotate-6" />
-        <Tape className="absolute -top-1 right-10 rotate-3" />
+        <Tape className="absolute -top-1 left-8 z-10 -rotate-6" />
+        <Tape className="absolute -top-1 right-10 z-10 rotate-3" />
 
         <div className="relative grid gap-6 p-6 sm:p-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div className="space-y-5">
@@ -88,7 +88,7 @@ async function DashboardContent() {
 
           <NfpSeal
             spin
-            className="hidden h-56 w-56 opacity-90 drop-shadow-[0_0_24px_rgba(227,38,32,0.25)] lg:block xl:h-64 xl:w-64"
+            className="hidden h-56 w-56 justify-self-center drop-shadow-[0_10px_28px_rgba(0,0,0,0.6)] lg:block xl:h-72 xl:w-72"
           />
         </div>
       </section>
@@ -100,11 +100,13 @@ async function DashboardContent() {
             key={href}
             href={href}
             className={cn(
-              "inline-flex items-center gap-2 rounded-md border bg-card px-3.5 py-2 text-sm font-medium shadow-poster-sm transition-transform hover:-translate-y-0.5 hover:rotate-0 focus-visible:rotate-0",
+              "group inline-flex items-center gap-2.5 rounded-md border-2 bg-card px-4 py-2.5 font-display text-xs font-bold uppercase tracking-widest shadow-poster-sm transition-all hover:-translate-y-1 hover:rotate-0 hover:shadow-poster-red focus-visible:rotate-0",
               rotate,
             )}
           >
-            <Icon className="size-4 text-primary" />
+            <span className="flex size-7 items-center justify-center rounded-sm bg-primary text-primary-foreground transition-transform group-hover:rotate-6">
+              <Icon className="size-4" />
+            </span>
             {label}
           </Link>
         ))}
