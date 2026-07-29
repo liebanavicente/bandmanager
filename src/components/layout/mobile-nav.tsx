@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, Music4 } from "lucide-react";
 import type { UserRole } from "@prisma/client";
 import { navItems } from "@/lib/navigation";
 import { hasPermission } from "@/lib/permissions";
@@ -40,11 +40,16 @@ export function MobileNav({ role, collaboratorAreas }: MobileNavProps) {
         <Menu className="size-4" />
         <span className="sr-only">Abrir menú</span>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="border-b px-4 py-4 text-left">
-          <SheetTitle>BandManager</SheetTitle>
+      <SheetContent side="left" className="w-72 bg-sidebar p-0 text-sidebar-foreground">
+        <SheetHeader className="border-b border-sidebar-border px-4 py-4 text-left">
+          <SheetTitle className="flex items-center gap-2.5">
+            <span className="flex size-8 -rotate-6 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+              <Music4 className="size-4" />
+            </span>
+            <span className="font-display text-sm uppercase tracking-widest">BandManager</span>
+          </SheetTitle>
         </SheetHeader>
-        <nav className="flex flex-col gap-1 p-3">
+        <nav aria-label="Navegación móvil" className="flex flex-col gap-1 p-3">
           {visibleItems.map((item) => {
             const isActive =
               item.href === "/"
@@ -56,11 +61,12 @@ export function MobileNav({ role, collaboratorAreas }: MobileNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-md border border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted",
+                    ? "border-sidebar-primary bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "hover:bg-sidebar-accent",
                 )}
               >
                 <Icon className="size-4" />
@@ -69,8 +75,8 @@ export function MobileNav({ role, collaboratorAreas }: MobileNavProps) {
             );
           })}
         </nav>
-        <Separator />
-        <p className="p-4 text-xs text-muted-foreground">
+        <Separator className="bg-sidebar-border" />
+        <p className="p-4 text-[11px] uppercase tracking-wider text-muted-foreground">
           Navegación rápida para móvil y tablet.
         </p>
       </SheetContent>

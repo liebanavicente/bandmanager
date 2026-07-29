@@ -7,6 +7,7 @@ import type { UserRole } from "@prisma/client";
 import { navItems } from "@/lib/navigation";
 import { hasPermission } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+import { Equalizer } from "@/components/punk/equalizer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
@@ -24,19 +25,23 @@ export function AppSidebar({ role, collaboratorAreas }: AppSidebarProps) {
   });
 
   return (
-    <aside className="hidden h-full w-64 shrink-0 flex-col border-r bg-sidebar lg:flex">
-      <div className="flex h-14 items-center gap-2.5 px-5">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+      <div className="flex h-16 items-center gap-3 px-5">
+        <div className="flex size-9 -rotate-6 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-poster-sm">
           <Music4 className="size-4" />
         </div>
         <div>
-          <p className="font-heading text-sm font-semibold">BandManager</p>
-          <p className="text-xs text-muted-foreground">Gestión de banda</p>
+          <p className="font-display text-sm uppercase leading-tight tracking-widest">
+            BandManager
+          </p>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Backstage
+          </p>
         </div>
       </div>
-      <Separator />
+      <Separator className="bg-sidebar-border" />
       <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="flex flex-col gap-1">
+        <nav aria-label="Navegación principal" className="flex flex-col gap-1">
           {visibleItems.map((item) => {
             const isActive =
               item.href === "/"
@@ -48,11 +53,12 @@ export function AppSidebar({ role, collaboratorAreas }: AppSidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "group flex items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm font-medium transition-all",
                   isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    ? "border-sidebar-primary bg-sidebar-primary text-sidebar-primary-foreground shadow-poster-sm"
+                    : "text-sidebar-foreground hover:border-sidebar-border hover:bg-sidebar-accent hover:translate-x-0.5",
                 )}
               >
                 <Icon className="size-4 shrink-0" />
@@ -62,10 +68,11 @@ export function AppSidebar({ role, collaboratorAreas }: AppSidebarProps) {
           })}
         </nav>
       </ScrollArea>
-      <div className="border-t p-4">
-        <p className="text-xs text-muted-foreground">
-          Ensayos, conciertos y merch en un solo lugar.
+      <div className="flex items-center justify-between border-t border-sidebar-border p-4">
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          Ensayo · Directo · Merch
         </p>
+        <Equalizer className="text-sidebar-primary" bars={4} />
       </div>
     </aside>
   );
