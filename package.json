@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "prisma generate && (test -n \"$DATABASE_URL\" && prisma migrate deploy || echo \"DATABASE_URL no definida: se omite migrate deploy en este entorno\") && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
