@@ -29,6 +29,7 @@ export async function getDashboardData() {
     pendingAttendances,
     songsReadyCount,
     eventsThisMonth,
+    lastSetlist,
   ] = await Promise.all([
     prisma.event.findMany({
       where: {
@@ -103,6 +104,15 @@ export async function getDashboardData() {
         startAt: { gte: monthStart, lte: monthEnd },
       },
     }),
+    // Solo lectura: último setlist actualizado, sin cambios de esquema
+    prisma.setlist.findFirst({
+      where: { deletedAt: null },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        event: true,
+        items: { orderBy: { position: "asc" } },
+      },
+    }),
   ]);
 
   const stockAlerts = activeProducts.flatMap((product) =>
@@ -130,6 +140,7 @@ export async function getDashboardData() {
     recentOrders,
     recentFiles,
     activeRepertoire,
+    lastSetlist,
     stockAlerts: stockAlerts.slice(0, 5),
     stats: {
       eventsThisMonth,

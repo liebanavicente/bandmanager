@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Geist_Mono, Inter, Special_Elite } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const archivoBlack = Archivo_Black({
+  variable: "--font-archivo",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const specialElite = Special_Elite({
+  variable: "--font-elite",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -31,7 +43,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${archivoBlack.variable} ${specialElite.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>

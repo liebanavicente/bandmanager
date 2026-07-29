@@ -41,7 +41,7 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
+    <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur-sm sm:px-6">
       <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} />
 
       <div className="flex flex-1 items-center justify-end gap-2">
@@ -60,7 +60,7 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
             render={
               <Button variant="ghost" className="gap-2 px-2">
                 <Avatar className="size-7">
-                  <AvatarFallback className="bg-primary/10 text-xs text-primary">
+                  <AvatarFallback className="bg-primary text-[11px] font-semibold text-primary-foreground">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -77,7 +77,7 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
                 <span className="text-xs font-normal text-muted-foreground">
                   {user.email}
                 </span>
-                <span className="text-xs font-normal text-muted-foreground">
+                <span className="mt-1 inline-block w-fit rounded-sm border border-primary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-primary">
                   {roleLabels[user.role]}
                 </span>
               </div>

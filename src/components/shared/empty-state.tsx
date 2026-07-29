@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Equalizer } from "@/components/punk/equalizer";
+import { Tape } from "@/components/punk/tape";
 import { cn } from "@/lib/utils";
 
 type EmptyStateProps = {
@@ -14,6 +16,7 @@ type EmptyStateProps = {
   className?: string;
 };
 
+/** Estado vacío con personalidad fanzine: cartel pegado, nunca un callejón sin salida. */
 export function EmptyState({
   icon: Icon,
   title,
@@ -24,17 +27,20 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 px-6 py-16 text-center",
+        "relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed bg-muted/30 px-6 py-16 text-center",
         className,
       )}
     >
-      <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+      <div className="halftone pointer-events-none absolute inset-0 text-foreground opacity-[0.04]" aria-hidden="true" />
+      <Tape className="absolute left-6 top-4 -rotate-6" />
+      <div className="relative mb-4 flex size-14 -rotate-3 items-center justify-center rounded-md border bg-card text-primary shadow-poster-sm">
         <Icon className="size-7" />
       </div>
-      <h3 className="font-heading text-lg font-medium">{title}</h3>
-      <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
+      <h3 className="relative font-display text-lg uppercase tracking-wide">{title}</h3>
+      <p className="relative mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
+      <Equalizer className="relative mt-4 text-primary" bars={5} />
       {action && (
-        <div className="mt-6">
+        <div className="relative mt-6">
           {action.href ? (
             <Button render={<a href={action.href} />} nativeButton={false}>
               {action.label}
