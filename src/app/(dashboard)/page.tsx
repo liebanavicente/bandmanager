@@ -19,10 +19,10 @@ import { LoadingGrid } from "@/components/shared/loading-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Countdown } from "@/components/punk/countdown";
 import { Equalizer } from "@/components/punk/equalizer";
+import { NfpSeal } from "@/components/punk/nfp-seal";
 import { Stamp } from "@/components/punk/stamp";
 import { StatBlock } from "@/components/punk/stat-block";
 import { Tape } from "@/components/punk/tape";
-import { Vinyl } from "@/components/punk/vinyl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { centsToEuros } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,7 @@ async function DashboardContent() {
 
   return (
     <div className="space-y-8">
-      {/* Hero editorial: nombre de banda + vinilo 3D + cuenta atrás */}
+      {/* Hero editorial: nombre de banda + sello NFP + cuenta atrás */}
       <section className="relative overflow-hidden rounded-xl border bg-sidebar text-sidebar-foreground shadow-poster">
         <div className="halftone pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden="true" />
         <Tape className="absolute -top-1 left-8 -rotate-6" />
@@ -86,7 +86,10 @@ async function DashboardContent() {
             )}
           </div>
 
-          <Vinyl className="hidden h-56 lg:block xl:h-64" />
+          <NfpSeal
+            spin
+            className="hidden h-56 w-56 opacity-90 drop-shadow-[0_0_24px_rgba(227,38,32,0.25)] lg:block xl:h-64 xl:w-64"
+          />
         </div>
       </section>
 
