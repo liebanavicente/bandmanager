@@ -15,7 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && node scripts/ensure-brand.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
