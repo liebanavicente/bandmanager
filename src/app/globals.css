@@ -63,6 +63,7 @@
   --animate-stamp-in: stamp-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
   --animate-rise-in: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-glitch: glitch 0.28s steps(2, end) 1;
+  --animate-spin-slow: spin-slow 26s linear infinite;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -183,6 +184,11 @@
   50% { transform: translate(2px, -1px); clip-path: inset(55% 0 8% 0); }
   75% { transform: translate(-1px, 0); clip-path: inset(30% 0 30% 0); }
   100% { transform: translate(0); clip-path: inset(0); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @layer base {
