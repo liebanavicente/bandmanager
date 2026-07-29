@@ -37,9 +37,14 @@ export function Countdown({ target, className }: CountdownProps) {
   const [remaining, setRemaining] = useState<Remaining | null>(null);
 
   useEffect(() => {
-    setRemaining(getRemaining(targetMs));
-    const id = setInterval(() => setRemaining(getRemaining(targetMs)), 1_000);
-    return () => clearInterval(id);
+    const update = () => setRemaining(getRemaining(targetMs));
+    // Primera actualización asíncrona (evita setState síncrono en el efecto)
+    const raf = requestAnimationFrame(update);
+    const id = setInterval(update, 1_000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
   }, [targetMs]);
 
   if (!remaining) {
