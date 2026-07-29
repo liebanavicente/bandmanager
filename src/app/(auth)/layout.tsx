@@ -3,6 +3,8 @@ import { Music4 } from "lucide-react";
 import { Equalizer } from "@/components/punk/equalizer";
 import { Stamp } from "@/components/punk/stamp";
 
+const LOGO_HERO_URL = "https://n.uguu.se/wCLzlkzE.webp";
+
 export default function AuthLayout({
   children,
 }: {
@@ -13,7 +15,7 @@ export default function AuthLayout({
       {/* Cartel a sangre: logo-hero de la banda (solo escritorio) */}
       <div className="relative hidden overflow-hidden bg-sidebar lg:block">
         <Image
-          src="/brand/logo-hero.webp"
+          src={LOGO_HERO_URL}
           alt="Cartel de BandManager: amplificador, cassette y púa sobre un muro rasgado"
           fill
           priority
