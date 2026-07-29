@@ -1,9 +1,6 @@
-import Image from "next/image";
 import { Music4 } from "lucide-react";
 import { Equalizer } from "@/components/punk/equalizer";
 import { Stamp } from "@/components/punk/stamp";
-
-const LOGO_HERO_URL = "https://n.uguu.se/wCLzlkzE.webp";
 
 export default function AuthLayout({
   children,
@@ -14,13 +11,12 @@ export default function AuthLayout({
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Cartel a sangre: logo-hero de la banda (solo escritorio) */}
       <div className="relative hidden overflow-hidden bg-sidebar lg:block">
-        <Image
-          src={LOGO_HERO_URL}
+        {/* Imagen local generada en postinstall desde scripts/brand */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/logo-hero.webp"
           alt="Cartel de BandManager: amplificador, cassette y púa sobre un muro rasgado"
-          fill
-          priority
-          sizes="50vw"
-          className="object-cover object-left opacity-90"
+          className="absolute inset-0 h-full w-full object-cover object-left opacity-90"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/40 to-transparent" aria-hidden="true" />
 
