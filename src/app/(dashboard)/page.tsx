@@ -54,11 +54,14 @@ async function DashboardContent() {
               <Stamp tone="red">Centro de operaciones</Stamp>
               <Equalizer className="text-sidebar-primary" />
             </div>
-            <h1 className="font-punk text-4xl leading-tight sm:text-5xl">
-              Hola, {data.user.name}.
-              <br />
-              <span className="text-sidebar-primary">La banda, en marcha.</span>
-            </h1>
+            <div className="space-y-2">
+              <h1 className="font-display text-4xl uppercase leading-[0.95] tracking-tight sm:text-6xl">
+                Hola, {data.user.name}
+              </h1>
+              <p className="font-punk text-xl text-sidebar-primary sm:text-2xl">
+                La banda, en marcha.
+              </p>
+            </div>
 
             {nextEvent ? (
               <div className="space-y-3">
