@@ -118,13 +118,13 @@ export function SlideDeck() {
           </>
         )}
         <div className="halftone pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true" />
-        {/* Marca de agua: sello No Flag Patriots */}
+        {/* Marca de agua: sello No Flag Patriots (tinta clara) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/brand/nfp-seal-paper.png"
+          src="/brand/nfp-seal-light.png"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-16 -right-16 size-72 rotate-12 opacity-[0.08] select-none sm:size-96"
+          className="pointer-events-none absolute -bottom-16 -right-16 size-72 rotate-12 opacity-[0.14] select-none sm:size-96"
           draggable={false}
         />
 
