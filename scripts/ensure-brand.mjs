@@ -17,6 +17,8 @@ const brandOut = path.join(__dirname, "..", "public", "brand");
 const assets = [
   { prefix: "logo-hero.b64.", file: "logo-hero.webp", type: "webp" },
   { prefix: "nfp-seal-paper.b64.", file: "nfp-seal-paper.png", type: "png" },
+  { prefix: "nfp-seal-sticker.b64.", file: "nfp-seal-sticker.png", type: "png" },
+  { prefix: "nfp-seal-light.b64.", file: "nfp-seal-light.png", type: "png" },
 ];
 
 function isValid(buf, type) {

@@ -14,11 +14,22 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", className
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border bg-card p-4 card-lift",
+        "relative overflow-hidden rounded-lg border-2 bg-card p-4 shadow-poster-sm card-lift",
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* Textura de semitonos y barra de acento al borde */}
+      <div className="halftone pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden="true" />
+      <div
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-y-0 left-0 w-1",
+          accent === "red" && "bg-punk-red",
+          accent === "acid" && "bg-punk-acid",
+          accent === "none" && "bg-border",
+        )}
+      />
+      <div className="relative flex items-start justify-between gap-2">
         <div>
           <p
             className={cn(
@@ -34,7 +45,14 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", className
           </p>
         </div>
         {Icon && (
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+          <span
+            className={cn(
+              "flex size-9 shrink-0 -rotate-3 items-center justify-center rounded-md border shadow-poster-sm",
+              accent === "acid"
+                ? "bg-accent text-accent-foreground"
+                : "bg-primary text-primary-foreground",
+            )}
+          >
             <Icon className="size-4" />
           </span>
         )}
