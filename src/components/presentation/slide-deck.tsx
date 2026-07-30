@@ -6,14 +6,12 @@ import {
   ChevronLeft,
   ChevronRight,
   LogIn,
-  Music4,
   Pause,
   Play,
 } from "lucide-react";
 import { presentationSlides } from "@/lib/presentation-slides";
 import { Button } from "@/components/ui/button";
-import { Stamp } from "@/components/punk/stamp";
-import { Equalizer } from "@/components/punk/equalizer";
+import { BmLogo } from "@/components/brand/bm-logo";
 import { cn } from "@/lib/utils";
 
 export function SlideDeck() {
@@ -60,38 +58,35 @@ export function SlideDeck() {
   }, [isPlaying, isLast, next]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-sidebar text-sidebar-foreground">
-      {/* Cabecera de revista */}
-      <header className="flex items-center justify-between border-b border-sidebar-border px-4 py-3 sm:px-6">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      {/* Navbar */}
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-background/85 px-4 py-3 backdrop-blur-sm sm:px-6">
         <Link href="/presentacion" className="flex items-center gap-2.5">
-          <div className="flex size-9 -rotate-6 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-poster-sm">
-            <Music4 className="size-4" />
-          </div>
+          <BmLogo size={32} />
           <div className="leading-tight">
-            <span className="block font-display text-sm uppercase tracking-widest">
+            <span className="block text-sm font-semibold tracking-wide">
               BandManager
             </span>
-            <span className="block font-punk text-[10px] text-muted-foreground">
-              edición backstage · nº {number}
+            <span className="block text-[11px] text-muted-foreground">
+              Tu banda, organizada
             </span>
           </div>
         </Link>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => setIsPlaying((p) => !p)}
             aria-label={isPlaying ? "Pausar presentación" : "Reproducir presentación"}
             className="text-muted-foreground hover:text-foreground"
           >
             {isPlaying ? <Pause /> : <Play />}
-            <span className="hidden sm:inline">{isPlaying ? "Pausar" : "Auto"}</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             render={<Link href="/login" />}
-            className="border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground"
+            className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
           >
             <LogIn />
             Entrar
@@ -99,9 +94,9 @@ export function SlideDeck() {
         </div>
       </header>
 
-      {/* Página-póster */}
+      {/* Diapositiva */}
       <main className="relative flex flex-1 flex-col justify-center overflow-hidden px-4 py-10 sm:px-8">
-        {/* Fondo: logo-hero solo en la portada */}
+        {/* Fondo fotográfico muy oscuro solo en la portada */}
         {isIntro && (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,54 +104,37 @@ export function SlideDeck() {
               src="/brand/logo-hero.webp"
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover object-left opacity-50"
+              className="absolute inset-0 h-full w-full object-cover object-left opacity-40"
             />
             <div
-              className="absolute inset-0 bg-gradient-to-r from-sidebar via-sidebar/55 to-sidebar/20"
+              className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40"
               aria-hidden="true"
             />
           </>
         )}
-        <div className="halftone pointer-events-none absolute inset-0 opacity-[0.07]" aria-hidden="true" />
-        {/* Marca de agua: sello No Flag Patriots (tinta clara) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/brand/nfp-seal-light.png"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-16 -right-16 size-72 rotate-12 opacity-[0.14] select-none sm:size-96"
-          draggable={false}
-        />
 
         <div
           key={slide.id}
           className="relative mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500"
         >
-          <div className="mb-8 flex items-end gap-5">
-            <div className="flex size-16 -rotate-3 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-poster sm:size-20">
-              <Icon className="size-8 sm:size-10" aria-hidden />
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex size-12 items-center justify-center rounded-lg bg-card text-primary ring-1 ring-foreground/10 sm:size-14">
+              <Icon className="size-6 sm:size-7" aria-hidden />
             </div>
-            <div className="pb-1">
-              <p className="font-punk text-sm text-muted-foreground sm:text-base">
+            <div>
+              <p className="text-sm text-muted-foreground sm:text-base">
                 {slide.subtitle}
               </p>
-              <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
+              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
                 Pág. {number} / {String(total).padStart(2, "0")}
               </p>
             </div>
-            {isIntro && (
-              <div className="ml-auto hidden sm:block">
-                <Stamp tone="acid" animated>
-                  Solo personal autorizado
-                </Stamp>
-              </div>
-            )}
           </div>
 
-          <h1 className="font-display text-4xl uppercase leading-[0.95] tracking-tight sm:text-6xl">
+          <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
             {slide.title}
           </h1>
-          <div className="mt-3 h-1 w-24 bg-primary" aria-hidden="true" />
+          <div className="mt-4 h-0.5 w-16 bg-primary" aria-hidden="true" />
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {slide.description}
           </p>
@@ -166,11 +144,11 @@ export function SlideDeck() {
               <li
                 key={item}
                 className={cn(
-                  "card-lift relative flex items-start gap-3 rounded-md border border-sidebar-border bg-background/70 px-4 py-3 text-sm backdrop-blur-xs sm:text-base",
-                  i === 0 && "sm:col-span-2 sm:text-base",
+                  "flex items-start gap-3 rounded-lg bg-card px-4 py-3 text-sm ring-1 ring-foreground/10 transition-shadow hover:shadow-poster sm:text-base",
+                  i === 0 && "sm:col-span-2",
                 )}
               >
-                <span className="mt-1 font-mono text-xs font-bold text-primary">
+                <span className="mt-0.5 font-mono text-xs font-semibold text-primary">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {item}
@@ -179,18 +157,21 @@ export function SlideDeck() {
           </ul>
 
           {isLast && (
-            <div className="mt-10">
-              <Button size="lg" render={<Link href="/login" />} className="shadow-poster">
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <Button size="lg" render={<Link href="/login" />}>
                 <LogIn />
                 Empezar ahora
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => goTo(0)}>
+                Volver al inicio
               </Button>
             </div>
           )}
         </div>
       </main>
 
-      {/* Pie de revista */}
-      <footer className="border-t border-sidebar-border px-4 py-4 sm:px-6">
+      {/* Pie con navegación */}
+      <footer className="border-t px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2" role="tablist" aria-label="Diapositivas">
             {presentationSlides.map((s, i) => (
@@ -202,10 +183,10 @@ export function SlideDeck() {
                 aria-label={`Ir a diapositiva ${i + 1}: ${s.title}`}
                 onClick={() => goTo(i)}
                 className={cn(
-                  "h-2 rounded-full transition-all",
+                  "h-1.5 rounded-full transition-all",
                   i === current
                     ? "w-8 bg-primary"
-                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50",
+                    : "w-3 bg-muted-foreground/30 hover:bg-muted-foreground/50",
                 )}
               />
             ))}
@@ -214,8 +195,7 @@ export function SlideDeck() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Equalizer className="hidden text-primary sm:block" bars={5} />
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
@@ -226,7 +206,7 @@ export function SlideDeck() {
               <ChevronLeft />
             </Button>
             {!isLast && (
-              <Button onClick={next} size="lg">
+              <Button onClick={next}>
                 Siguiente
                 <ChevronRight />
               </Button>
@@ -242,9 +222,6 @@ export function SlideDeck() {
             </Button>
           </div>
         </div>
-        <p className="mx-auto mt-3 max-w-4xl text-center font-punk text-[11px] text-muted-foreground">
-          Usa las flechas del teclado ← → para pasar página
-        </p>
       </footer>
     </div>
   );
