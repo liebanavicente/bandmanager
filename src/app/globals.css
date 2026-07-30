@@ -5,10 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Sistema de diseño "Backstage" — punk callejero premium.
- * Separación estricta: la decoración punk vive en utilidades dedicadas
- * (.halftone, .stamp, .tape, .torn-bottom, .card-lift) y nunca en tablas,
- * formularios ni datos. Los componentes ui/ se reteman vía tokens.
+ * Sistema de diseño BandManager — SaaS premium sobrio.
+ * Grafito oscuro, superficies con saltos de tono mínimos, bordes finos,
+ * sombras suaves y rojo coral usado con moderación (acciones, alertas,
+ * progreso y selección). Los nombres de token heredados (--punk-*,
+ * --poster-shadow*) se conservan como alias para no romper pantallas
+ * antiguas, pero sus valores ya son sobrios.
  */
 
 @theme inline {
@@ -16,9 +18,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-archivo);
-  --font-display: var(--font-archivo);
-  --font-punk: var(--font-elite);
+  --font-heading: var(--font-inter);
+  --font-display: var(--font-inter);
+  --font-punk: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,12 +50,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Acentos de identidad (uso moderado, nunca ambos a la vez) */
+  /* Alias heredados: coral = acción/alerta, verde suave = positivo */
   --color-punk-red: var(--punk-red);
   --color-punk-acid: var(--punk-acid);
   --color-punk-paper: var(--punk-paper);
   --color-punk-ash: var(--punk-ash);
-  /* Sombras duras tipo cartel pegado (valores en --poster-shadow*) */
+  /* Sombras suaves elevadas (valores en --poster-shadow*) */
   --shadow-poster: var(--poster-shadow);
   --shadow-poster-sm: var(--poster-shadow-sm);
   --shadow-poster-red: var(--poster-shadow-red);
@@ -73,88 +75,92 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Tema claro = "fotocopia": papel envejecido, tinta negra, rojo protesta */
+/* Tema claro: grises fríos, superficies blancas, coral comedido */
 :root {
   --font-inter: ui-sans-serif, system-ui, sans-serif;
   --font-archivo: ui-sans-serif, system-ui, sans-serif;
   --font-elite: ui-monospace, monospace;
-  --background: #F2EBDD;
-  --foreground: #0A0A0A;
-  --card: #FBF7EC;
-  --card-foreground: #0A0A0A;
-  --popover: #FBF7EC;
-  --popover-foreground: #0A0A0A;
-  --primary: #E32620;
-  --primary-foreground: #F2EBDD;
-  --secondary: #151515;
-  --secondary-foreground: #F2EBDD;
-  --muted: #EAE3D0;
-  --muted-foreground: #6B655B;
-  --accent: #E8FF32;
-  --accent-foreground: #0A0A0A;
-  --destructive: #B91C1C;
-  --border: #0A0A0A26;
-  --input: #0A0A0A38;
-  --ring: #E32620;
-  --chart-1: #E32620;
-  --chart-2: #151515;
-  --chart-3: #A8A39A;
-  --chart-4: #8C1D18;
-  --chart-5: #C9C0AA;
-  --radius: 0.375rem;
-  --sidebar: #151515;
-  --sidebar-foreground: #F2EBDD;
-  --sidebar-primary: #E32620;
-  --sidebar-primary-foreground: #F2EBDD;
-  --sidebar-accent: #232323;
-  --sidebar-accent-foreground: #F2EBDD;
-  --sidebar-border: #F2EBDD1A;
-  --sidebar-ring: #E8FF32;
-  --punk-red: #E32620;
-  --punk-acid: #E8FF32;
-  --punk-paper: #F2EBDD;
-  --punk-ash: #A8A39A;
-  --poster-shadow: 6px 6px 0 0 rgba(10, 10, 10, 0.9);
-  --poster-shadow-sm: 3px 3px 0 0 rgba(10, 10, 10, 0.9);
-  --poster-shadow-red: 6px 6px 0 0 rgba(227, 38, 32, 0.85);
+  --background: #F7F8F9;
+  --foreground: #17191C;
+  --card: #FFFFFF;
+  --card-foreground: #17191C;
+  --popover: #FFFFFF;
+  --popover-foreground: #17191C;
+  --primary: #D63A2D;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EFF1F3;
+  --secondary-foreground: #17191C;
+  --muted: #EFF1F3;
+  --muted-foreground: #66707A;
+  --accent: #E7EAEE;
+  --accent-foreground: #17191C;
+  --destructive: #C2392E;
+  --border: #17191C14;
+  --input: #17191C24;
+  --ring: #D63A2D;
+  --chart-1: #D63A2D;
+  --chart-2: #17191C;
+  --chart-3: #66707A;
+  --chart-4: #8C2A21;
+  --chart-5: #C7CDD4;
+  --radius: 0.5rem;
+  --sidebar: #F1F2F4;
+  --sidebar-foreground: #17191C;
+  --sidebar-primary: #D63A2D;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E7EAEE;
+  --sidebar-accent-foreground: #17191C;
+  --sidebar-border: #17191C0F;
+  --sidebar-ring: #D63A2D;
+  --punk-red: #D63A2D;
+  --punk-acid: #1F9D63;
+  --punk-paper: #FFFFFF;
+  --punk-ash: #66707A;
+  --poster-shadow: 0 12px 32px -12px rgba(15, 17, 20, 0.18);
+  --poster-shadow-sm: 0 1px 2px rgba(15, 17, 20, 0.08);
+  --poster-shadow-red: 0 8px 24px -8px rgba(214, 58, 45, 0.35);
 }
 
-/* Tema oscuro = "backstage": carbón, papel, foco rojo, luz ácida */
+/* Tema oscuro: grafito, superficies apenas elevadas, coral como foco */
 .dark {
-  --background: #0A0A0A;
-  --foreground: #F2EBDD;
-  --card: #151515;
-  --card-foreground: #F2EBDD;
-  --popover: #151515;
-  --popover-foreground: #F2EBDD;
-  --primary: #E32620;
-  --primary-foreground: #F2EBDD;
-  --secondary: #232323;
-  --secondary-foreground: #F2EBDD;
-  --muted: #1E1E1E;
-  --muted-foreground: #A8A39A;
-  --accent: #E8FF32;
-  --accent-foreground: #0A0A0A;
-  --destructive: #E32620;
-  --border: #F2EBDD1F;
-  --input: #F2EBDD2E;
-  --ring: #E8FF32;
-  --chart-1: #E32620;
-  --chart-2: #E8FF32;
-  --chart-3: #A8A39A;
-  --chart-4: #F2EBDD;
-  --chart-5: #55524C;
-  --sidebar: #101010;
-  --sidebar-foreground: #F2EBDD;
-  --sidebar-primary: #E32620;
-  --sidebar-primary-foreground: #F2EBDD;
-  --sidebar-accent: #1E1E1E;
-  --sidebar-accent-foreground: #F2EBDD;
-  --sidebar-border: #F2EBDD14;
-  --sidebar-ring: #E8FF32;
-  --poster-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.9);
-  --poster-shadow-sm: 3px 3px 0 0 rgba(0, 0, 0, 0.9);
-  --poster-shadow-red: 6px 6px 0 0 rgba(227, 38, 32, 0.55);
+  --background: #0C0D10;
+  --foreground: #E9EAEC;
+  --card: #121418;
+  --card-foreground: #E9EAEC;
+  --popover: #15181C;
+  --popover-foreground: #E9EAEC;
+  --primary: #EE5044;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1A1D22;
+  --secondary-foreground: #E9EAEC;
+  --muted: #161920;
+  --muted-foreground: #98A0A9;
+  --accent: #1D2127;
+  --accent-foreground: #E9EAEC;
+  --destructive: #EE5044;
+  --border: #FFFFFF12;
+  --input: #FFFFFF1F;
+  --ring: #EE5044;
+  --chart-1: #EE5044;
+  --chart-2: #34C77B;
+  --chart-3: #98A0A9;
+  --chart-4: #E9EAEC;
+  --chart-5: #4A5058;
+  --sidebar: #090A0D;
+  --sidebar-foreground: #E9EAEC;
+  --sidebar-primary: #EE5044;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #15181D;
+  --sidebar-accent-foreground: #E9EAEC;
+  --sidebar-border: #FFFFFF0D;
+  --sidebar-ring: #EE5044;
+  --punk-red: #EE5044;
+  --punk-acid: #34C77B;
+  --punk-paper: #E9EAEC;
+  --punk-ash: #98A0A9;
+  --poster-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  --poster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --poster-shadow-red: 0 10px 28px -10px rgba(238, 80, 68, 0.4);
 }
 
 @keyframes equalize {
@@ -202,29 +208,19 @@
     @apply font-sans;
   }
   ::selection {
-    background: var(--punk-red);
-    color: var(--punk-paper);
-  }
-  /* Grano de fotocopia global, estático y sin coste de repintado */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
 @layer utilities {
-  /* Trama de semitonos: usar con color tenue y solo como fondo decorativo */
+  /* Trama de semitonos (legado, solo decorativa) */
   .halftone {
     background-image: radial-gradient(currentColor 1px, transparent 1.5px);
     background-size: 9px 9px;
   }
 
-  /* Sello de tinta estampado */
+  /* Sello de tinta estampado (legado, modo escenario) */
   .stamp {
     display: inline-block;
     border: 3px double currentColor;
@@ -236,7 +232,7 @@
     transform: rotate(-6deg);
   }
 
-  /* Trozo de cinta adhesiva (decorativo, aria-hidden) */
+  /* Trozo de cinta adhesiva (legado, decorativo, aria-hidden) */
   .tape {
     display: block;
     width: 5.5rem;
@@ -247,7 +243,7 @@
     clip-path: polygon(3% 0, 97% 6%, 100% 94%, 0 100%);
   }
 
-  /* Borde rasgado sutil para tarjetas hero y estados vacíos */
+  /* Borde rasgado sutil (legado) */
   .torn-bottom {
     clip-path: polygon(0 0, 100% 0, 100% 96%, 96% 100%, 90% 97%, 82% 100%, 74% 97%, 63% 100%, 55% 97%, 44% 100%, 36% 97%, 27% 100%, 18% 97%, 9% 100%, 3% 97%, 0 99%);
   }
@@ -258,7 +254,7 @@
   }
   .card-lift:hover {
     transform: translateY(-2px);
-    box-shadow: var(--poster-shadow-sm);
+    box-shadow: var(--poster-shadow);
   }
 
   /* Barras de ecualizador */
