@@ -9,54 +9,39 @@ type StatBlockProps = {
   className?: string;
 };
 
-/** Cifra destacada con tipografía display. Legible primero, expresiva después. */
+/** Cifra destacada sobria: etiqueta, valor y un icono pequeño funcional. */
 export function StatBlock({ label, value, icon: Icon, accent = "none", className }: StatBlockProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border-2 bg-card p-4 shadow-poster-sm card-lift",
+        "rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-poster",
         className,
       )}
     >
-      {/* Textura de semitonos y barra de acento al borde */}
-      <div className="halftone pointer-events-none absolute inset-0 opacity-[0.05]" aria-hidden="true" />
-      <div
-        aria-hidden="true"
-        className={cn(
-          "absolute inset-y-0 left-0 w-1",
-          accent === "red" && "bg-punk-red",
-          accent === "acid" && "bg-punk-acid",
-          accent === "none" && "bg-border",
-        )}
-      />
-      <div className="relative flex items-start justify-between gap-2">
-        <div>
-          <p
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        {Icon && (
+          <Icon
             className={cn(
-              "font-display text-4xl leading-none tracking-tight tabular-nums",
+              "size-[18px] shrink-0",
               accent === "red" && "text-punk-red",
               accent === "acid" && "text-punk-acid",
+              accent === "none" && "text-muted-foreground",
             )}
-          >
-            {value}
-          </p>
-          <p className="mt-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            {label}
-          </p>
-        </div>
-        {Icon && (
-          <span
-            className={cn(
-              "flex size-9 shrink-0 -rotate-3 items-center justify-center rounded-md border shadow-poster-sm",
-              accent === "acid"
-                ? "bg-accent text-accent-foreground"
-                : "bg-primary text-primary-foreground",
-            )}
-          >
-            <Icon className="size-4" />
-          </span>
+            aria-hidden="true"
+          />
         )}
       </div>
+      <p
+        className={cn(
+          "mt-2 text-3xl font-semibold leading-none tracking-tight tabular-nums",
+          accent === "red" && "text-punk-red",
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

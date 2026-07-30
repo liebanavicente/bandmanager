@@ -54,7 +54,7 @@ export function Countdown({ target, className }: CountdownProps) {
 
   if (remaining.past) {
     return (
-      <p className={cn("font-display text-2xl uppercase tracking-wide text-punk-red", className)}>
+      <p className={cn("text-lg font-semibold text-punk-red", className)}>
         Es hoy. A tocar.
       </p>
     );
@@ -63,11 +63,11 @@ export function Countdown({ target, className }: CountdownProps) {
   return (
     <div className={cn("flex gap-3", className)} role="timer" aria-label="Cuenta atrás hasta el próximo evento">
       {units.map(({ key, label }) => (
-        <div key={key} className="min-w-14 rounded-md border bg-background/60 px-2 py-1.5 text-center">
-          <p className="font-display text-3xl leading-none tabular-nums">
+        <div key={key} className="min-w-14 rounded-lg bg-background/80 px-2 py-1.5 text-center ring-1 ring-foreground/10">
+          <p className="text-2xl font-semibold leading-none tabular-nums">
             {String(remaining[key]).padStart(2, "0")}
           </p>
-          <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             {label}
           </p>
         </div>

@@ -11,13 +11,13 @@ type StatusKind =
   | "product"
   | "sync";
 
-/* Semántica en la paleta Backstage: ácido = positivo, tinta invertida = en
- * curso, rojo = alerta/negativo, sello rojo = pendiente, gris = neutro. */
-const OK = "bg-punk-acid text-[#0A0A0A]";
-const PROGRESS = "bg-foreground text-background";
-const BAD = "bg-punk-red text-punk-paper";
-const PENDING_STYLE = "border-punk-red/70 bg-transparent text-punk-red";
-const NEUTRAL = "bg-muted text-muted-foreground";
+/* Semántica sobria: verde suave = positivo, neutro = en curso, coral =
+ * alerta/negativo o pendiente de acción, gris = sin estado. */
+const OK = "bg-punk-acid/15 text-punk-acid ring-1 ring-punk-acid/30";
+const PROGRESS = "bg-secondary text-secondary-foreground ring-1 ring-foreground/10";
+const BAD = "bg-punk-red/15 text-punk-red ring-1 ring-punk-red/30";
+const PENDING_STYLE = "bg-punk-red/10 text-punk-red ring-1 ring-punk-red/25";
+const NEUTRAL = "bg-muted text-muted-foreground ring-1 ring-foreground/10";
 
 const statusConfig: Record<
   StatusKind,
