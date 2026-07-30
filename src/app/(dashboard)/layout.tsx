@@ -27,6 +27,7 @@ export default async function DashboardLayout({
       <AppSidebar
         role={session.user.role}
         collaboratorAreas={collaboratorAreas}
+        user={session.user}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header user={session.user} collaboratorAreas={collaboratorAreas} />

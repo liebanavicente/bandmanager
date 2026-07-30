@@ -1,9 +1,9 @@
 "use client";
 
 import { Moon, Sun, User } from "lucide-react";
-import { LogoutButton } from "@/components/layout/logout-button";
 import { useTheme } from "next-themes";
 import type { UserRole } from "@prisma/client";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,42 +55,45 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
           <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" className="gap-2 px-2">
-                <Avatar className="size-7">
-                  <AvatarFallback className="bg-primary text-[11px] font-semibold text-primary-foreground">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
-                  {user.name}
-                </span>
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col gap-0.5">
-                <span>{user.name}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {user.email}
-                </span>
-                <span className="mt-1 inline-block w-fit rounded-sm border border-primary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-primary">
-                  {roleLabels[user.role]}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <User className="size-4" />
-              Mi perfil
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <LogoutButton />
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Menú de usuario: en escritorio vive al pie de la sidebar */}
+        <div className="lg:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" className="gap-2 px-2">
+                  <Avatar className="size-7">
+                    <AvatarFallback className="bg-primary text-[11px] font-semibold text-primary-foreground">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
+                    {user.name}
+                  </span>
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col gap-0.5">
+                  <span>{user.name}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {user.email}
+                  </span>
+                  <span className="mt-1 inline-block w-fit rounded-sm border border-primary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-primary">
+                    {roleLabels[user.role]}
+                  </span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem disabled>
+                <User className="size-4" />
+                Mi perfil
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <LogoutButton />
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
