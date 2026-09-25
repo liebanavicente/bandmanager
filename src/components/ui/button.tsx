@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-poster-sm hover:bg-primary/90 hover:shadow-poster-red active:shadow-poster-sm",
+          "bg-primary bg-stage-button bg-[length:160%_100%] bg-left text-primary-foreground shadow-poster-sm transition-[background-position,box-shadow,transform] duration-300 hover:bg-right hover:shadow-poster-red active:shadow-poster-sm",
         outline:
           "border-border bg-card shadow-poster-sm hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:hover:bg-input/50",
         secondary:

@@ -10,6 +10,7 @@ import { hasPermission } from "@/lib/permissions";
 import { BAND_NAME } from "@/lib/workspace";
 import { cn } from "@/lib/utils";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { Equalizer } from "@/components/punk/equalizer";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,7 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden h-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 lg:flex",
+        "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 lg:flex",
         collapsed ? "w-[68px]" : "w-64",
       )}
     >
@@ -84,11 +85,15 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
           collapsed ? "justify-center px-2" : "px-5",
         )}
       >
-        <BmLogo size={32} />
+        <BmLogo size={34} className="transition-transform duration-700 hover:rotate-[200deg]" />
         {!collapsed && (
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold tracking-wide">BandManager</p>
-            <p className="text-[11px] text-muted-foreground">Gestión de banda</p>
+            <p className="poster-title truncate text-xl leading-none">
+              Band<span className="text-stage-gradient">Manager</span>
+            </p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/50">
+              Backstage
+            </p>
           </div>
         )}
       </div>
@@ -97,16 +102,21 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
       <div className={cn("py-3", collapsed ? "px-2" : "px-3")}>
         <div
           className={cn(
-            "flex items-center gap-2.5 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2",
+            "relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-sidebar-border stage-surface px-3 py-2.5",
             collapsed && "justify-center px-2",
           )}
           title={collapsed ? BAND_NAME : undefined}
         >
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sidebar-primary/15 text-[10px] font-bold text-sidebar-primary">
-            {BAND_NAME.slice(0, 2).toUpperCase()}
-          </span>
+          <span className="size-2 shrink-0 animate-live rounded-full bg-stage-red" aria-hidden="true" />
           {!collapsed && (
-            <span className="truncate text-sm font-medium">{BAND_NAME}</span>
+            <span className="min-w-0">
+              <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-white/55">
+                En gira
+              </span>
+              <span className="block truncate font-serif text-lg italic leading-tight text-white">
+                {BAND_NAME}
+              </span>
+            </span>
           )}
         </div>
       </div>
@@ -123,11 +133,13 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
             return (
               <div key={section} className="flex flex-col gap-0.5">
                 {!collapsed && (
-                  <p className="px-3 pb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/80">
+                  <p className="flex items-center gap-2 px-3 pb-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-sidebar-foreground/40">
+                    <span className="text-sidebar-primary/80">{sideLabel(section)}</span>
                     {section}
                   </p>
                 )}
                 {items.map((item) => {
+                  const track = String(navItems.indexOf(item) + 1).padStart(2, "0");
                   const isActive =
                     item.href === "/"
                       ? pathname === "/"
@@ -141,27 +153,41 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
                       aria-current={isActive ? "page" : undefined}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                        "group relative flex items-center gap-3 overflow-hidden rounded-md px-3 py-2 text-sm transition-colors",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
                         collapsed && "justify-center px-2",
                         isActive
-                          ? "bg-sidebar-accent font-medium text-sidebar-foreground"
-                          : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                          ? "bg-gradient-to-r from-sidebar-primary/20 via-sidebar-accent to-sidebar-accent font-medium text-sidebar-foreground"
+                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                       )}
                     >
                       {isActive && (
                         <span
                           aria-hidden="true"
-                          className="absolute left-0 inset-y-2 w-0.5 rounded-full bg-sidebar-primary"
+                          className="absolute left-0 inset-y-1.5 w-[3px] rounded-full bg-stage-gradient"
                         />
+                      )}
+                      {!collapsed && (
+                        <span
+                          className={cn(
+                            "w-5 font-mono text-[10px] tabular-nums",
+                            isActive ? "text-sidebar-primary" : "text-sidebar-foreground/30 group-hover:text-sidebar-foreground/60",
+                          )}
+                          aria-hidden="true"
+                        >
+                          {track}
+                        </span>
                       )}
                       <Icon
                         className={cn(
                           "size-[18px] shrink-0",
-                          isActive ? "text-sidebar-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground",
+                          isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/55 group-hover:text-sidebar-foreground",
                         )}
                       />
-                      {!collapsed && item.label}
+                      {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+                      {!collapsed && isActive && (
+                        <Equalizer bars={3} className="h-3 text-sidebar-primary" />
+                      )}
                     </Link>
                   );
                 })}
@@ -183,7 +209,10 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
           size={collapsed ? "icon" : "sm"}
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expandir barra lateral" : "Contraer barra lateral"}
-          className={cn("text-muted-foreground", !collapsed && "justify-start gap-2")}
+          className={cn(
+            "text-sidebar-foreground/55 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+            !collapsed && "justify-start gap-2",
+          )}
         >
           {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
           {!collapsed && "Contraer"}
@@ -202,14 +231,14 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
             }
           >
             <Avatar className="size-8">
-              <AvatarFallback className="bg-sidebar-primary text-[11px] font-semibold text-sidebar-primary-foreground">
+              <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
                 {initials}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{user.name}</span>
-                <span className="block text-[11px] text-muted-foreground">
+                <span className="block font-mono text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
                   {roleLabels[user.role]}
                 </span>
               </span>
@@ -237,4 +266,10 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
       </div>
     </aside>
   );
+}
+
+/** Cara del disco para cada sección de la navegación. */
+function sideLabel(section: string) {
+  const index = navSections.indexOf(section as (typeof navSections)[number]);
+  return `Cara ${String.fromCharCode(65 + Math.max(0, index))}`;
 }

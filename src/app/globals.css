@@ -5,22 +5,25 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Sistema de diseño BandManager — SaaS premium sobrio.
- * Grafito oscuro, superficies con saltos de tono mínimos, bordes finos,
- * sombras suaves y rojo coral usado con moderación (acciones, alertas,
- * progreso y selección). Los nombres de token heredados (--punk-*,
- * --poster-shadow*) se conservan como alias para no romper pantallas
- * antiguas, pero sus valores ya son sobrios.
+ * Sistema de diseño BandManager — "Luz de escenario".
+ * La app se viste como una noche de concierto: tinta profunda, focos
+ * cálidos (rojo escenario + ámbar) con un contraluz violeta, grano de
+ * película y tipografía de cartel (Anton) acompañada de una serif en
+ * cursiva (Instrument Serif) que pone la voz de la banda. La barra
+ * lateral es siempre "backstage" (oscura) en ambos temas.
+ * Los nombres heredados (--punk-*, --poster-shadow*) se mantienen como
+ * alias para no romper pantallas antiguas.
  */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-inter);
-  --font-display: var(--font-inter);
-  --font-punk: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), Impact, "Arial Narrow", sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
+  --font-punk: var(--font-geist-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,7 +53,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Alias heredados: coral = acción/alerta, verde suave = positivo */
+  /* Luces de escenario */
+  --color-stage-red: var(--stage-red);
+  --color-stage-amber: var(--stage-amber);
+  --color-stage-violet: var(--stage-violet);
+  --color-stage-ink: var(--stage-ink);
+  /* Alias heredados: rojo = acción/alerta, verde = positivo */
   --color-punk-red: var(--punk-red);
   --color-punk-acid: var(--punk-acid);
   --color-punk-paper: var(--punk-paper);
@@ -66,6 +74,9 @@
   --animate-rise-in: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-glitch: glitch 0.28s steps(2, end) 1;
   --animate-spin-slow: spin-slow 26s linear infinite;
+  --animate-spin-record: spin-slow 3.2s linear infinite;
+  --animate-beam: beam-sway 9s ease-in-out infinite alternate;
+  --animate-live: live-dot 1.6s ease-in-out infinite;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -75,92 +86,98 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Tema claro: grises fríos, superficies blancas, coral comedido */
+/* Tema claro = "prueba de sonido": papel de cartel cálido, tinta, foco rojo */
 :root {
-  --font-inter: ui-sans-serif, system-ui, sans-serif;
-  --font-archivo: ui-sans-serif, system-ui, sans-serif;
-  --font-elite: ui-monospace, monospace;
-  --background: #F7F8F9;
-  --foreground: #17191C;
-  --card: #FFFFFF;
-  --card-foreground: #17191C;
-  --popover: #FFFFFF;
-  --popover-foreground: #17191C;
-  --primary: #D63A2D;
-  --primary-foreground: #FFFFFF;
-  --secondary: #EFF1F3;
-  --secondary-foreground: #17191C;
-  --muted: #EFF1F3;
-  --muted-foreground: #66707A;
-  --accent: #E7EAEE;
-  --accent-foreground: #17191C;
-  --destructive: #C2392E;
-  --border: #17191C14;
-  --input: #17191C24;
-  --ring: #D63A2D;
-  --chart-1: #D63A2D;
-  --chart-2: #17191C;
-  --chart-3: #66707A;
-  --chart-4: #8C2A21;
-  --chart-5: #C7CDD4;
-  --radius: 0.5rem;
-  --sidebar: #F1F2F4;
-  --sidebar-foreground: #17191C;
-  --sidebar-primary: #D63A2D;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E7EAEE;
-  --sidebar-accent-foreground: #17191C;
-  --sidebar-border: #17191C0F;
-  --sidebar-ring: #D63A2D;
-  --punk-red: #D63A2D;
-  --punk-acid: #1F9D63;
-  --punk-paper: #FFFFFF;
-  --punk-ash: #66707A;
-  --poster-shadow: 0 12px 32px -12px rgba(15, 17, 20, 0.18);
-  --poster-shadow-sm: 0 1px 2px rgba(15, 17, 20, 0.08);
-  --poster-shadow-red: 0 8px 24px -8px rgba(214, 58, 45, 0.35);
+  --background: #F3EEE5;
+  --foreground: #16131A;
+  --card: #FFFBF4;
+  --card-foreground: #16131A;
+  --popover: #FFFBF4;
+  --popover-foreground: #16131A;
+  --primary: #E0301E;
+  --primary-foreground: #FFF8F0;
+  --secondary: #EAE3D6;
+  --secondary-foreground: #16131A;
+  --muted: #ECE5D8;
+  --muted-foreground: #6B626D;
+  --accent: #E6DDCD;
+  --accent-foreground: #16131A;
+  --destructive: #C42A1C;
+  --border: #16131A17;
+  --input: #16131A29;
+  --ring: #E0301E;
+  --chart-1: #E0301E;
+  --chart-2: #D98308;
+  --chart-3: #6A3DE0;
+  --chart-4: #16131A;
+  --chart-5: #B9AE9C;
+  --radius: 0.625rem;
+  /* Backstage: la barra lateral es oscura en ambos temas */
+  --sidebar: #110E15;
+  --sidebar-foreground: #F3EEE5;
+  --sidebar-primary: #FF4A33;
+  --sidebar-primary-foreground: #FFF8F0;
+  --sidebar-accent: #1E1924;
+  --sidebar-accent-foreground: #F3EEE5;
+  --sidebar-border: #FFFFFF12;
+  --sidebar-ring: #FFB547;
+  --stage-red: #E0301E;
+  --stage-amber: #D98308;
+  --stage-violet: #6A3DE0;
+  --stage-ink: #110E15;
+  --punk-red: #E0301E;
+  --punk-acid: #178A55;
+  --punk-paper: #FFFBF4;
+  --punk-ash: #6B626D;
+  --poster-shadow: 0 18px 40px -18px rgba(22, 19, 26, 0.35);
+  --poster-shadow-sm: 0 1px 2px rgba(22, 19, 26, 0.1);
+  --poster-shadow-red: 0 10px 30px -10px rgba(224, 48, 30, 0.55);
 }
 
-/* Tema oscuro: grafito, superficies apenas elevadas, coral como foco */
+/* Tema oscuro = "directo": tinta de sala, focos cálidos y contraluz violeta */
 .dark {
-  --background: #0C0D10;
-  --foreground: #E9EAEC;
-  --card: #121418;
-  --card-foreground: #E9EAEC;
-  --popover: #15181C;
-  --popover-foreground: #E9EAEC;
-  --primary: #EE5044;
-  --primary-foreground: #FFFFFF;
-  --secondary: #1A1D22;
-  --secondary-foreground: #E9EAEC;
-  --muted: #161920;
-  --muted-foreground: #98A0A9;
-  --accent: #1D2127;
-  --accent-foreground: #E9EAEC;
-  --destructive: #EE5044;
-  --border: #FFFFFF12;
-  --input: #FFFFFF1F;
-  --ring: #EE5044;
-  --chart-1: #EE5044;
-  --chart-2: #34C77B;
-  --chart-3: #98A0A9;
-  --chart-4: #E9EAEC;
-  --chart-5: #4A5058;
-  --sidebar: #090A0D;
-  --sidebar-foreground: #E9EAEC;
-  --sidebar-primary: #EE5044;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #15181D;
-  --sidebar-accent-foreground: #E9EAEC;
-  --sidebar-border: #FFFFFF0D;
-  --sidebar-ring: #EE5044;
-  --punk-red: #EE5044;
-  --punk-acid: #34C77B;
-  --punk-paper: #E9EAEC;
-  --punk-ash: #98A0A9;
-  --poster-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
-  --poster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-  --poster-shadow-red: 0 10px 28px -10px rgba(238, 80, 68, 0.4);
+  --background: #0B090E;
+  --foreground: #F4EEE4;
+  --card: #141119;
+  --card-foreground: #F4EEE4;
+  --popover: #18141E;
+  --popover-foreground: #F4EEE4;
+  --primary: #FF4A33;
+  --primary-foreground: #FFF8F0;
+  --secondary: #1D1924;
+  --secondary-foreground: #F4EEE4;
+  --muted: #1A1620;
+  --muted-foreground: #A69DA8;
+  --accent: #231E2B;
+  --accent-foreground: #F4EEE4;
+  --destructive: #FF4A33;
+  --border: #FFFFFF14;
+  --input: #FFFFFF21;
+  --ring: #FF4A33;
+  --chart-1: #FF4A33;
+  --chart-2: #FFB547;
+  --chart-3: #9B6BFF;
+  --chart-4: #F4EEE4;
+  --chart-5: #4A4250;
+  --sidebar: #08070B;
+  --sidebar-foreground: #F4EEE4;
+  --sidebar-primary: #FF4A33;
+  --sidebar-primary-foreground: #FFF8F0;
+  --sidebar-accent: #17131C;
+  --sidebar-accent-foreground: #F4EEE4;
+  --sidebar-border: #FFFFFF0F;
+  --sidebar-ring: #FFB547;
+  --stage-red: #FF4A33;
+  --stage-amber: #FFB547;
+  --stage-violet: #9B6BFF;
+  --stage-ink: #08070B;
+  --punk-red: #FF4A33;
+  --punk-acid: #3DDC84;
+  --punk-paper: #F4EEE4;
+  --punk-ash: #A69DA8;
+  --poster-shadow: 0 20px 48px -20px rgba(0, 0, 0, 0.8);
+  --poster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --poster-shadow-red: 0 10px 34px -8px rgba(255, 74, 51, 0.55);
 }
 
 @keyframes equalize {
@@ -192,6 +209,16 @@
   100% { transform: translate(0); clip-path: inset(0); }
 }
 
+@keyframes beam-sway {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(7deg); }
+}
+
+@keyframes live-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklab, var(--stage-red) 60%, transparent); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 5px transparent; }
+}
+
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -203,6 +230,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Ambiente de sala: dos focos muy tenues que no compiten con el contenido */
+    background-image:
+      radial-gradient(1100px 520px at 100% -8%, color-mix(in oklab, var(--stage-red) 9%, transparent), transparent 62%),
+      radial-gradient(900px 520px at -10% 108%, color-mix(in oklab, var(--stage-violet) 8%, transparent), transparent 60%);
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;
@@ -214,6 +246,62 @@
 }
 
 @layer utilities {
+  /* Grano de película sobre superficies "de escenario" (el padre debe ser relative) */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0.14;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Titular de cartel: condensado, caja alta, interlineado apretado */
+  .poster-title {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: 0.005em;
+  }
+
+  /* Texto hueco (solo trazo), para ecos tipográficos decorativos */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--stroke, currentColor);
+  }
+
+  /* Gradiente de foco: rojo escenario → ámbar */
+  .bg-stage-gradient {
+    background-image: linear-gradient(100deg, var(--stage-red) 0%, color-mix(in oklab, var(--stage-red), var(--stage-amber) 55%) 60%, var(--stage-amber) 100%);
+  }
+  /* Variante para botones: menos ámbar, para mantener el contraste del texto */
+  .bg-stage-button {
+    background-image: linear-gradient(100deg, var(--stage-red) 0%, color-mix(in oklab, var(--stage-red), var(--stage-amber) 30%) 100%);
+  }
+  .text-stage-gradient {
+    background-image: linear-gradient(100deg, var(--stage-red) 10%, var(--stage-amber) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Superficie "escenario": siempre oscura, con focos y contraluz */
+  .stage-surface {
+    background-color: var(--stage-ink);
+    background-image:
+      radial-gradient(70% 90% at 88% 0%, color-mix(in oklab, var(--stage-red) 38%, transparent), transparent 60%),
+      radial-gradient(60% 80% at 0% 100%, color-mix(in oklab, var(--stage-violet) 34%, transparent), transparent 65%),
+      radial-gradient(40% 50% at 55% 110%, color-mix(in oklab, var(--stage-amber) 18%, transparent), transparent 70%);
+    color: #F4EEE4;
+  }
+
+  /* Surcos de vinilo */
+  .vinyl-grooves {
+    background-image: repeating-radial-gradient(circle at center, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 4px);
+  }
+
   /* Trama de semitonos (legado, solo decorativa) */
   .halftone {
     background-image: radial-gradient(currentColor 1px, transparent 1.5px);
@@ -226,7 +314,7 @@
     border: 3px double currentColor;
     border-radius: 2px;
     padding: 0.15em 0.6em;
-    font-family: var(--font-archivo);
+    font-family: var(--font-display);
     text-transform: uppercase;
     letter-spacing: 0.14em;
     transform: rotate(-6deg);
@@ -255,6 +343,25 @@
   .card-lift:hover {
     transform: translateY(-2px);
     box-shadow: var(--poster-shadow);
+  }
+
+  /* Filete superior en gradiente de foco que aparece al pasar el ratón */
+  .stage-edge {
+    position: relative;
+  }
+  .stage-edge::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background-image: linear-gradient(90deg, var(--stage-red), var(--stage-amber), transparent);
+    opacity: 0;
+    transition: opacity 200ms ease;
+    z-index: 1;
+  }
+  .stage-edge:hover::before,
+  .stage-edge:focus-within::before {
+    opacity: 1;
   }
 
   /* Barras de ecualizador */

@@ -12,6 +12,8 @@ import {
 import { presentationSlides } from "@/lib/presentation-slides";
 import { Button } from "@/components/ui/button";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { StageLights } from "@/components/art/stage-lights";
+import { Vinyl } from "@/components/art/vinyl";
 import { cn } from "@/lib/utils";
 
 export function SlideDeck() {
@@ -62,13 +64,13 @@ export function SlideDeck() {
       {/* Navbar */}
       <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-background/85 px-4 py-3 backdrop-blur-sm sm:px-6">
         <Link href="/presentacion" className="flex items-center gap-2.5">
-          <BmLogo size={32} />
+          <BmLogo size={34} />
           <div className="leading-tight">
-            <span className="block text-sm font-semibold tracking-wide">
-              BandManager
+            <span className="poster-title block text-xl">
+              Band<span className="text-stage-gradient">Manager</span>
             </span>
-            <span className="block text-[11px] text-muted-foreground">
-              Tu banda, organizada
+            <span className="block font-serif text-sm italic text-muted-foreground">
+              Tu banda, en directo
             </span>
           </div>
         </Link>
@@ -96,46 +98,52 @@ export function SlideDeck() {
 
       {/* Diapositiva */}
       <main className="relative flex flex-1 flex-col justify-center overflow-hidden px-4 py-10 sm:px-8">
-        {/* Fondo fotográfico muy oscuro solo en la portada */}
+        {/* Portada: escenario con focos, foto en duotono y vinilo girando */}
         {isIntro && (
-          <>
+          <div aria-hidden="true" className="stage-surface grain absolute inset-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/logo-hero.webp"
               alt=""
-              aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover object-left opacity-40"
+              className="absolute inset-0 h-full w-full object-cover object-left opacity-25 mix-blend-luminosity"
             />
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/40"
-              aria-hidden="true"
-            />
-          </>
+            <StageLights />
+          </div>
         )}
+        <Vinyl
+          spin={isPlaying}
+          className={cn(
+            "pointer-events-none absolute -right-40 top-1/2 size-[30rem] -translate-y-1/2 transition-opacity duration-500 sm:size-[40rem]",
+            isIntro ? "opacity-80" : "opacity-15",
+          )}
+        />
 
         <div
           key={slide.id}
-          className="relative mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500"
+          className={cn(
+            "relative mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500",
+            isIntro && "text-white",
+          )}
         >
           <div className="mb-8 flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-lg bg-card text-primary ring-1 ring-foreground/10 sm:size-14">
+            <div className="flex size-12 items-center justify-center rounded-full bg-stage-gradient text-stage-ink shadow-poster-red sm:size-14">
               <Icon className="size-6 sm:size-7" aria-hidden />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground sm:text-base">
+              <p className={cn("font-serif text-lg italic sm:text-xl", isIntro ? "text-white/75" : "text-muted-foreground")}>
                 {slide.subtitle}
               </p>
               <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
-                Pág. {number} / {String(total).padStart(2, "0")}
+                Pista {number} / {String(total).padStart(2, "0")}
               </p>
             </div>
           </div>
 
-          <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+          <h1 className="poster-title text-5xl sm:text-7xl lg:text-8xl">
             {slide.title}
           </h1>
-          <div className="mt-4 h-0.5 w-16 bg-primary" aria-hidden="true" />
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <div className="mt-5 h-1 w-20 rounded-full bg-stage-gradient" aria-hidden="true" />
+          <p className={cn("mt-5 max-w-2xl text-base leading-relaxed sm:text-lg", isIntro ? "text-white/75" : "text-muted-foreground")}>
             {slide.description}
           </p>
 
@@ -144,7 +152,7 @@ export function SlideDeck() {
               <li
                 key={item}
                 className={cn(
-                  "flex items-start gap-3 rounded-lg bg-card px-4 py-3 text-sm ring-1 ring-foreground/10 transition-shadow hover:shadow-poster sm:text-base",
+                  "stage-edge flex items-start gap-3 overflow-hidden rounded-lg bg-card/90 px-4 py-3 text-sm text-card-foreground ring-1 ring-foreground/10 backdrop-blur-sm transition-shadow hover:shadow-poster sm:text-base",
                   i === 0 && "sm:col-span-2",
                 )}
               >
@@ -185,7 +193,7 @@ export function SlideDeck() {
                 className={cn(
                   "h-1.5 rounded-full transition-all",
                   i === current
-                    ? "w-8 bg-primary"
+                    ? "w-8 bg-stage-gradient"
                     : "w-3 bg-muted-foreground/30 hover:bg-muted-foreground/50",
                 )}
               />
