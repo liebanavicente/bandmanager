@@ -15,11 +15,15 @@ import {
 import { getDashboardData } from "@/actions/dashboard";
 import { LoadingGrid } from "@/components/shared/loading-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { StageLights } from "@/components/art/stage-lights";
+import { Vinyl } from "@/components/art/vinyl";
+import { Waveform } from "@/components/art/waveform";
 import { Countdown } from "@/components/punk/countdown";
 import { StatBlock } from "@/components/punk/stat-block";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { centsToEuros } from "@/lib/money";
+import { BAND_NAME } from "@/lib/workspace";
 
 async function DashboardContent() {
   const data = await getDashboardData();
@@ -28,50 +32,85 @@ async function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      {/* Cabecera */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Panel</h1>
-          <p className="text-sm text-muted-foreground">
-            Resumen general · Hola, {data.user.name}
-          </p>
-        </div>
-        <Button render={<Link href="/events/new" />}>
-          <CalendarPlus />
-          Crear evento
-        </Button>
-      </div>
+      {/* Portada: cartel del próximo show */}
+      <section
+        aria-labelledby="next-show-title"
+        className="stage-surface grain relative isolate overflow-hidden rounded-2xl p-6 shadow-poster sm:p-8 lg:p-10"
+      >
+        <StageLights />
+        <Vinyl
+          spin
+          label={BAND_NAME}
+          className="pointer-events-none absolute -right-24 -top-16 -z-10 size-72 opacity-35 sm:opacity-80 sm:-right-16 sm:size-96 lg:-right-10 lg:top-1/2 lg:size-[26rem] lg:-translate-y-1/2"
+        />
 
-      {/* Próximo evento + cuenta atrás */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Próximo evento</CardTitle>
-          {nextEvent && (
-            <CardDescription>
-              {format(nextEvent.startAt, "EEEE d MMM, HH:mm", { locale: es })}
-              {nextEvent.venue ? ` · ${nextEvent.venue}` : ""}
-            </CardDescription>
-          )}
-        </CardHeader>
-        <CardContent>
+        <div className="relative flex flex-col gap-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-serif text-2xl italic text-white/85 sm:text-3xl">
+              Hola, {data.user.name.split(" ")[0]}.
+            </p>
+            <Button render={<Link href="/events/new" />} size="lg">
+              <CalendarPlus />
+              Crear evento
+            </Button>
+          </div>
+
           {nextEvent ? (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <Link
-                href={`/events/${nextEvent.id}`}
-                className="text-lg font-medium underline-offset-4 hover:underline"
-              >
-                {nextEvent.title}
-              </Link>
-              <Countdown target={nextEvent.startAt.toISOString()} />
+            <div className="grid gap-6 lg:max-w-[62%] lg:grid-cols-[auto_1fr] lg:items-end lg:gap-8">
+              {/* Bloque de fecha, como en un cartel */}
+              <div className="flex items-end gap-3 lg:flex-col lg:items-start lg:gap-0">
+                <span className="poster-title text-[5.5rem] text-stage-gradient sm:text-[7rem]">
+                  {format(nextEvent.startAt, "dd")}
+                </span>
+                <span className="pb-2 font-mono text-xs uppercase tracking-[0.25em] text-white/70 lg:pb-0">
+                  {format(nextEvent.startAt, "MMM yyyy", { locale: es })}
+                  <br />
+                  {format(nextEvent.startAt, "EEEE · HH:mm", { locale: es })}
+                </span>
+              </div>
+
+              <div className="min-w-0 space-y-3">
+                <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-stage-amber">
+                  <span className="size-1.5 animate-live rounded-full bg-stage-red" aria-hidden="true" />
+                  Próximo show
+                </p>
+                <h2 id="next-show-title" className="poster-title break-words text-4xl text-white sm:text-6xl">
+                  <Link href={`/events/${nextEvent.id}`} className="underline-offset-8 hover:underline">
+                    {nextEvent.title}
+                  </Link>
+                </h2>
+                {nextEvent.venue && (
+                  <p className="font-serif text-xl italic text-white/75">en {nextEvent.venue}</p>
+                )}
+              </div>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              No hay nada en el calendario. Crea el próximo concierto o ensayo
-              y empieza la cuenta atrás.
-            </p>
+            <div className="max-w-xl space-y-3">
+              <h2 id="next-show-title" className="poster-title text-5xl text-white sm:text-6xl">
+                Escenario <span className="text-stage-gradient">vacío</span>
+              </h2>
+              <p className="font-serif text-xl italic text-white/75">
+                No hay nada en el calendario. Crea el próximo concierto o ensayo y
+                empieza la cuenta atrás.
+              </p>
+            </div>
           )}
-        </CardContent>
-      </Card>
+
+          <div className="flex flex-col gap-5 border-t border-white/10 pt-6 lg:max-w-[62%] lg:flex-row lg:items-center lg:justify-between">
+            {nextEvent ? (
+              <Countdown target={nextEvent.startAt.toISOString()} tone="stage" />
+            ) : (
+              <span />
+            )}
+            <Waveform
+              seed={nextEvent?.title ?? "silencio"}
+              bars={56}
+              progress={0.35}
+              className="h-10 text-white lg:max-w-56"
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Cifras destacadas */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -89,9 +128,9 @@ async function DashboardContent() {
       {/* Rejilla principal */}
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Próximos eventos */}
-        <Card className="lg:col-span-2">
+        <Card className="stage-edge lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Próximos eventos</CardTitle>
+            <CardTitle className="text-base font-semibold">Próximos eventos</CardTitle>
             <CardDescription>Agenda confirmada y borradores</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -102,13 +141,24 @@ async function DashboardContent() {
                 <Link
                   key={event.id}
                   href={`/events/${event.id}`}
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 ring-1 ring-foreground/10 transition-colors hover:bg-muted/60"
+                  className="group/row flex items-center gap-4 rounded-lg px-3 py-2.5 ring-1 ring-foreground/10 transition-colors hover:bg-muted/60"
                 >
-                  <div>
-                    <p className="text-sm font-medium">{event.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(event.startAt, "d MMM yyyy, HH:mm", { locale: es })}
-                      {event.venue ? ` · ${event.venue}` : ""}
+                  {/* Fecha tipo entrada de gira */}
+                  <div className="flex w-12 shrink-0 flex-col items-center border-r border-dashed border-foreground/15 pr-3 text-center">
+                    <span className="font-display text-2xl leading-none group-hover/row:text-primary">
+                      {format(event.startAt, "dd")}
+                    </span>
+                    <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {format(event.startAt, "MMM", { locale: es })}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{event.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {format(event.startAt, "EEEE, HH:mm", { locale: es })}
+                      {event.venue ? (
+                        <span className="font-serif text-sm italic"> · {event.venue}</span>
+                      ) : null}
                     </p>
                   </div>
                   <StatusBadge kind="event" status={event.status} />
@@ -119,9 +169,9 @@ async function DashboardContent() {
         </Card>
 
         {/* Asistencias pendientes */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
-            <CardTitle className="text-base">Tu asistencia</CardTitle>
+            <CardTitle className="text-base font-semibold">Tu asistencia</CardTitle>
             <CardDescription>Confirmaciones pendientes</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -150,9 +200,9 @@ async function DashboardContent() {
         </Card>
 
         {/* Tareas */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
-            <CardTitle className="text-base">Mis tareas</CardTitle>
+            <CardTitle className="text-base font-semibold">Mis tareas</CardTitle>
             <CardDescription>Pendientes y en curso</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -181,9 +231,9 @@ async function DashboardContent() {
         </Card>
 
         {/* Estado del repertorio */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
-            <CardTitle className="text-base">Repertorio</CardTitle>
+            <CardTitle className="text-base font-semibold">Repertorio</CardTitle>
             <CardDescription>
               {data.activeRepertoire
                 ? `${data.activeRepertoire.name} · activo`
@@ -194,7 +244,7 @@ async function DashboardContent() {
             {data.activeRepertoire ? (
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-3xl font-semibold leading-none tabular-nums">{repertoireSongs}</p>
+                  <p className="font-display text-5xl leading-none tabular-nums">{repertoireSongs}</p>
                   <p className="mt-1.5 text-xs text-muted-foreground">canciones en el set</p>
                 </div>
                 <Link href="/repertoires" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
@@ -208,9 +258,9 @@ async function DashboardContent() {
         </Card>
 
         {/* Último setlist */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
-            <CardTitle className="text-base">Último setlist</CardTitle>
+            <CardTitle className="text-base font-semibold">Último setlist</CardTitle>
             <CardDescription>
               {data.lastSetlist?.event
                 ? `Vinculado a ${data.lastSetlist.event.title}`
@@ -241,7 +291,7 @@ async function DashboardContent() {
 
         {/* Stock bajo */}
         {data.stockAlerts.length > 0 && (
-          <Card className="lg:col-span-2">
+          <Card className="stage-edge lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <AlertTriangle className="size-4 text-punk-red" aria-hidden="true" />
@@ -262,9 +312,9 @@ async function DashboardContent() {
         )}
 
         {/* Pedidos recientes */}
-        <Card className="lg:col-span-2">
+        <Card className="stage-edge lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">Pedidos recientes</CardTitle>
+            <CardTitle className="text-base font-semibold">Pedidos recientes</CardTitle>
             <CardDescription>
               Ingresos recientes: {data.stats.recentRevenueFormatted}
             </CardDescription>
@@ -298,9 +348,9 @@ async function DashboardContent() {
         </Card>
 
         {/* Archivos nuevos */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
-            <CardTitle className="text-base">Archivos nuevos</CardTitle>
+            <CardTitle className="text-base font-semibold">Archivos nuevos</CardTitle>
             <CardDescription>Biblioteca de la banda</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -330,7 +380,7 @@ async function DashboardContent() {
         </Card>
 
         {/* Caja */}
-        <Card>
+        <Card className="stage-edge">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <ShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -338,7 +388,7 @@ async function DashboardContent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold leading-none tabular-nums">
+            <p className="font-display text-5xl leading-none tabular-nums text-stage-gradient">
               {data.stats.recentRevenueFormatted}
             </p>
             <p className="mt-1.5 text-xs text-muted-foreground">

@@ -51,10 +51,11 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
+    <Card className="stage-edge shadow-poster">
       <CardHeader>
-        <CardTitle>Iniciar sesión</CardTitle>
-        <CardDescription>
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Acceso backstage</p>
+        <CardTitle className="poster-title text-4xl">Iniciar sesión</CardTitle>
+        <CardDescription className="font-serif text-base italic">
           Accede al panel de gestión de tu banda.{" "}
           <Link href="/presentacion" className="text-primary hover:underline">
             Ver presentación
@@ -95,9 +96,9 @@ export function LoginForm() {
             />
           </div>
 
-          <div className="rounded-lg border bg-muted/40 p-3">
-            <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Cuentas de demostración
+          <div className="rounded-lg border border-dashed bg-muted/40 p-3">
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Pases de demostración
             </p>
             <div className="flex flex-col gap-2">
               {demoAccounts.map((account) => (
@@ -105,11 +106,19 @@ export function LoginForm() {
                   key={account.email}
                   type="button"
                   onClick={() => fillDemo(account)}
-                  className="rounded-md border bg-background px-3 py-2 text-left text-xs transition-colors hover:bg-muted"
+                  className="group flex items-stretch overflow-hidden rounded-md border bg-background text-left text-xs transition-all hover:-translate-y-px hover:shadow-poster-sm"
                 >
-                  <span className="font-medium">{account.role}</span>
-                  <span className="mt-0.5 block text-muted-foreground">
-                    {account.email} · {account.password}
+                  {/* Talón del pase */}
+                  <span className="flex w-20 shrink-0 items-center justify-center border-r border-dashed bg-stage-ink px-2 font-display text-sm uppercase tracking-wide text-white transition-colors group-hover:bg-primary">
+                    {account.role}
+                  </span>
+                  <span className="min-w-0 px-3 py-2">
+                    <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-primary">
+                      All access
+                    </span>
+                    <span className="mt-0.5 block truncate text-muted-foreground">
+                      {account.email} · {account.password}
+                    </span>
                   </span>
                 </button>
               ))}

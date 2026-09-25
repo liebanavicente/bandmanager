@@ -1,11 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-  <circle cx="24" cy="24" r="21.5" fill="#14161A" stroke="#D8DADE" stroke-opacity="0.92" stroke-width="2.6"/>
-  <circle cx="24" cy="24" r="17.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1"/>
-  <text x="12.5" y="30.6" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17" font-weight="700" fill="#DCDFE3">B</text>
-  <g stroke-linecap="round" stroke-width="3" fill="none">
-    <path d="M23.4 17.6 V 30.6" stroke="#DCDFE3"/>
-    <path d="M23.9 17.9 L 28.2 26.4" stroke="#EE5044" stroke-width="3.2"/>
-    <path d="M28.2 26.4 L 32.5 17.9" stroke="#DCDFE3"/>
-    <path d="M32.9 17.6 V 30.6" stroke="#DCDFE3"/>
-  </g>
+  <defs>
+    <linearGradient id="l" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF4A33"/>
+      <stop offset="100%" stop-color="#FFB547"/>
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="23" fill="#0B090E"/>
+  <circle cx="24" cy="24" r="22.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="0.8"/>
+  <circle cx="24" cy="24" r="19.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="0.7"/>
+  <path d="M8.5 9.5 A 22 22 0 0 1 20 2.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round"/>
+  <circle cx="24" cy="24" r="15.5" fill="url(#l)"/>
+  <text x="24" y="29.8" text-anchor="middle" font-family="Anton, Impact, 'Arial Narrow', sans-serif" font-size="16" font-weight="700" fill="#0B090E">BM</text>
 </svg>

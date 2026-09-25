@@ -27,12 +27,12 @@ export function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <Card>
+      <Card className="stage-edge shadow-poster">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Mail className="size-6" />
           </div>
-          <CardTitle>Revisa tu correo</CardTitle>
+          <CardTitle className="poster-title text-3xl">Revisa tu correo</CardTitle>
           <CardDescription>
             Si existe una cuenta con <strong>{email}</strong>, recibirás un enlace
             para restablecer la contraseña. Este flujo es simulado en desarrollo.
@@ -49,9 +49,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card>
+    <Card className="stage-edge shadow-poster">
       <CardHeader>
-        <CardTitle>Recuperar contraseña</CardTitle>
+        <CardTitle className="poster-title text-4xl">Recuperar contraseña</CardTitle>
         <CardDescription>
           Te enviaremos un enlace para restablecer tu acceso.
         </CardDescription>
