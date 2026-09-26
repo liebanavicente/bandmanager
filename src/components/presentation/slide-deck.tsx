@@ -5,7 +5,9 @@ import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
+  KeyRound,
   LogIn,
+  Sparkles,
   Pause,
   Play,
 } from "lucide-react";
@@ -80,18 +82,18 @@ export function SlideDeck() {
             size="icon"
             onClick={() => setIsPlaying((p) => !p)}
             aria-label={isPlaying ? "Pausar presentación" : "Reproducir presentación"}
-            className="text-muted-foreground hover:text-foreground"
+            className="hidden text-muted-foreground hover:text-foreground sm:inline-flex"
           >
             {isPlaying ? <Pause /> : <Play />}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            render={<Link href="/login" />}
-            className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
-          >
+          <Button variant="ghost" size="sm" render={<Link href="/login" />} aria-label="Entrar">
             <LogIn />
-            Entrar
+            <span className="hidden sm:inline">Entrar</span>
+          </Button>
+          <Button size="sm" render={<Link href="/register" />}>
+            <Sparkles />
+            <span className="sm:hidden">Regístrate</span>
+            <span className="hidden sm:inline">Registra tu banda</span>
           </Button>
         </div>
       </header>
@@ -164,15 +166,30 @@ export function SlideDeck() {
             ))}
           </ul>
 
-          {isLast && (
+          {(isIntro || isLast) && (
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Button size="lg" render={<Link href="/login" />}>
-                <LogIn />
-                Empezar ahora
+              <Button
+                size="lg"
+                render={<Link href="/register" />}
+                className="h-12 px-6 font-display text-lg uppercase tracking-wider"
+              >
+                <Sparkles />
+                Registra tu banda
               </Button>
-              <Button size="lg" variant="outline" onClick={() => goTo(0)}>
-                Volver al inicio
+              <Button
+                size="lg"
+                variant="outline"
+                render={<Link href="/register?join=1" />}
+                className={cn("h-12", isIntro && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white")}
+              >
+                <KeyRound />
+                Tengo un código
               </Button>
+              {isLast && (
+                <Button size="lg" variant="ghost" className="h-12" onClick={() => goTo(0)}>
+                  Volver al inicio
+                </Button>
+              )}
             </div>
           )}
         </div>
