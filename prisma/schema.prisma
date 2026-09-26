@@ -310,13 +310,15 @@ model Setlist {
 }
 
 model SetlistItem {
-  id        String          @id @default(cuid())
-  setlistId String
-  type      SetlistItemType @default(SONG)
-  songId    String?
-  position  Int
-  comment   String?
-  createdAt DateTime        @default(now())
+  id              String          @id @default(cuid())
+  setlistId       String
+  type            SetlistItemType @default(SONG)
+  songId          String?
+  position        Int
+  comment         String?
+  /// Duración prevista de pausas, discursos, afinaciones… (las canciones usan la suya)
+  durationSeconds Int?
+  createdAt       DateTime        @default(now())
 
   setlist Setlist @relation(fields: [setlistId], references: [id], onDelete: Cascade)
   song    Song?   @relation(fields: [songId], references: [id], onDelete: SetNull)

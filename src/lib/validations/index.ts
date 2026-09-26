@@ -188,6 +188,8 @@ export const setlistItemSchema = z.object({
   type: z.nativeEnum(SetlistItemType).default(SetlistItemType.SONG),
   songId: z.string().cuid().optional(),
   comment: optionalString,
+  /** Solo pausas, bises y notas: la canción ya tiene su duración. */
+  durationSeconds: z.coerce.number().int().min(0).max(3600).optional(),
 });
 
 export const createSetlistSchema = z.object({

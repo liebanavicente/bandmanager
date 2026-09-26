@@ -5,12 +5,15 @@ import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf
 export type SetlistPdfItem = {
   type: "SONG" | "BREAK" | "ENCORE" | "NOTE";
   comment: string | null;
+  /** Duración prevista de pausas y notas ("1:00"); null en canciones. */
+  duration?: string | null;
   song: {
     title: string;
     artist: string | null;
     keySignature: string | null;
     tempo: number | null;
     timeSignature: string | null;
+    tuning?: string | null;
     leadVocal: string | null;
     duration: string;
     technicalNotes: string | null;
@@ -168,9 +171,9 @@ function drawFooter(page: PDFPage, fonts: Fonts, index: number, total: number) {
 }
 
 function markerLabel(item: SetlistPdfItem) {
-  if (item.type === "BREAK") return item.comment || "Pausa";
-  if (item.type === "ENCORE") return item.comment || "Bis";
-  return item.comment || "Nota";
+  const base =
+    item.type === "BREAK" ? item.comment || "Pausa" : item.type === "ENCORE" ? item.comment || "Bis" : item.comment || "Nota";
+  return item.duration && item.duration !== "—" ? `${base} (${item.duration})` : base;
 }
 
 /** Versión escenario: números y títulos enormes que se leen a dos metros. */
@@ -207,7 +210,7 @@ function drawStage(doc: PDFDocument, fonts: Fonts, data: SetlistPdfData, timeZon
       const numberWidth = fonts.display.widthOfTextAtSize("00", titleSize) + 14;
       page.drawText(number, { x: MARGIN, y: baseline, size: titleSize, font: fonts.display, color: RED });
 
-      const key = item.song.keySignature ? winAnsi(item.song.keySignature) : "";
+      const key = winAnsi([item.song.keySignature, item.song.tuning].filter(Boolean).join(" · "));
       const keySize = Math.max(12, titleSize * 0.42);
       const keyWidth = key ? fonts.sansBold.widthOfTextAtSize(key, keySize) + 12 : 0;
       const title = item.song.title.toUpperCase();
@@ -254,8 +257,9 @@ function drawFull(doc: PDFDocument, fonts: Fonts, data: SetlistPdfData, timeZone
   pages.push(page);
   let y = drawHeader(page, fonts, data, timeZone, false);
   const right = A4.width - MARGIN;
-  // Columnas a la derecha: Tono · BPM · Compás · Duración
+  // Columnas a la derecha: Afinación · Tono · BPM · Compás · Duración
   const cols = [
+    { label: "AFIN.", width: 74 },
     { label: "TONO", width: 42 },
     { label: "BPM", width: 36 },
     { label: "COMPÁS", width: 46 },
@@ -320,6 +324,7 @@ function drawFull(doc: PDFDocument, fonts: Fonts, data: SetlistPdfData, timeZone
         }
       }
       const values = [
+        item.song.tuning ?? "—",
         item.song.keySignature ?? "—",
         item.song.tempo ? String(item.song.tempo) : "—",
         item.song.timeSignature ?? "—",

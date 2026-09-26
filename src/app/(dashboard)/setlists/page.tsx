@@ -1,19 +1,18 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ListMusic } from "lucide-react";
-import { listSetlistChoices, listSetlists } from "@/actions/setlists";
-import { NewSetlistButton } from "@/components/music/setlist-dialog";
+import { ListMusic, Plus } from "lucide-react";
+import { listSetlists } from "@/actions/setlists";
 import { SetlistPdfMenu } from "@/components/music/setlist-pdf-menu";
 import { EntityActions } from "@/components/shared/entity-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { isActionSuccess } from "@/lib/action-result";
 
 export default async function SetlistsPage() {
-  const [result, choicesResult] = await Promise.all([listSetlists(), listSetlistChoices()]);
-  const choices = isActionSuccess(choicesResult) ? choicesResult.data : { songs: [], events: [] };
+  const result = await listSetlists();
 
   if (!isActionSuccess(result)) {
     return <p className="text-sm text-destructive">{result.error}</p>;
@@ -24,7 +23,10 @@ export default async function SetlistsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Setlists" description="Orden de temas para conciertos y ensayos.">
-        <NewSetlistButton songs={choices.songs} events={choices.events} />
+        <Button nativeButton={false} render={<Link href="/setlists/new" />}>
+          <Plus />
+          Nuevo setlist
+        </Button>
       </PageHeader>
 
       {setlists.length === 0 ? (
@@ -62,7 +64,7 @@ export default async function SetlistsPage() {
                   entity="setlist"
                   id={setlist.id}
                   name={setlist.name}
-                  editHref={`/setlists/${setlist.id}?edit=1`}
+                  editHref={`/setlists/${setlist.id}/edit`}
                 />
               </CardContent>
             </Card>

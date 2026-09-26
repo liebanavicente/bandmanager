@@ -5,12 +5,13 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { assertInBand } from "@/lib/band-scope";
-import { formatDuration, sumDurations } from "@/lib/duration";
+import { formatDuration, setlistSeconds } from "@/lib/duration";
 import {
   createSetlistSchema,
   duplicateSetlistSchema,
   reorderSetlistItemsSchema,
   updateSetlistSchema,
+  type CreateSetlistInput,
 } from "@/lib/validations";
 
 async function authorizeSetlists() {
@@ -19,6 +20,17 @@ async function authorizeSetlists() {
     user.role === "COLLABORATOR" ? await getCollaboratorAreas(user.id) : undefined;
   requirePermission(user.role, "setlists", areas);
   return user;
+}
+
+/** Una pista del formulario lista para guardar (la duración solo vale en pausas y notas). */
+function toItemData(item: CreateSetlistInput["items"][number]) {
+  const isSong = item.type === "SONG";
+  return {
+    type: item.type,
+    songId: isSong ? item.songId : null,
+    comment: item.comment,
+    durationSeconds: isSong ? null : (item.durationSeconds ?? null),
+  };
 }
 
 export async function listSetlists(eventId?: string) {
@@ -86,12 +98,7 @@ export async function createSetlist(input: unknown) {
         ...data,
         bandId: user.bandId,
         items: {
-          create: items.map((item, index) => ({
-            type: item.type,
-            songId: item.songId,
-            comment: item.comment,
-            position: index + 1,
-          })),
+          create: items.map((item, index) => ({ ...toItemData(item), position: index + 1 })),
         },
       },
       include: {
@@ -127,13 +134,7 @@ export async function updateSetlist(input: unknown) {
       if (items) {
         await tx.setlistItem.deleteMany({ where: { setlistId: id } });
         await tx.setlistItem.createMany({
-          data: items.map((item, index) => ({
-            setlistId: id,
-            type: item.type,
-            songId: item.songId,
-            comment: item.comment,
-            position: index + 1,
-          })),
+          data: items.map((item, index) => ({ ...toItemData(item), setlistId: id, position: index + 1 })),
         });
       }
 
@@ -239,6 +240,7 @@ export async function duplicateSetlist(input: unknown) {
             type: item.type,
             songId: item.songId,
             comment: item.comment,
+            durationSeconds: item.durationSeconds,
             position: item.position,
           })),
         },
@@ -272,16 +274,13 @@ export async function getSetlistStageView(id: string) {
       throw new AppError("Setlist no encontrada.", "NOT_FOUND", 404);
     }
 
-    const songDurations = setlist.items
-      .filter((item) => item.type === "SONG" && item.song)
-      .map((item) => item.song?.durationSeconds);
-
-    const totalSeconds = sumDurations(songDurations);
+    const totalSeconds = setlistSeconds(setlist.items);
 
     const stageItems = setlist.items.map((item, index) => ({
       position: index + 1,
       type: item.type,
       comment: item.comment,
+      duration: item.type === "SONG" ? null : formatDuration(item.durationSeconds),
       song: item.song
         ? {
             id: item.song.id,
@@ -290,6 +289,7 @@ export async function getSetlistStageView(id: string) {
             keySignature: item.song.keySignature,
             tempo: item.song.tempo,
             timeSignature: item.song.timeSignature,
+            tuning: item.song.tuning,
             leadVocal: item.song.leadVocal,
             duration: formatDuration(item.song.durationSeconds),
             technicalNotes: item.song.technicalNotes,
@@ -317,11 +317,19 @@ export async function getSetlistStageView(id: string) {
 export async function listSetlistChoices() {
   try {
     const user = await authorizeSetlists();
-    const [songs, events] = await Promise.all([
+    const [songs, events, repertoires] = await Promise.all([
       prisma.song.findMany({
         where: { bandId: user.bandId, deletedAt: null, status: { not: "ARCHIVED" } },
         orderBy: { title: "asc" },
-        select: { id: true, title: true, artist: true, durationSeconds: true },
+        select: {
+          id: true,
+          title: true,
+          artist: true,
+          durationSeconds: true,
+          tuning: true,
+          keySignature: true,
+          tempo: true,
+        },
       }),
       prisma.event.findMany({
         where: { bandId: user.bandId, deletedAt: null },
@@ -329,8 +337,28 @@ export async function listSetlistChoices() {
         take: 50,
         select: { id: true, title: true, startAt: true },
       }),
+      prisma.repertoire.findMany({
+        where: { bandId: user.bandId, deletedAt: null, isArchived: false },
+        orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],
+        select: {
+          id: true,
+          name: true,
+          isActive: true,
+          songs: { orderBy: { position: "asc" }, select: { songId: true } },
+        },
+      }),
     ]);
-    return { success: true as const, data: { songs, events } };
+    return {
+      success: true as const,
+      data: {
+        songs,
+        events,
+        repertoires: repertoires.map(({ songs: entries, ...repertoire }) => ({
+          ...repertoire,
+          songIds: entries.map((entry) => entry.songId),
+        })),
+      },
+    };
   } catch (error) {
     return toActionError(error);
   }

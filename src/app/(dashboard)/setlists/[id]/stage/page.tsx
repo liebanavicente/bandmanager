@@ -20,6 +20,8 @@ export default async function SetlistStagePage({
   if (!isActionSuccess(result)) notFound();
 
   const stage = result.data;
+  let songNumber = 0;
+  let previousTuning: string | null = null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-sidebar text-sidebar-foreground">
@@ -41,6 +43,7 @@ export default async function SetlistStagePage({
           variant="outline"
           size="icon-lg"
           className="border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent"
+          nativeButton={false}
           render={<Link href={`/setlists/${stage.id}`} />}
         >
           <X />
@@ -55,50 +58,70 @@ export default async function SetlistStagePage({
               Setlist vacío
             </p>
           ) : (
-            stage.items.map((item) => (
-              <div
-                key={item.position}
-                className="flex items-baseline gap-4 rounded-lg border-2 border-sidebar-border bg-sidebar-accent/60 p-6 sm:gap-6 sm:p-8"
-              >
-                <span className="font-display text-4xl leading-none text-punk-acid tabular-nums sm:text-6xl">
-                  {String(item.position).padStart(2, "0")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  {item.type === "SONG" && item.song ? (
-                    <>
-                      <h2 className="font-display text-3xl leading-tight sm:text-5xl">
-                        {item.song.title}
-                      </h2>
-                      <p className="mt-2 text-lg text-muted-foreground sm:text-2xl">
-                        {[
-                          item.song.artist,
-                          item.song.duration,
-                          item.song.keySignature,
-                          item.song.tempo ? `${item.song.tempo} BPM` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                      {item.comment && (
-                        <p className="mt-3 font-punk text-xl text-punk-acid sm:text-2xl">
-                          {item.comment}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <div className="py-2">
-                      <Stamp tone="paper" className="text-base sm:text-xl">
-                        {item.type === "BREAK"
-                          ? "Pausa"
-                          : item.type === "ENCORE"
-                            ? "Bis"
-                            : (item.comment ?? "Nota")}
-                      </Stamp>
-                    </div>
+            stage.items.map((item) => {
+              if (item.type !== "SONG" || !item.song) {
+                return (
+                  <div
+                    key={item.position}
+                    className="flex flex-wrap items-center gap-4 rounded-lg border-2 border-dashed border-sidebar-border px-6 py-4 sm:px-8"
+                  >
+                    <Stamp tone="paper" className="text-base sm:text-xl">
+                      {item.type === "BREAK" ? "Pausa" : item.type === "ENCORE" ? "Bis" : "Nota"}
+                    </Stamp>
+                    {item.comment && (
+                      <span className="font-serif text-2xl italic sm:text-3xl">{item.comment}</span>
+                    )}
+                    {item.duration && item.duration !== "—" && (
+                      <span className="ml-auto font-mono text-lg text-muted-foreground tabular-nums">{item.duration}</span>
+                    )}
+                  </div>
+                );
+              }
+
+              songNumber += 1;
+              const tuning = item.song.tuning;
+              const tuningChanged =
+                Boolean(tuning && previousTuning) && tuning!.trim().toLowerCase() !== previousTuning!.trim().toLowerCase();
+              if (tuning) previousTuning = tuning;
+
+              return (
+                <div
+                  key={item.position}
+                  className="flex items-baseline gap-4 rounded-lg border-2 border-sidebar-border bg-sidebar-accent/60 p-6 sm:gap-6 sm:p-8"
+                >
+                  <span className="font-display text-4xl leading-none text-punk-acid tabular-nums sm:text-6xl">
+                    {String(songNumber).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-display text-3xl leading-tight sm:text-5xl">{item.song.title}</h2>
+                    <p className="mt-2 text-lg text-muted-foreground sm:text-2xl">
+                      {[
+                        item.song.artist,
+                        item.song.duration,
+                        item.song.keySignature,
+                        item.song.tempo ? `${item.song.tempo} BPM` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                    {item.comment && (
+                      <p className="mt-3 font-punk text-xl text-punk-acid sm:text-2xl">{item.comment}</p>
+                    )}
+                  </div>
+                  {tuning && (
+                    <span
+                      className={
+                        tuningChanged
+                          ? "shrink-0 self-center rounded-md bg-punk-acid px-3 py-1.5 font-display text-xl uppercase text-sidebar sm:text-3xl"
+                          : "shrink-0 self-center rounded-md border-2 border-sidebar-border px-3 py-1.5 font-display text-xl uppercase text-muted-foreground sm:text-3xl"
+                      }
+                    >
+                      {tuning}
+                    </span>
                   )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

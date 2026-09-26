@@ -38,7 +38,7 @@ export default async function DashboardLayout({
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header user={user} collaboratorAreas={collaboratorAreas} band={band} />
-        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-x-clip p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

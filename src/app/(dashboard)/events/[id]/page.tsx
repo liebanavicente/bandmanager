@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, ExternalLink, ListMusic, MapPin } from "lucide-react";
+import { ArrowLeft, ExternalLink, ListMusic, MapPin, Plus } from "lucide-react";
 import type { EventType } from "@prisma/client";
 import { getEvent } from "@/actions/events";
 import { AttendancePanel } from "@/components/events/attendance-panel";
@@ -142,6 +142,16 @@ export default async function EventDetailPage({
                 </Link>
               ))
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              nativeButton={false}
+              render={<Link href={`/setlists/new?event=${event.id}`} />}
+            >
+              <Plus />
+              Montar setlist
+            </Button>
           </CardContent>
         </Card>
       </div>
