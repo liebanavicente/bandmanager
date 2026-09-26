@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Mic } from "lucide-react";
 import { getSong } from "@/actions/songs";
 import { EntityActions } from "@/components/shared/entity-actions";
 import { PageHeader } from "@/components/shared/page-header";
@@ -23,10 +23,16 @@ export default async function SongDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={song.title} description={song.artist ?? "Sin artista"}>
-        <Button variant="ghost" render={<Link href="/songs" />}>
+        <Button variant="ghost" nativeButton={false} render={<Link href="/songs" />}>
           <ArrowLeft />
           Volver
         </Button>
+        {song.lyrics?.trim() && (
+          <Button nativeButton={false} render={<Link href={`/practice/${song.id}`} />}>
+            <Mic />
+            Ensayar letra
+          </Button>
+        )}
         <EntityActions
           entity="song"
           id={song.id}

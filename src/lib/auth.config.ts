@@ -32,6 +32,7 @@ export const authConfig: NextAuthConfig = {
         "/songs",
         "/repertoires",
         "/setlists",
+        "/practice",
         "/members",
         "/tasks",
         "/files",

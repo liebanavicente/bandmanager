@@ -138,6 +138,7 @@ model User {
   uploadedFiles      FileAsset[]
   createdOrders      Order[]             @relation("OrderCreator")
   inventoryMovements InventoryMovement[]
+  lyricsProgress     LyricsProgress[]
 
   band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
@@ -244,6 +245,7 @@ model Song {
 
   repertoireSongs RepertoireSong[]
   setlistItems    SetlistItem[]
+  lyricsProgress  LyricsProgress[]
 
   band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
@@ -558,4 +560,29 @@ model Band {
   products    Product[]
   orders      Order[]
   syncLogs    SyncLog[]
+}
+
+/// Lo bien que cada componente se sabe la letra de cada canción.
+model LyricsProgress {
+  id              String    @id @default(cuid())
+  userId          String
+  songId          String
+  /// 0-100: media ponderada de las prácticas (las recientes pesan más)
+  mastery         Int       @default(0)
+  lastScore       Int?
+  lastMode        String?
+  attempts        Int       @default(0)
+  lastPracticedAt DateTime?
+  /// Cuándo toca repasarla (repaso espaciado)
+  nextReviewAt    DateTime?
+  /// Versos que se fallan: { "texto normalizado": { "miss": n, "hit": n } }
+  weakLines       Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+  @@index([userId, nextReviewAt])
 }
