@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Music2, Plus } from "lucide-react";
+import { Music2, Plus, Upload } from "lucide-react";
 import type { SongStatus } from "@prisma/client";
 import { listSongs } from "@/actions/songs";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -97,7 +97,11 @@ export default function SongsPage({
         title="Canciones"
         description="Catálogo musical con estados de ensayo."
       >
-        <Button render={<Link href="/songs/new" />}>
+        <Button variant="outline" nativeButton={false} render={<Link href="/songs/import" />}>
+          <Upload />
+          Importar letras
+        </Button>
+        <Button nativeButton={false} render={<Link href="/songs/new" />}>
           <Plus />
           Nueva canción
         </Button>

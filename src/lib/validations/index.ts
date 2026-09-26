@@ -159,6 +159,27 @@ export const updateSongSchema = partialWithoutDefaults(createSongSchema).extend(
   id: z.string().cuid(),
 });
 
+/** Letras importadas desde archivos: a una canción existente o creando una nueva. */
+export const importLyricsSchema = z.object({
+  items: z
+    .array(
+      z
+        .object({
+          songId: z.string().cuid().optional(),
+          newTitle: z.string().trim().min(1).max(200).optional(),
+          lyrics: z.string().trim().min(1, "Hay una letra vacía.").max(20_000),
+          chords: z.string().max(30_000).optional(),
+          keySignature: z.string().trim().max(12).optional(),
+          tempo: z.coerce.number().int().min(30).max(300).optional(),
+        })
+        .refine((item) => Boolean(item.songId) !== Boolean(item.newTitle), {
+          message: "Cada letra debe ir a una canción existente o crear una nueva.",
+        }),
+    )
+    .min(1, "No hay letras que importar.")
+    .max(200),
+});
+
 export const createRepertoireSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio.").max(200),
   description: optionalString,
