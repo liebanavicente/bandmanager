@@ -5,7 +5,11 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { deleteStoredFile, storeFile } from "@/lib/files";
-import { fileFiltersSchema, uploadFileMetadataSchema } from "@/lib/validations";
+import {
+  fileFiltersSchema,
+  updateFileMetadataSchema,
+  uploadFileMetadataSchema,
+} from "@/lib/validations";
 
 async function authorizeFiles() {
   const user = await getSessionUser();
@@ -173,6 +177,32 @@ export async function deleteFile(id: string) {
     await deleteStoredFile(file.storagePath);
 
     return { success: true as const, data: { id } };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+export async function updateFile(input: unknown) {
+  try {
+    const user = await authorizeFiles();
+    const parsed = updateFileMetadataSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new AppError("Datos del archivo inválidos.", "VALIDATION", 400);
+    }
+
+    const { id, ...data } = parsed.data;
+    const file = await prisma.fileAsset.findFirst({ where: { id, deletedAt: null } });
+    if (!file) {
+      throw new AppError("Archivo no encontrado.", "NOT_FOUND", 404);
+    }
+    if (user.role !== "ADMIN" && file.uploadedById !== user.id) {
+      throw new AppError("No tienes permisos para editar este archivo.", "FORBIDDEN", 403);
+    }
+
+    const updated = await prisma.fileAsset.update({
+      where: { id },
+      data: { ...data, description: data.description ?? null },
+    });
+    return { success: true as const, data: updated };
   } catch (error) {
     return toActionError(error);
   }

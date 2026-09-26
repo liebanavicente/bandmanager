@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getSong } from "@/actions/songs";
+import { EntityActions } from "@/components/shared/entity-actions";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,18 @@ export default async function SongDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={song.title} description={song.artist ?? "Sin artista"}>
-        <Button variant="outline" render={<Link href="/songs" />}>
+        <Button variant="ghost" render={<Link href="/songs" />}>
           <ArrowLeft />
           Volver
         </Button>
+        <EntityActions
+          entity="song"
+          id={song.id}
+          name={song.title}
+          editHref={`/songs/${song.id}/edit`}
+          variant="buttons"
+          redirectAfterDelete
+        />
       </PageHeader>
 
       <StatusBadge kind="song" status={song.status} />

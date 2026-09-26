@@ -234,6 +234,10 @@ export async function updateOrder(input: unknown) {
       where: { id },
       data: {
         ...data,
+        // El total se recalcula si cambia el envío
+        ...(data.shippingCents !== undefined
+          ? { totalCents: existing.subtotalCents + data.shippingCents }
+          : {}),
         ...(customerEmail !== undefined ? { customerEmail: customerEmail || null } : {}),
       },
       include: {
@@ -337,6 +341,61 @@ export async function updateOrderStock(orderId: string) {
     });
 
     return { success: true as const, data: updated };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+/**
+ * Elimina un pedido. Si ya había descontado stock, lo devuelve y deja
+ * constancia en el historial de inventario.
+ */
+export async function deleteOrder(id: string) {
+  try {
+    const user = await authorizeOrders();
+    if (!canManage(user.role, "orders")) {
+      throw new AppError("No tienes permisos para eliminar pedidos.", "FORBIDDEN", 403);
+    }
+
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (!order) {
+      throw new AppError("Pedido no encontrado.", "NOT_FOUND", 404);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const movements = await tx.inventoryMovement.findMany({
+        where: { reason: { contains: order.orderNumber } },
+      });
+      const netByTarget = new Map<string, { productId: string; variantId: string | null; qty: number }>();
+      for (const m of movements) {
+        const key = `${m.productId}:${m.variantId ?? ""}`;
+        const entry = netByTarget.get(key) ?? { productId: m.productId, variantId: m.variantId, qty: 0 };
+        entry.qty += m.quantity;
+        netByTarget.set(key, entry);
+      }
+
+      for (const { productId, variantId, qty } of netByTarget.values()) {
+        if (qty >= 0) continue;
+        if (variantId) {
+          await tx.productVariant.update({
+            where: { id: variantId },
+            data: { stock: { increment: -qty } },
+          });
+        }
+        await tx.inventoryMovement.create({
+          data: {
+            productId,
+            variantId,
+            quantity: -qty,
+            reason: `Anulación ${order.orderNumber}`,
+            createdById: user.id,
+          },
+        });
+      }
+
+      await tx.order.delete({ where: { id } });
+    });
+
+    return { success: true as const, data: { id } };
   } catch (error) {
     return toActionError(error);
   }

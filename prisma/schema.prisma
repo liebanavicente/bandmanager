@@ -482,3 +482,21 @@ model CollaboratorAccess {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+/// Espacio de trabajo de la banda (una por despliegue). Se rellena con el
+/// asistente de configuración tras el registro.
+model Band {
+  id           String    @id @default(cuid())
+  name         String
+  /// Logo como data URL (image/png|jpeg|webp|svg+xml), máx. ~512 KB.
+  logoData     String?
+  genre        String?
+  city         String?
+  foundedYear  Int?
+  bio          String?
+  hasStore     Boolean   @default(false)
+  storeUrl     String?
+  links        Json?
+  onboardedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

@@ -1,28 +1,15 @@
 "use client";
 
-import { Moon, Sun, User } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { UserRole } from "@prisma/client";
+import type { BandSummary } from "@/lib/workspace";
 import Link from "next/link";
 import { BmLogo } from "@/components/brand/bm-logo";
-import { LogoutButton } from "@/components/layout/logout-button";
+import { UserMenu, userInitials } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const roleLabels: Record<UserRole, string> = {
-  ADMIN: "Administrador",
-  MEMBER: "Miembro",
-  COLLABORATOR: "Colaborador",
-};
 
 type HeaderProps = {
   user: {
@@ -31,16 +18,11 @@ type HeaderProps = {
     role: UserRole;
   };
   collaboratorAreas?: string[];
+  band: BandSummary;
 };
 
-export function Header({ user, collaboratorAreas }: HeaderProps) {
+export function Header({ user, collaboratorAreas, band }: HeaderProps) {
   const { theme, setTheme } = useTheme();
-  const initials = user.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-background/80 px-4 backdrop-blur-md sm:px-6">
@@ -49,7 +31,7 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-stage-red/70 via-border to-border"
       />
-      <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} />
+      <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} band={band} />
       <Link href="/" className="flex items-center gap-2 lg:hidden" aria-label="Ir al panel">
         <BmLogo size={26} title="" />
         <span className="poster-title text-lg">
@@ -70,42 +52,18 @@ export function Header({ user, collaboratorAreas }: HeaderProps) {
 
         {/* Menú de usuario: en escritorio vive al pie de la sidebar */}
         <div className="lg:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" className="gap-2 px-2">
-                  <Avatar className="size-7">
-                    <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">
-                    {user.name}
-                  </span>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col gap-0.5">
-                  <span>{user.name}</span>
-                  <span className="text-xs font-normal text-muted-foreground">
-                    {user.email}
-                  </span>
-                  <span className="mt-1 inline-block w-fit rounded-sm border border-primary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-primary">
-                    {roleLabels[user.role]}
-                  </span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>
-                <User className="size-4" />
-                Mi perfil
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <LogoutButton />
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserMenu
+            user={user}
+            trigger={
+              <Button variant="ghost" className="gap-2 px-2" aria-label="Menú de usuario">
+                <Avatar className="size-7">
+                  <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
+                    {userInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            }
+          />
         </div>
       </div>
     </header>

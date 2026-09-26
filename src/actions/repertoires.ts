@@ -278,3 +278,17 @@ export async function setActiveRepertoire(input: unknown) {
     return toActionError(error);
   }
 }
+/** Canciones disponibles para montar un repertorio. */
+export async function listRepertoireSongChoices() {
+  try {
+    await authorizeRepertoires();
+    const songs = await prisma.song.findMany({
+      where: { deletedAt: null, status: { not: "ARCHIVED" } },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true, artist: true, durationSeconds: true },
+    });
+    return { success: true as const, data: songs };
+  } catch (error) {
+    return toActionError(error);
+  }
+}

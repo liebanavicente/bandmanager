@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { NewProductButton, ProductActions } from "@/components/products/product-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
@@ -39,7 +40,7 @@ async function ProductsList({
       <EmptyState
         icon={Package}
         title="Sin productos"
-        description="Gestiona camisetas, vinilos y merch de la banda."
+        description="Gestiona camisetas, vinilos y merch de la banda. Crea el primero con «Nuevo producto»."
       />
     );
   }
@@ -51,15 +52,18 @@ async function ProductsList({
         const margin = calculateMarginPercent(product.priceCents, product.costCents);
 
         return (
-          <Card key={product.id}>
+          <Card key={product.id} className="stage-edge">
             <CardContent className="space-y-3 pt-6">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-medium">{product.name}</h3>
-                <StatusBadge kind="product" status={product.status} />
+                <div className="flex items-center gap-1">
+                  <StatusBadge kind="product" status={product.status} />
+                  <ProductActions product={product} />
+                </div>
               </div>
               <p className="text-sm text-muted-foreground">{product.category}</p>
               <div className="flex items-baseline justify-between">
-                <span className="text-lg font-semibold">
+                <span className="font-display text-3xl leading-none">
                   {centsToEuros(product.priceCents)}
                 </span>
                 <span className="text-xs text-muted-foreground">
@@ -84,10 +88,9 @@ export default function ProductsPage({
 }) {
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Productos"
-        description="Catálogo de merchandising e inventario."
-      />
+      <PageHeader title="Productos" description="Catálogo de merchandising e inventario.">
+        <NewProductButton />
+      </PageHeader>
 
       <Suspense fallback={<Skeleton className="h-10 w-full max-w-xl" />}>
         <SearchFilters

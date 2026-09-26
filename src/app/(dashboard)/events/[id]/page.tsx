@@ -6,6 +6,7 @@ import { ArrowLeft, ExternalLink, ListMusic, MapPin } from "lucide-react";
 import type { EventType } from "@prisma/client";
 import { getEvent } from "@/actions/events";
 import { AttendancePanel } from "@/components/events/attendance-panel";
+import { EntityActions } from "@/components/shared/entity-actions";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,18 @@ export default async function EventDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={event.title} description={eventTypeLabels[event.type]}>
-        <Button variant="outline" render={<Link href="/events" />}>
+        <Button variant="ghost" render={<Link href="/events" />}>
           <ArrowLeft />
           Volver
         </Button>
+        <EntityActions
+          entity="event"
+          id={event.id}
+          name={event.title}
+          editHref={`/events/${event.id}/edit`}
+          variant="buttons"
+          redirectAfterDelete
+        />
       </PageHeader>
 
       <div className="flex flex-wrap gap-2">

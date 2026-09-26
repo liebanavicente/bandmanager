@@ -1,30 +1,21 @@
 import { Suspense } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { FileIcon, FolderOpen } from "lucide-react";
+import { Download, FileIcon, FolderOpen } from "lucide-react";
 import type { FileCategory } from "@prisma/client";
 import { listFiles } from "@/actions/files";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
+import { fileCategoryLabels } from "@/lib/file-categories";
+import { FileActions, UploadFileButton } from "@/components/files/file-dialog";
 
-const categoryLabels: Record<FileCategory, string> = {
-  CONTRACT: "Contrato",
-  TECH_RIDER: "Rider técnico",
-  HOSPITALITY_RIDER: "Rider hospitality",
-  POSTER: "Cartel",
-  PHOTO: "Foto",
-  INVOICE: "Factura",
-  LYRICS: "Letra",
-  SHEET_MUSIC: "Partitura",
-  AUDIO: "Audio",
-  INTERNAL: "Interno",
-  OTHER: "Otro",
-};
+const categoryLabels = fileCategoryLabels;
 
 const categoryOptions = Object.entries(categoryLabels).map(([value, label]) => ({
   value,
@@ -67,7 +58,7 @@ async function FilesList({
   return (
     <div className="grid gap-3">
       {files.map((file) => (
-        <Card key={file.id}>
+        <Card key={file.id} className="stage-edge">
           <CardContent className="flex items-start gap-4 pt-6">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <FileIcon className="size-5" />
@@ -87,6 +78,18 @@ async function FilesList({
                 {file.event && ` · ${file.event.title}`}
               </p>
             </div>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Descargar ${file.name}`}
+                nativeButton={false}
+                render={<a href={`/api/files/${file.id}`} download />}
+              >
+                <Download />
+              </Button>
+              <FileActions file={file} />
+            </div>
           </CardContent>
         </Card>
       ))}
@@ -101,10 +104,9 @@ export default function FilesPage({
 }) {
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Archivos"
-        description="Documentación compartida de la banda."
-      />
+      <PageHeader title="Archivos" description="Documentación compartida de la banda.">
+        <UploadFileButton />
+      </PageHeader>
 
       <Suspense fallback={<Skeleton className="h-10 w-full max-w-xl" />}>
         <SearchFilters

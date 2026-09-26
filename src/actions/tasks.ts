@@ -206,3 +206,20 @@ export async function addTaskComment(input: unknown) {
     return toActionError(error);
   }
 }
+/** Personas a las que se puede asignar una tarea (sin exigir acceso a Miembros). */
+export async function listAssignees() {
+  try {
+    await authorizeTasks();
+    const users = await prisma.user.findMany({
+      where: { deletedAt: null, isActive: true },
+      include: { profile: true },
+      orderBy: { createdAt: "asc" },
+    });
+    return {
+      success: true as const,
+      data: users.map((u) => ({ id: u.id, name: u.profile?.name ?? u.email })),
+    };
+  } catch (error) {
+    return toActionError(error);
+  }
+}

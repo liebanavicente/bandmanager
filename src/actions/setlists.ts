@@ -302,3 +302,25 @@ export async function getSetlistStageView(id: string) {
     return toActionError(error);
   }
 }
+/** Canciones y eventos disponibles para montar un setlist. */
+export async function listSetlistChoices() {
+  try {
+    await authorizeSetlists();
+    const [songs, events] = await Promise.all([
+      prisma.song.findMany({
+        where: { deletedAt: null, status: { not: "ARCHIVED" } },
+        orderBy: { title: "asc" },
+        select: { id: true, title: true, artist: true, durationSeconds: true },
+      }),
+      prisma.event.findMany({
+        where: { deletedAt: null },
+        orderBy: { startAt: "desc" },
+        take: 50,
+        select: { id: true, title: true, startAt: true },
+      }),
+    ]);
+    return { success: true as const, data: { songs, events } };
+  } catch (error) {
+    return toActionError(error);
+  }
+}

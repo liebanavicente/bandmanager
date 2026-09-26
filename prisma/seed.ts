@@ -30,6 +30,20 @@ async function main() {
   await prisma.collaboratorAccess.deleteMany();
   await prisma.memberProfile.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.band.deleteMany();
+
+  await prisma.band.create({
+    data: {
+      name: "Los Voltios",
+      genre: "Pop-rock",
+      city: "Madrid",
+      foundedYear: 2019,
+      bio: "Cuarteto de pop-rock eléctrico con alma de directo.",
+      hasStore: true,
+      links: { instagram: "https://instagram.com/losvoltios" },
+      onboardedAt: new Date(),
+    },
+  });
 
   const passwordHash = await bcrypt.hash("demo1234", 12);
 

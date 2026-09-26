@@ -15,20 +15,56 @@ import {
   UserRole,
 } from "@prisma/client";
 
+// Un campo vacío ("") se guarda como null para poder borrar su contenido al
+// editar; un campo ausente (undefined) no se toca.
 const optionalUrl = z
   .string()
   .url("URL inválida.")
   .optional()
   .or(z.literal(""))
-  .transform((value) => (value === "" ? undefined : value));
+  .transform((value) => (value === "" ? null : value));
 
 const optionalString = z
   .string()
   .optional()
   .or(z.literal(""))
-  .transform((value) => (value === "" ? undefined : value));
+  .transform((value) => (value === "" ? null : value));
 
 const dateTimeInput = z.coerce.date({ message: "Fecha inválida." });
+
+/** Id opcional de una relación: "" la desvincula (null). */
+const optionalRelationId = z
+  .string()
+  .cuid()
+  .optional()
+  .or(z.literal(""))
+  .transform((value) => (value === "" ? null : value));
+
+/** Fecha opcional: "" la borra (null). */
+const optionalDateInput = z
+  .literal("")
+  .transform(() => null)
+  .or(dateTimeInput.optional());
+
+type StripDefaults<S extends z.ZodRawShape> = {
+  [K in keyof S]: S[K] extends z.ZodDefault<infer Inner> ? Inner : S[K];
+};
+
+/**
+ * `.partial()` de Zod 4 sigue aplicando los `.default()` de los campos
+ * omitidos, así que una actualización parcial (p. ej. solo el nombre de un
+ * repertorio) pisaría canciones, etiquetas o estados con su valor por
+ * defecto. Este helper quita los defaults antes de hacer el esquema parcial.
+ */
+function partialWithoutDefaults<S extends z.ZodRawShape>(schema: z.ZodObject<S>) {
+  const shape = Object.fromEntries(
+    Object.entries(schema.shape).map(([key, field]) => [
+      key,
+      field instanceof z.ZodDefault ? field.unwrap() : field,
+    ]),
+  ) as StripDefaults<S>;
+  return z.object(shape).partial();
+}
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -71,8 +107,7 @@ export const createEventSchema = eventBaseSchema.refine(
   },
 );
 
-export const updateEventSchema = eventBaseSchema
-  .partial()
+export const updateEventSchema = partialWithoutDefaults(eventBaseSchema)
   .extend({
     id: z.string().cuid(),
   })
@@ -120,7 +155,7 @@ export const createSongSchema = z.object({
   chords: optionalString,
 });
 
-export const updateSongSchema = createSongSchema.partial().extend({
+export const updateSongSchema = partialWithoutDefaults(createSongSchema).extend({
   id: z.string().cuid(),
 });
 
@@ -131,7 +166,7 @@ export const createRepertoireSchema = z.object({
   songIds: z.array(z.string().cuid()).default([]),
 });
 
-export const updateRepertoireSchema = createRepertoireSchema.partial().extend({
+export const updateRepertoireSchema = partialWithoutDefaults(createRepertoireSchema).extend({
   id: z.string().cuid(),
 });
 
@@ -157,13 +192,13 @@ export const setlistItemSchema = z.object({
 
 export const createSetlistSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio.").max(200),
-  eventId: z.string().cuid().optional(),
-  repertoireId: z.string().cuid().optional(),
+  eventId: optionalRelationId,
+  repertoireId: optionalRelationId,
   notes: optionalString,
   items: z.array(setlistItemSchema).default([]),
 });
 
-export const updateSetlistSchema = createSetlistSchema.partial().extend({
+export const updateSetlistSchema = partialWithoutDefaults(createSetlistSchema).extend({
   id: z.string().cuid(),
 });
 
@@ -189,15 +224,15 @@ export const taskFiltersSchema = z.object({
 export const createTaskSchema = z.object({
   title: z.string().min(1, "El título es obligatorio.").max(200),
   description: optionalString,
-  assigneeId: z.string().cuid().optional(),
-  dueAt: dateTimeInput.optional(),
+  assigneeId: optionalRelationId,
+  dueAt: optionalDateInput,
   priority: z.nativeEnum(TaskPriority).default(TaskPriority.MEDIUM),
   status: z.nativeEnum(TaskStatus).default(TaskStatus.PENDING),
   category: optionalString,
-  eventId: z.string().cuid().optional(),
+  eventId: optionalRelationId,
 });
 
-export const updateTaskSchema = createTaskSchema.partial().extend({
+export const updateTaskSchema = partialWithoutDefaults(createTaskSchema).extend({
   id: z.string().cuid(),
 });
 
@@ -259,7 +294,7 @@ export const createProductSchema = z.object({
   variants: z.array(productVariantSchema).default([]),
 });
 
-export const updateProductSchema = createProductSchema.partial().extend({
+export const updateProductSchema = partialWithoutDefaults(createProductSchema).extend({
   id: z.string().cuid(),
 });
 
@@ -345,3 +380,9 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type QuickConcertSaleInput = z.infer<typeof quickConcertSaleSchema>;
+export const updateFileMetadataSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().trim().min(1, "El nombre es obligatorio.").max(200),
+  description: optionalString,
+  category: z.nativeEnum(FileCategory),
+});

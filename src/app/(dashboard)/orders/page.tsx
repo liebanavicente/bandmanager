@@ -9,6 +9,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { OrderActions } from "@/components/orders/order-actions";
+import { auth } from "@/lib/auth";
+import { canManage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,8 +39,9 @@ async function OrdersList({
 }: {
   searchParams: Promise<{ q?: string; status?: OrderStatus }>;
 }) {
-  const params = await searchParams;
+  const [params, session] = await Promise.all([searchParams, auth()]);
   const result = await listOrders({ search: params.q, status: params.status });
+  const manage = session?.user ? canManage(session.user.role, "orders") : false;
 
   if (!isActionSuccess(result)) {
     return <p className="text-sm text-destructive">{result.error}</p>;
@@ -59,7 +63,7 @@ async function OrdersList({
   return (
     <div className="grid gap-3">
       {orders.map((order) => (
-        <Card key={order.id}>
+        <Card key={order.id} className="stage-edge">
           <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -76,9 +80,12 @@ async function OrdersList({
                   ` · ${order.createdBy.profile.name}`}
               </p>
             </div>
-            <span className="text-lg font-semibold">
-              {centsToEuros(order.totalCents)}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-display text-3xl leading-none">
+                {centsToEuros(order.totalCents)}
+              </span>
+              <OrderActions order={order} canManage={manage} />
+            </div>
           </CardContent>
         </Card>
       ))}

@@ -5,6 +5,8 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { memberFiltersSchema, updateMemberSchema } from "@/lib/validations";
+import { onboardingMemberSchema } from "@/lib/validations/band";
+import { createBandMember } from "@/lib/members";
 
 async function authorizeMembers() {
   const user = await getSessionUser();
@@ -181,6 +183,50 @@ export async function deactivateMember(id: string) {
     });
 
     return { success: true as const, data: member };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+export async function createMember(input: unknown) {
+  try {
+    const user = await authorizeMembers();
+    if (user.role !== "ADMIN") {
+      throw new AppError("Solo un administrador puede añadir componentes.", "FORBIDDEN", 403);
+    }
+
+    const parsed = onboardingMemberSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new AppError(parsed.error.issues[0]?.message ?? "Datos inválidos.", "VALIDATION", 400);
+    }
+
+    const created = await prisma.$transaction((tx) => createBandMember(tx, parsed.data));
+    return { success: true as const, data: created };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+/** Baja de un componente: desaparece de la banda y pierde el acceso. */
+export async function removeMember(id: string) {
+  try {
+    const user = await authorizeMembers();
+    if (user.role !== "ADMIN") {
+      throw new AppError("Solo un administrador puede eliminar componentes.", "FORBIDDEN", 403);
+    }
+    if (user.id === id) {
+      throw new AppError("No puedes eliminar tu propia cuenta.", "FORBIDDEN", 403);
+    }
+
+    const existing = await prisma.user.findFirst({ where: { id, deletedAt: null } });
+    if (!existing) {
+      throw new AppError("Miembro no encontrado.", "NOT_FOUND", 404);
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date(), isActive: false },
+    });
+    return { success: true as const, data: { id } };
   } catch (error) {
     return toActionError(error);
   }

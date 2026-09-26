@@ -140,6 +140,11 @@ export async function updateProduct(input: unknown) {
 
     const product = await prisma.$transaction(async (tx) => {
       if (variants) {
+        // La lista enviada es la definitiva: las variantes que ya no vienen se eliminan
+        const keptIds = variants.flatMap((variant) => (variant.id ? [variant.id] : []));
+        await tx.productVariant.deleteMany({
+          where: { productId: id, id: { notIn: keptIds } },
+        });
         for (const variant of variants) {
           if (variant.id) {
             await tx.productVariant.update({

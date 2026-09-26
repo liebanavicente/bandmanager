@@ -23,10 +23,10 @@ import { StatBlock } from "@/components/punk/stat-block";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { centsToEuros } from "@/lib/money";
-import { BAND_NAME } from "@/lib/workspace";
+import { getBandSummary } from "@/lib/workspace";
 
 async function DashboardContent() {
-  const data = await getDashboardData();
+  const [data, band] = await Promise.all([getDashboardData(), getBandSummary()]);
   const nextEvent = data.nextConcert ?? data.nextRehearsal ?? data.upcomingEvents[0] ?? null;
   const repertoireSongs = data.activeRepertoire?.songs.length ?? 0;
 
@@ -40,7 +40,7 @@ async function DashboardContent() {
         <StageLights />
         <Vinyl
           spin
-          label={BAND_NAME}
+          label={band.name}
           className="pointer-events-none absolute -right-24 -top-16 -z-10 size-72 opacity-35 sm:opacity-80 sm:-right-16 sm:size-96 lg:-right-10 lg:top-1/2 lg:size-[26rem] lg:-translate-y-1/2"
         />
 
@@ -71,11 +71,20 @@ async function DashboardContent() {
 
               <div className="min-w-0 space-y-3">
                 <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-stage-amber">
-                  <span className="size-1.5 animate-live rounded-full bg-stage-red" aria-hidden="true" />
+                  <span
+                    className="size-1.5 animate-live rounded-full bg-stage-red"
+                    aria-hidden="true"
+                  />
                   Próximo show
                 </p>
-                <h2 id="next-show-title" className="poster-title break-words text-4xl text-white sm:text-6xl">
-                  <Link href={`/events/${nextEvent.id}`} className="underline-offset-8 hover:underline">
+                <h2
+                  id="next-show-title"
+                  className="poster-title break-words text-4xl text-white sm:text-6xl"
+                >
+                  <Link
+                    href={`/events/${nextEvent.id}`}
+                    className="underline-offset-8 hover:underline"
+                  >
                     {nextEvent.title}
                   </Link>
                 </h2>
@@ -90,8 +99,8 @@ async function DashboardContent() {
                 Escenario <span className="text-stage-gradient">vacío</span>
               </h2>
               <p className="font-serif text-xl italic text-white/75">
-                No hay nada en el calendario. Crea el próximo concierto o ensayo y
-                empieza la cuenta atrás.
+                No hay nada en el calendario. Crea el próximo concierto o ensayo y empieza la cuenta
+                atrás.
               </p>
             </div>
           )}
@@ -115,14 +124,21 @@ async function DashboardContent() {
       {/* Cifras destacadas */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatBlock label="Eventos este mes" value={data.stats.eventsThisMonth} icon={Calendar} />
-        <StatBlock label="Canciones listas" value={data.stats.songsReady} icon={Music2} accent="acid" />
-        <StatBlock label="Mis tareas" value={data.stats.pendingTasks} icon={ClipboardList} />
         <StatBlock
-          label="Stock bajo"
-          value={data.stats.lowStockProducts}
-          icon={Package}
-          accent={data.stats.lowStockProducts > 0 ? "red" : "none"}
+          label="Canciones listas"
+          value={data.stats.songsReady}
+          icon={Music2}
+          accent="acid"
         />
+        <StatBlock label="Mis tareas" value={data.stats.pendingTasks} icon={ClipboardList} />
+        {band.hasStore && (
+          <StatBlock
+            label="Stock bajo"
+            value={data.stats.lowStockProducts}
+            icon={Package}
+            accent={data.stats.lowStockProducts > 0 ? "red" : "none"}
+          />
+        )}
       </div>
 
       {/* Rejilla principal */}
@@ -135,7 +151,11 @@ async function DashboardContent() {
           </CardHeader>
           <CardContent className="space-y-2">
             {data.upcomingEvents.length === 0 ? (
-              <EmptyLine text="No hay eventos próximos. ¿Montamos algo?" href="/events/new" action="Crear evento" />
+              <EmptyLine
+                text="No hay eventos próximos. ¿Montamos algo?"
+                href="/events/new"
+                action="Crear evento"
+              />
             ) : (
               data.upcomingEvents.map((event) => (
                 <Link
@@ -176,9 +196,7 @@ async function DashboardContent() {
           </CardHeader>
           <CardContent className="space-y-2">
             {data.pendingAttendances.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Todo confirmado. Buen trabajo.
-              </p>
+              <p className="text-sm text-muted-foreground">Todo confirmado. Buen trabajo.</p>
             ) : (
               data.pendingAttendances.map((attendance) => (
                 <Link
@@ -189,7 +207,9 @@ async function DashboardContent() {
                   <div>
                     <p className="text-sm font-medium">{attendance.event.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(attendance.event.startAt, "d MMM, HH:mm", { locale: es })}
+                      {format(attendance.event.startAt, "d MMM, HH:mm", {
+                        locale: es,
+                      })}
                     </p>
                   </div>
                   <StatusBadge kind="attendance" status="PENDING" />
@@ -244,15 +264,24 @@ async function DashboardContent() {
             {data.activeRepertoire ? (
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="font-display text-5xl leading-none tabular-nums">{repertoireSongs}</p>
+                  <p className="font-display text-5xl leading-none tabular-nums">
+                    {repertoireSongs}
+                  </p>
                   <p className="mt-1.5 text-xs text-muted-foreground">canciones en el set</p>
                 </div>
-                <Link href="/repertoires" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+                <Link
+                  href="/repertoires"
+                  className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                >
                   Ver repertorio
                 </Link>
               </div>
             ) : (
-              <EmptyLine text="Activa un repertorio para verlo aquí." href="/repertoires" action="Ir a repertorios" />
+              <EmptyLine
+                text="Activa un repertorio para verlo aquí."
+                href="/repertoires"
+                action="Ir a repertorios"
+              />
             )}
           </CardContent>
         </Card>
@@ -290,7 +319,7 @@ async function DashboardContent() {
         </Card>
 
         {/* Stock bajo */}
-        {data.stockAlerts.length > 0 && (
+        {band.hasStore && data.stockAlerts.length > 0 && (
           <Card className="stage-edge lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -300,7 +329,10 @@ async function DashboardContent() {
             </CardHeader>
             <CardContent className="grid gap-2 sm:grid-cols-2">
               {data.stockAlerts.map((alert) => (
-                <div key={alert.name} className="rounded-lg px-3 py-2 text-sm ring-1 ring-foreground/10">
+                <div
+                  key={alert.name}
+                  className="rounded-lg px-3 py-2 text-sm ring-1 ring-foreground/10"
+                >
                   <p className="font-medium">{alert.name}</p>
                   <p className="text-muted-foreground">
                     {alert.stock} uds (mín. {alert.minStock})
@@ -311,41 +343,51 @@ async function DashboardContent() {
           </Card>
         )}
 
-        {/* Pedidos recientes */}
-        <Card className="stage-edge lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Pedidos recientes</CardTitle>
-            <CardDescription>
-              Ingresos recientes: {data.stats.recentRevenueFormatted}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.recentOrders.length === 0 ? (
-              <EmptyLine text="Aún no hay pedidos." href="/orders/quick-sale" action="Venta rápida" />
-            ) : (
-              data.recentOrders.map((order) => (
-                <Link
-                  key={order.id}
-                  href="/orders"
-                  className="flex items-center justify-between rounded-lg px-3 py-2.5 ring-1 ring-foreground/10 transition-colors hover:bg-muted/60"
-                >
-                  <div>
-                    <p className="text-sm font-medium">{order.orderNumber}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(order.createdAt, "d MMM yyyy", { locale: es })}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium tabular-nums">
-                      {centsToEuros(order.totalCents)}
-                    </span>
-                    <StatusBadge kind="order" status={order.status} />
-                  </div>
-                </Link>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        {band.hasStore && (
+          <>
+            {/* Pedidos recientes */}
+            <Card className="stage-edge lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-base font-semibold">Pedidos recientes</CardTitle>
+                <CardDescription>
+                  Ingresos recientes: {data.stats.recentRevenueFormatted}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {data.recentOrders.length === 0 ? (
+                  <EmptyLine
+                    text="Aún no hay pedidos."
+                    href="/orders/quick-sale"
+                    action="Venta rápida"
+                  />
+                ) : (
+                  data.recentOrders.map((order) => (
+                    <Link
+                      key={order.id}
+                      href="/orders"
+                      className="flex items-center justify-between rounded-lg px-3 py-2.5 ring-1 ring-foreground/10 transition-colors hover:bg-muted/60"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{order.orderNumber}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(order.createdAt, "d MMM yyyy", {
+                            locale: es,
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium tabular-nums">
+                          {centsToEuros(order.totalCents)}
+                        </span>
+                        <StatusBadge kind="order" status={order.status} />
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         {/* Archivos nuevos */}
         <Card className="stage-edge">
@@ -368,9 +410,7 @@ async function DashboardContent() {
                     <p className="truncate text-sm font-medium">{file.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {format(file.createdAt, "d MMM", { locale: es })}
-                      {file.uploadedBy.profile?.name
-                        ? ` · ${file.uploadedBy.profile.name}`
-                        : ""}
+                      {file.uploadedBy.profile?.name ? ` · ${file.uploadedBy.profile.name}` : ""}
                     </p>
                   </div>
                 </Link>
@@ -380,22 +420,22 @@ async function DashboardContent() {
         </Card>
 
         {/* Caja */}
-        <Card className="stage-edge">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
-              Caja
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-display text-5xl leading-none tabular-nums text-stage-gradient">
-              {data.stats.recentRevenueFormatted}
-            </p>
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              cobrado en pedidos recientes
-            </p>
-          </CardContent>
-        </Card>
+        {band.hasStore && (
+          <Card className="stage-edge">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ShoppingCart className="size-4 text-muted-foreground" aria-hidden="true" />
+                Caja
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-display text-5xl leading-none tabular-nums text-stage-gradient">
+                {data.stats.recentRevenueFormatted}
+              </p>
+              <p className="mt-1.5 text-xs text-muted-foreground">cobrado en pedidos recientes</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
