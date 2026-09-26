@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { getRepertoire } from "@/actions/repertoires";
+import { getRepertoire, listRepertoireSongChoices } from "@/actions/repertoires";
+import { RepertoireActions } from "@/components/music/repertoire-dialog";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -16,17 +17,30 @@ export default async function RepertoireDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const result = await getRepertoire(id);
+  const [result, songsResult] = await Promise.all([getRepertoire(id), listRepertoireSongChoices()]);
   if (!isActionSuccess(result)) notFound();
+  const songs = isActionSuccess(songsResult) ? songsResult.data : [];
   const repertoire = result.data;
 
   return (
     <div className="space-y-6">
       <PageHeader title={repertoire.name} description={repertoire.description ?? undefined}>
-        <Button variant="outline" render={<Link href="/repertoires" />}>
+        <Button variant="ghost" render={<Link href="/repertoires" />}>
           <ArrowLeft />
           Volver
         </Button>
+        <RepertoireActions
+          variant="buttons"
+          songs={songs}
+          repertoire={{
+            id: repertoire.id,
+            name: repertoire.name,
+            description: repertoire.description,
+            notes: repertoire.notes,
+            isActive: repertoire.isActive,
+            songIds: repertoire.songs.map((item) => item.song.id),
+          }}
+        />
       </PageHeader>
 
       <div className="flex gap-2">

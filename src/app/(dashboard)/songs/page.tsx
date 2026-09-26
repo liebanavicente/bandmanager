@@ -4,6 +4,7 @@ import { Music2, Plus } from "lucide-react";
 import type { SongStatus } from "@prisma/client";
 import { listSongs } from "@/actions/songs";
 import { EmptyState } from "@/components/shared/empty-state";
+import { EntityActions } from "@/components/shared/entity-actions";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -49,12 +50,18 @@ async function SongsList({
   return (
     <div className="grid gap-3">
       {songs.map((song) => (
-        <Link key={song.id} href={`/songs/${song.id}`}>
-          <Card className="transition-colors hover:bg-muted/30">
-            <CardContent className="flex flex-col gap-2 pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+        <Card key={song.id} className="stage-edge relative transition-colors hover:bg-muted/30">
+          <CardContent className="flex items-center gap-3 pt-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-medium">{song.title}</h3>
+                  {/* Enlace extendido: toda la tarjeta abre la ficha */}
+                  <Link
+                    href={`/songs/${song.id}`}
+                    className="font-medium after:absolute after:inset-0 after:content-['']"
+                  >
+                    {song.title}
+                  </Link>
                   <StatusBadge kind="song" status={song.status} />
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -65,9 +72,15 @@ async function SongsList({
               {song.tags.length > 0 && (
                 <p className="text-xs text-muted-foreground">{song.tags.join(", ")}</p>
               )}
-            </CardContent>
-          </Card>
-        </Link>
+            </div>
+            <EntityActions
+              entity="song"
+              id={song.id}
+              name={song.title}
+              editHref={`/songs/${song.id}/edit`}
+            />
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

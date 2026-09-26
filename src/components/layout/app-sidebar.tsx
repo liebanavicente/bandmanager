@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronsLeft, ChevronsRight, User } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Settings2, Sparkles, UserPlus } from "lucide-react";
 import type { UserRole } from "@prisma/client";
-import { navItems, navSections } from "@/lib/navigation";
 import { hasPermission } from "@/lib/permissions";
-import { BAND_NAME } from "@/lib/workspace";
+import { navItems } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import type { BandSummary } from "@/lib/workspace";
 import { BmLogo } from "@/components/brand/bm-logo";
-import { Equalizer } from "@/components/punk/equalizer";
+import { BandBadge } from "@/components/layout/band-badge";
+import { InviteCard } from "@/components/band/invite-card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { LogoutButton } from "@/components/layout/logout-button";
+import { NavList } from "@/components/layout/nav-list";
+import { QuickCreate } from "@/components/layout/quick-create";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const roleLabels: Record<UserRole, string> = {
+export const roleLabels: Record<UserRole, string> = {
   ADMIN: "Administrador",
   MEMBER: "Miembro",
   COLLABORATOR: "Colaborador",
@@ -33,6 +36,7 @@ const roleLabels: Record<UserRole, string> = {
 type AppSidebarProps = {
   role: UserRole;
   collaboratorAreas?: string[];
+  band: BandSummary;
   user: {
     name: string;
     email: string;
@@ -40,8 +44,24 @@ type AppSidebarProps = {
   };
 };
 
-export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
-  const pathname = usePathname();
+export function visibleNavItems(role: UserRole, hasStore: boolean, collaboratorAreas?: string[]) {
+  return navItems.filter((item) => {
+    if (item.adminOnly && role !== "ADMIN") return false;
+    if (item.requiresStore && !hasStore) return false;
+    return hasPermission(role, item.area, collaboratorAreas);
+  });
+}
+
+export function userInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   // Persistencia local de la preferencia de colapso (solo escritorio)
@@ -59,23 +79,13 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
     });
   }
 
-  const visibleItems = navItems.filter((item) => {
-    if (item.adminOnly && role !== "ADMIN") return false;
-    return hasPermission(role, item.area, collaboratorAreas);
-  });
-
-  const initials = user.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const items = visibleNavItems(role, band.hasStore, collaboratorAreas);
 
   return (
     <aside
       className={cn(
         "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 lg:flex",
-        collapsed ? "w-[68px]" : "w-64",
+        collapsed ? "w-[76px]" : "w-72",
       )}
     >
       {/* Marca */}
@@ -85,116 +95,34 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
           collapsed ? "justify-center px-2" : "px-5",
         )}
       >
-        <BmLogo size={34} className="transition-transform duration-700 hover:rotate-[200deg]" />
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="poster-title truncate text-xl leading-none">
-              Band<span className="text-stage-gradient">Manager</span>
-            </p>
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/50">
-              Backstage
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Selector de banda (un solo espacio de trabajo por ahora) */}
-      <div className={cn("py-3", collapsed ? "px-2" : "px-3")}>
-        <div
-          className={cn(
-            "relative flex items-center gap-2.5 overflow-hidden rounded-lg border border-sidebar-border stage-surface px-3 py-2.5",
-            collapsed && "justify-center px-2",
-          )}
-          title={collapsed ? BAND_NAME : undefined}
-        >
-          <span className="size-2 shrink-0 animate-live rounded-full bg-stage-red" aria-hidden="true" />
+        <Link href="/" aria-label="Ir al panel" className="flex items-center gap-3">
+          <BmLogo size={34} className="transition-transform duration-700 hover:rotate-[200deg]" />
           {!collapsed && (
             <span className="min-w-0">
-              <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-white/55">
-                En gira
+              <span className="poster-title block truncate text-xl leading-none">
+                Band<span className="text-stage-gradient">Manager</span>
               </span>
-              <span className="block truncate font-serif text-lg italic leading-tight text-white">
-                {BAND_NAME}
+              <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/50">
+                Backstage
               </span>
             </span>
           )}
-        </div>
+        </Link>
       </div>
 
-      {/* Navegación por secciones */}
-      <ScrollArea className="flex-1">
-        <nav
-          aria-label="Navegación principal"
-          className={cn("flex flex-col gap-5 pb-4", collapsed ? "px-2" : "px-3")}
-        >
-          {navSections.map((section) => {
-            const items = visibleItems.filter((item) => item.section === section);
-            if (items.length === 0) return null;
-            return (
-              <div key={section} className="flex flex-col gap-0.5">
-                {!collapsed && (
-                  <p className="flex items-center gap-2 px-3 pb-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-sidebar-foreground/40">
-                    <span className="text-sidebar-primary/80">{sideLabel(section)}</span>
-                    {section}
-                  </p>
-                )}
-                {items.map((item) => {
-                  const track = String(navItems.indexOf(item) + 1).padStart(2, "0");
-                  const isActive =
-                    item.href === "/"
-                      ? pathname === "/"
-                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
-                  const Icon = item.icon;
+      {/* Banda + crear */}
+      <div className={cn("flex flex-col gap-3 py-4", collapsed ? "items-center px-2" : "px-3")}>
+        <BandBadge band={band} collapsed={collapsed} className={cn(collapsed && "w-full")} />
+        <QuickCreate
+          role={role}
+          collaboratorAreas={collaboratorAreas}
+          hasStore={band.hasStore}
+          collapsed={collapsed}
+        />
+      </div>
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={isActive ? "page" : undefined}
-                      title={collapsed ? item.label : undefined}
-                      className={cn(
-                        "group relative flex items-center gap-3 overflow-hidden rounded-md px-3 py-2 text-sm transition-colors",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-                        collapsed && "justify-center px-2",
-                        isActive
-                          ? "bg-gradient-to-r from-sidebar-primary/20 via-sidebar-accent to-sidebar-accent font-medium text-sidebar-foreground"
-                          : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                      )}
-                    >
-                      {isActive && (
-                        <span
-                          aria-hidden="true"
-                          className="absolute left-0 inset-y-1.5 w-[3px] rounded-full bg-stage-gradient"
-                        />
-                      )}
-                      {!collapsed && (
-                        <span
-                          className={cn(
-                            "w-5 font-mono text-[10px] tabular-nums",
-                            isActive ? "text-sidebar-primary" : "text-sidebar-foreground/30 group-hover:text-sidebar-foreground/60",
-                          )}
-                          aria-hidden="true"
-                        >
-                          {track}
-                        </span>
-                      )}
-                      <Icon
-                        className={cn(
-                          "size-[18px] shrink-0",
-                          isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/55 group-hover:text-sidebar-foreground",
-                        )}
-                      />
-                      {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
-                      {!collapsed && isActive && (
-                        <Equalizer bars={3} className="h-3 text-sidebar-primary" />
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </nav>
+      <ScrollArea className="min-h-0 flex-1">
+        <NavList items={items} collapsed={collapsed} label="Navegación principal" />
       </ScrollArea>
 
       {/* Pie: colapsar + perfil de usuario */}
@@ -218,19 +146,44 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
           {!collapsed && "Contraer"}
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <button
-                className={cn(
-                  "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-                  collapsed && "w-auto justify-center px-1",
-                )}
-                aria-label="Menú de usuario"
-              />
-            }
-          >
-            <Avatar className="size-8">
+        <UserMenu user={user} band={band} collapsed={collapsed} />
+      </div>
+    </aside>
+  );
+}
+
+export function UserMenu({
+  user,
+  band,
+  collapsed = false,
+  trigger,
+}: {
+  user: AppSidebarProps["user"];
+  band: BandSummary;
+  collapsed?: boolean;
+  trigger?: React.ReactElement;
+}) {
+  const initials = userInitials(user.name);
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          trigger ?? (
+            <button
+              className={cn(
+                "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                collapsed && "w-auto justify-center px-1",
+              )}
+              aria-label="Menú de usuario"
+            />
+          )
+        }
+      >
+        {trigger ? null : (
+          <>
+            <Avatar className="size-9 ring-2 ring-sidebar-primary/40">
               <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
                 {initials}
               </AvatarFallback>
@@ -243,33 +196,45 @@ export function AppSidebar({ role, collaboratorAreas, user }: AppSidebarProps) {
                 </span>
               </span>
             )}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col gap-0.5">
-                <span>{user.name}</span>
-                <span className="text-xs font-normal text-muted-foreground">{user.email}</span>
-                <span className="mt-1 inline-block w-fit rounded-sm border border-primary px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest text-primary">
-                  {roleLabels[user.role]}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <User className="size-4" />
-              Mi perfil
+          </>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" side="top" className="w-60">
+        <DropdownMenuLabel>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-display text-lg uppercase leading-none">{user.name}</span>
+            <span className="text-xs font-normal text-muted-foreground">{user.email}</span>
+            <span className="mt-1.5 inline-block w-fit rounded-sm bg-stage-gradient px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-stage-ink">
+              {roleLabels[user.role]}
+            </span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setInviteOpen(true)}>
+          <UserPlus />
+          Invitar a la sala
+        </DropdownMenuItem>
+        {user.role === "ADMIN" && (
+          <>
+            <DropdownMenuItem render={<Link href="/settings" />}>
+              <Settings2 />
+              Ficha de la banda
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <LogoutButton />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </aside>
+            <DropdownMenuItem render={<Link href="/onboarding" />}>
+              <Sparkles />
+              Asistente de configuración
+            </DropdownMenuItem>
+          </>
+        )}
+        <DropdownMenuSeparator />
+        <LogoutButton />
+      </DropdownMenuContent>
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent className="bg-transparent p-0 ring-0 sm:max-w-xl" showCloseButton={false}>
+          <DialogTitle className="sr-only">Invitar a la sala</DialogTitle>
+          <InviteCard code={band.inviteCode} bandName={band.name} canRegenerate={user.role === "ADMIN"} />
+        </DialogContent>
+      </Dialog>
+    </DropdownMenu>
   );
-}
-
-/** Cara del disco para cada sección de la navegación. */
-function sideLabel(section: string) {
-  const index = navSections.indexOf(section as (typeof navSections)[number]);
-  return `Cara ${String.fromCharCode(65 + Math.max(0, index))}`;
 }

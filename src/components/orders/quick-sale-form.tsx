@@ -115,7 +115,6 @@ export function QuickSaleForm({ products }: { products: ProductForSale[] }) {
 
     toast.success(`Pedido ${result.data.orderNumber} registrado`);
     router.push("/orders");
-    router.refresh();
   }
 
   return (

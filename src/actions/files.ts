@@ -5,7 +5,12 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { deleteStoredFile, storeFile } from "@/lib/files";
-import { fileFiltersSchema, uploadFileMetadataSchema } from "@/lib/validations";
+import { assertInBand } from "@/lib/band-scope";
+import {
+  fileFiltersSchema,
+  updateFileMetadataSchema,
+  uploadFileMetadataSchema,
+} from "@/lib/validations";
 
 async function authorizeFiles() {
   const user = await getSessionUser();
@@ -17,7 +22,7 @@ async function authorizeFiles() {
 
 export async function listFiles(input: unknown = {}) {
   try {
-    await authorizeFiles();
+    const user = await authorizeFiles();
     const parsed = fileFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -25,6 +30,7 @@ export async function listFiles(input: unknown = {}) {
 
     const { page, pageSize, search, category, eventId, taskId } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(category ? { category } : {}),
       ...(eventId ? { eventId } : {}),
@@ -63,9 +69,9 @@ export async function listFiles(input: unknown = {}) {
 
 export async function getFileMetadata(id: string) {
   try {
-    await authorizeFiles();
+    const user = await authorizeFiles();
     const file = await prisma.fileAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         uploadedBy: { include: { profile: true } },
         event: true,
@@ -112,16 +118,22 @@ export async function uploadFile(formData: FormData) {
       throw new AppError("Metadatos del archivo inválidos.", "VALIDATION", 400);
     }
 
-    const subdirectory = parsed.data.eventId
+    await assertInBand(prisma, "event", [parsed.data.eventId], user.bandId);
+    await assertInBand(prisma, "task", [parsed.data.taskId], user.bandId);
+
+    // Cada sala guarda sus archivos en su propia carpeta
+    const scope = parsed.data.eventId
       ? `events/${parsed.data.eventId}`
       : parsed.data.taskId
         ? `tasks/${parsed.data.taskId}`
         : "general";
+    const subdirectory = `bands/${user.bandId}/${scope}`;
 
     const stored = await storeFile(file, subdirectory);
 
     const asset = await prisma.fileAsset.create({
       data: {
+        bandId: user.bandId,
         name: parsed.data.name ?? stored.originalName,
         description: parsed.data.description,
         category: parsed.data.category,
@@ -154,7 +166,7 @@ export async function deleteFile(id: string) {
   try {
     const user = await authorizeFiles();
     const file = await prisma.fileAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
     });
 
     if (!file) {
@@ -173,6 +185,32 @@ export async function deleteFile(id: string) {
     await deleteStoredFile(file.storagePath);
 
     return { success: true as const, data: { id } };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+export async function updateFile(input: unknown) {
+  try {
+    const user = await authorizeFiles();
+    const parsed = updateFileMetadataSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new AppError("Datos del archivo inválidos.", "VALIDATION", 400);
+    }
+
+    const { id, ...data } = parsed.data;
+    const file = await prisma.fileAsset.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
+    if (!file) {
+      throw new AppError("Archivo no encontrado.", "NOT_FOUND", 404);
+    }
+    if (user.role !== "ADMIN" && file.uploadedById !== user.id) {
+      throw new AppError("No tienes permisos para editar este archivo.", "FORBIDDEN", 403);
+    }
+
+    const updated = await prisma.fileAsset.update({
+      where: { id },
+      data: { ...data, description: data.description ?? null },
+    });
+    return { success: true as const, data: updated };
   } catch (error) {
     return toActionError(error);
   }

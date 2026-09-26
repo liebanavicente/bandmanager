@@ -5,6 +5,7 @@ import { mockGelatoProvider } from "@/lib/integrations/mock-gelato";
 import type { SyncResult } from "@/lib/integrations/types";
 
 async function logSync(
+  bandId: string,
   provider: SyncProvider,
   action: string,
   status: SyncStatus,
@@ -13,6 +14,7 @@ async function logSync(
 ) {
   await prisma.syncLog.create({
     data: {
+      bandId,
       provider,
       action,
       status,
@@ -22,7 +24,7 @@ async function logSync(
   });
 }
 
-export async function syncWooCommerceProducts(): Promise<SyncResult> {
+export async function syncWooCommerceProducts(bandId: string): Promise<SyncResult> {
   const action = "import_products";
 
   try {
@@ -31,8 +33,9 @@ export async function syncWooCommerceProducts(): Promise<SyncResult> {
 
     for (const external of externalProducts) {
       const product = await prisma.product.upsert({
-        where: { sku: external.sku },
+        where: { bandId_sku: { bandId, sku: external.sku } },
         create: {
+          bandId,
           name: external.name,
           description: external.description,
           category: external.category,
@@ -66,7 +69,7 @@ export async function syncWooCommerceProducts(): Promise<SyncResult> {
 
       for (const variant of external.variants) {
         await prisma.productVariant.upsert({
-          where: { sku: variant.sku },
+          where: { productId_sku: { productId: product.id, sku: variant.sku } },
           create: {
             productId: product.id,
             name: variant.name,
@@ -87,7 +90,7 @@ export async function syncWooCommerceProducts(): Promise<SyncResult> {
       processed += 1;
     }
 
-    await logSync(SyncProvider.WOOCOMMERCE, action, SyncStatus.SUCCESS, {
+    await logSync(bandId, SyncProvider.WOOCOMMERCE, action, SyncStatus.SUCCESS, {
       processed,
     });
 
@@ -99,7 +102,7 @@ export async function syncWooCommerceProducts(): Promise<SyncResult> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error desconocido";
-    await logSync(SyncProvider.WOOCOMMERCE, action, SyncStatus.FAILED, undefined, message);
+    await logSync(bandId, SyncProvider.WOOCOMMERCE, action, SyncStatus.FAILED, undefined, message);
     return {
       provider: mockWooCommerceProvider.name,
       action,
@@ -110,7 +113,7 @@ export async function syncWooCommerceProducts(): Promise<SyncResult> {
   }
 }
 
-export async function syncWooCommerceOrders(): Promise<SyncResult> {
+export async function syncWooCommerceOrders(bandId: string): Promise<SyncResult> {
   const action = "import_orders";
 
   try {
@@ -120,7 +123,7 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
 
     for (const external of externalOrders) {
       const existing = await prisma.order.findFirst({
-        where: { orderNumber: external.orderNumber },
+        where: { bandId, orderNumber: external.orderNumber },
       });
 
       if (existing) continue;
@@ -129,6 +132,7 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
       for (const item of external.items) {
         const product = await prisma.product.findFirst({
           where: {
+            bandId,
             OR: [{ externalId: item.externalProductId }, { sku: item.sku }],
           },
           include: { variants: true },
@@ -157,6 +161,7 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
 
       await prisma.order.create({
         data: {
+          bandId,
           orderNumber: external.orderNumber,
           customerName: external.customerName,
           customerEmail: external.customerEmail,
@@ -172,7 +177,7 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
       processed += 1;
     }
 
-    await logSync(SyncProvider.WOOCOMMERCE, action, SyncStatus.SUCCESS, {
+    await logSync(bandId, SyncProvider.WOOCOMMERCE, action, SyncStatus.SUCCESS, {
       processed,
     });
 
@@ -184,7 +189,7 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error desconocido";
-    await logSync(SyncProvider.WOOCOMMERCE, action, SyncStatus.FAILED, undefined, message);
+    await logSync(bandId, SyncProvider.WOOCOMMERCE, action, SyncStatus.FAILED, undefined, message);
     return {
       provider: mockWooCommerceProvider.name,
       action,
@@ -195,12 +200,13 @@ export async function syncWooCommerceOrders(): Promise<SyncResult> {
   }
 }
 
-export async function syncGelatoPendingOrders(): Promise<SyncResult> {
+export async function syncGelatoPendingOrders(bandId: string): Promise<SyncResult> {
   const action = "submit_print_orders";
 
   try {
     const pendingOrders = await prisma.order.findMany({
       where: {
+        bandId,
         status: { in: ["PAID", "PREPARING"] },
         channel: "WEB",
       },
@@ -240,7 +246,7 @@ export async function syncGelatoPendingOrders(): Promise<SyncResult> {
       processed += 1;
     }
 
-    await logSync(SyncProvider.GELATO, action, SyncStatus.SUCCESS, {
+    await logSync(bandId, SyncProvider.GELATO, action, SyncStatus.SUCCESS, {
       processed,
     });
 
@@ -252,7 +258,7 @@ export async function syncGelatoPendingOrders(): Promise<SyncResult> {
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error desconocido";
-    await logSync(SyncProvider.GELATO, action, SyncStatus.FAILED, undefined, message);
+    await logSync(bandId, SyncProvider.GELATO, action, SyncStatus.FAILED, undefined, message);
     return {
       provider: mockGelatoProvider.name,
       action,
@@ -264,17 +270,18 @@ export async function syncGelatoPendingOrders(): Promise<SyncResult> {
 }
 
 export async function runIntegrationSync(
+  bandId: string,
   provider: "WOOCOMMERCE" | "GELATO" | "ALL" = "ALL",
 ): Promise<SyncResult[]> {
   const results: SyncResult[] = [];
 
   if (provider === "WOOCOMMERCE" || provider === "ALL") {
-    results.push(await syncWooCommerceProducts());
-    results.push(await syncWooCommerceOrders());
+    results.push(await syncWooCommerceProducts(bandId));
+    results.push(await syncWooCommerceOrders(bandId));
   }
 
   if (provider === "GELATO" || provider === "ALL") {
-    results.push(await syncGelatoPendingOrders());
+    results.push(await syncGelatoPendingOrders(bandId));
   }
 
   return results;

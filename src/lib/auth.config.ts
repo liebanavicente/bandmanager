@@ -11,10 +11,10 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       const isLoggedIn = Boolean(auth?.user);
-      const publicPaths = ["/login", "/forgot-password", "/presentacion"];
+      const publicPaths = ["/login", "/register", "/join", "/forgot-password", "/presentacion"];
 
       if (publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-        if (isLoggedIn && (pathname === "/login" || pathname === "/presentacion")) {
+        if (isLoggedIn && ["/login", "/register", "/presentacion"].includes(pathname)) {
           return Response.redirect(new URL("/", request.nextUrl));
         }
         return true;
@@ -38,6 +38,7 @@ export const authConfig: NextAuthConfig = {
         "/products",
         "/orders",
         "/settings",
+        "/onboarding",
       ];
 
       const isProtected = protectedPaths.some(

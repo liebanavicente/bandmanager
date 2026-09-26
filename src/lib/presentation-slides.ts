@@ -29,7 +29,7 @@ export const presentationSlides: PresentationSlide[] = [
     title: "BandManager",
     subtitle: "Tu banda, organizada",
     description:
-      "Plataforma privada para que Los Voltios y cualquier grupo gestionen conciertos, repertorio, logística y merchandising desde un solo lugar.",
+      "Cada banda, su sala privada: conciertos, repertorio, setlists, logística y merch en un solo lugar. Monta la tuya e invita al resto con un código.",
     icon: Sparkles,
     highlights: [
       "Diseñada para músicos, no para técnicos",

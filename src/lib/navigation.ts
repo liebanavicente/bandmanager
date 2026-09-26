@@ -22,6 +22,8 @@ export type NavItem = {
   area: PermissionArea;
   section: NavSection;
   adminOnly?: boolean;
+  /** Solo visible si la banda tiene tienda (se decide en el asistente). */
+  requiresStore?: boolean;
 };
 
 export const navItems: NavItem[] = [
@@ -32,8 +34,8 @@ export const navItems: NavItem[] = [
   { href: "/songs", label: "Canciones", icon: Music2, area: "songs", section: "Música" },
   { href: "/repertoires", label: "Repertorios", icon: ListMusic, area: "repertoires", section: "Música" },
   { href: "/setlists", label: "Setlists", icon: ListMusic, area: "setlists", section: "Música" },
-  { href: "/products", label: "Productos", icon: Package, area: "products", section: "Gestión" },
-  { href: "/orders", label: "Pedidos", icon: ShoppingCart, area: "orders", section: "Gestión" },
+  { href: "/products", label: "Productos", icon: Package, area: "products", section: "Gestión", requiresStore: true },
+  { href: "/orders", label: "Pedidos", icon: ShoppingCart, area: "orders", section: "Gestión", requiresStore: true },
   { href: "/files", label: "Archivos", icon: FolderOpen, area: "files", section: "Gestión" },
   {
     href: "/settings",

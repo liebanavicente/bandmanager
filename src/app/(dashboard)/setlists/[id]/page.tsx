@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Monitor } from "lucide-react";
-import { getSetlist } from "@/actions/setlists";
+import { getSetlist, listSetlistChoices } from "@/actions/setlists";
+import { SetlistActions } from "@/components/music/setlist-dialog";
+import { SetlistPdfMenu } from "@/components/music/setlist-pdf-menu";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,12 +12,15 @@ import { formatDuration, formatTotalDuration, sumDurations } from "@/lib/duratio
 
 export default async function SetlistDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 }) {
-  const { id } = await params;
-  const result = await getSetlist(id);
+  const [{ id }, { edit }] = await Promise.all([params, searchParams]);
+  const [result, choicesResult] = await Promise.all([getSetlist(id), listSetlistChoices()]);
   if (!isActionSuccess(result)) notFound();
+  const choices = isActionSuccess(choicesResult) ? choicesResult.data : { songs: [], events: [] };
   const setlist = result.data;
 
   const totalSeconds = sumDurations(
@@ -25,16 +30,32 @@ export default async function SetlistDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={setlist.name} description={setlist.notes ?? undefined}>
-        <div className="flex gap-2">
-          <Button variant="outline" render={<Link href="/setlists" />}>
-            <ArrowLeft />
-            Volver
-          </Button>
-          <Button render={<Link href={`/setlists/${setlist.id}/stage`} />}>
-            <Monitor />
-            Vista escenario
-          </Button>
-        </div>
+        <Button variant="ghost" render={<Link href="/setlists" />}>
+          <ArrowLeft />
+          Volver
+        </Button>
+        <SetlistActions
+          variant="buttons"
+          defaultEditing={edit === "1"}
+          songs={choices.songs}
+          events={choices.events}
+          setlist={{
+            id: setlist.id,
+            name: setlist.name,
+            notes: setlist.notes,
+            eventId: setlist.eventId,
+            items: setlist.items.map((item) => ({
+              type: item.type,
+              songId: item.songId,
+              comment: item.comment,
+            })),
+          }}
+        />
+        <SetlistPdfMenu setlistId={setlist.id} />
+        <Button render={<Link href={`/setlists/${setlist.id}/stage`} />}>
+          <Monitor />
+          Vista escenario
+        </Button>
       </PageHeader>
 
       {setlist.event && (

@@ -3,11 +3,12 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ClipboardList } from "lucide-react";
 import type { TaskStatus } from "@prisma/client";
-import { listTasks } from "@/actions/tasks";
+import { listAssignees, listTasks } from "@/actions/tasks";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { NewTaskButton, TaskActions, type Assignee } from "@/components/tasks/task-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
@@ -28,8 +29,10 @@ const priorityLabels = {
 
 async function TasksList({
   searchParams,
+  assignees,
 }: {
   searchParams: Promise<{ q?: string; status?: TaskStatus }>;
+  assignees: Assignee[];
 }) {
   const params = await searchParams;
   const result = await listTasks({ search: params.q, status: params.status });
@@ -53,7 +56,7 @@ async function TasksList({
   return (
     <div className="grid gap-3">
       {tasks.map((task) => (
-        <Card key={task.id}>
+        <Card key={task.id} className="stage-edge">
           <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -72,9 +75,12 @@ async function TasksList({
                 {task.event && ` · ${task.event.title}`}
               </p>
             </div>
-            <span className="text-xs font-medium text-muted-foreground">
-              {priorityLabels[task.priority]}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                {priorityLabels[task.priority]}
+              </span>
+              <TaskActions task={task} assignees={assignees} />
+            </div>
           </CardContent>
         </Card>
       ))}
@@ -82,17 +88,21 @@ async function TasksList({
   );
 }
 
-export default function TasksPage({
+export default async function TasksPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; status?: TaskStatus }>;
 }) {
+  const assigneesResult = await listAssignees();
+  const assignees = isActionSuccess(assigneesResult) ? assigneesResult.data : [];
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Tareas"
-        description="Seguimiento de pendientes del grupo."
-      />
+      <PageHeader title="Tareas" description="Seguimiento de pendientes del grupo.">
+        <Suspense>
+          <NewTaskButton assignees={assignees} />
+        </Suspense>
+      </PageHeader>
 
       <Suspense fallback={<Skeleton className="h-10 w-full max-w-xl" />}>
         <SearchFilters
@@ -102,7 +112,7 @@ export default function TasksPage({
       </Suspense>
 
       <Suspense fallback={<Skeleton className="h-48 w-full" />}>
-        <TasksList searchParams={searchParams} />
+        <TasksList searchParams={searchParams} assignees={assignees} />
       </Suspense>
     </div>
   );

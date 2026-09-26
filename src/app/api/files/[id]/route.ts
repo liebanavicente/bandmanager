@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { readStoredFile } from "@/lib/files";
-import { getCollaboratorAreas } from "@/lib/session";
+import { getCollaboratorAreas, getOptionalSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 
 type RouteContext = {
@@ -11,18 +10,18 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const user = await getOptionalSessionUser();
+    if (!user) {
       return NextResponse.json({ error: "Debes iniciar sesión." }, { status: 401 });
     }
 
     const areas =
-      session.user.role === "COLLABORATOR"
-        ? await getCollaboratorAreas(session.user.id)
+      user.role === "COLLABORATOR"
+        ? await getCollaboratorAreas(user.id)
         : undefined;
 
     try {
-      requirePermission(session.user.role, "files", areas);
+      requirePermission(user.role, "files", areas);
     } catch {
       return NextResponse.json(
         { error: "No tienes permisos para realizar esta acción." },
@@ -32,7 +31,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     const { id } = await context.params;
     const file = await prisma.fileAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
     });
 
     if (!file) {

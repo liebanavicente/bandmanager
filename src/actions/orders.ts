@@ -34,12 +34,13 @@ async function resolveOrderItems(
     quantity: number;
     unitPriceCents?: number;
   }[],
+  bandId: string,
 ) {
   const resolved = [];
 
   for (const item of items) {
     const product = await prisma.product.findFirst({
-      where: { id: item.productId, deletedAt: null },
+      where: { id: item.productId, bandId, deletedAt: null },
       include: { variants: true },
     });
 
@@ -108,7 +109,7 @@ async function deductStockForOrder(
 
 export async function listOrders(input: unknown = {}) {
   try {
-    await authorizeOrders();
+    const user = await authorizeOrders();
     const parsed = orderFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -116,6 +117,7 @@ export async function listOrders(input: unknown = {}) {
 
     const { page, pageSize, search, status, paymentStatus, channel } = parsed.data;
     const where = {
+      bandId: user.bandId,
       ...(search
         ? {
             OR: [
@@ -154,9 +156,9 @@ export async function listOrders(input: unknown = {}) {
 
 export async function getOrder(id: string) {
   try {
-    await authorizeOrders();
-    const order = await prisma.order.findUnique({
-      where: { id },
+    const user = await authorizeOrders();
+    const order = await prisma.order.findFirst({
+      where: { id, bandId: user.bandId },
       include: {
         items: {
           include: { product: true, variant: true },
@@ -183,11 +185,12 @@ export async function createOrder(input: unknown) {
       throw new AppError("Datos del pedido inválidos.", "VALIDATION", 400);
     }
 
-    const resolvedItems = await resolveOrderItems(parsed.data.items);
+    const resolvedItems = await resolveOrderItems(parsed.data.items, user.bandId);
     const totals = calculateOrderTotal(resolvedItems, parsed.data.shippingCents);
 
     const order = await prisma.order.create({
       data: {
+        bandId: user.bandId,
         orderNumber: generateOrderNumber(),
         customerName: parsed.data.customerName,
         customerEmail: parsed.data.customerEmail || null,
@@ -225,7 +228,7 @@ export async function updateOrder(input: unknown) {
     }
 
     const { id, customerEmail, ...data } = parsed.data;
-    const existing = await prisma.order.findUnique({ where: { id } });
+    const existing = await prisma.order.findFirst({ where: { id, bandId: user.bandId } });
     if (!existing) {
       throw new AppError("Pedido no encontrado.", "NOT_FOUND", 404);
     }
@@ -234,6 +237,10 @@ export async function updateOrder(input: unknown) {
       where: { id },
       data: {
         ...data,
+        // El total se recalcula si cambia el envío
+        ...(data.shippingCents !== undefined
+          ? { totalCents: existing.subtotalCents + data.shippingCents }
+          : {}),
         ...(customerEmail !== undefined ? { customerEmail: customerEmail || null } : {}),
       },
       include: {
@@ -255,11 +262,12 @@ export async function quickConcertSale(input: unknown) {
       throw new AppError("Datos de venta inválidos.", "VALIDATION", 400);
     }
 
-    const resolvedItems = await resolveOrderItems(parsed.data.items);
+    const resolvedItems = await resolveOrderItems(parsed.data.items, user.bandId);
     const totals = calculateOrderTotal(resolvedItems, 0);
 
     const order = await prisma.order.create({
       data: {
+        bandId: user.bandId,
         orderNumber: generateOrderNumber(),
         customerName: parsed.data.customerName,
         subtotalCents: totals.subtotalCents,
@@ -295,8 +303,8 @@ export async function updateOrderStock(orderId: string) {
       throw new AppError("No tienes permisos para actualizar stock.", "FORBIDDEN", 403);
     }
 
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, bandId: user.bandId },
       include: { items: true },
     });
 
@@ -311,6 +319,7 @@ export async function updateOrderStock(orderId: string) {
     const existingMovement = await prisma.inventoryMovement.findFirst({
       where: {
         reason: { contains: order.orderNumber },
+        product: { bandId: user.bandId },
       },
     });
 
@@ -337,6 +346,61 @@ export async function updateOrderStock(orderId: string) {
     });
 
     return { success: true as const, data: updated };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+/**
+ * Elimina un pedido. Si ya había descontado stock, lo devuelve y deja
+ * constancia en el historial de inventario.
+ */
+export async function deleteOrder(id: string) {
+  try {
+    const user = await authorizeOrders();
+    if (!canManage(user.role, "orders")) {
+      throw new AppError("No tienes permisos para eliminar pedidos.", "FORBIDDEN", 403);
+    }
+
+    const order = await prisma.order.findFirst({ where: { id, bandId: user.bandId } });
+    if (!order) {
+      throw new AppError("Pedido no encontrado.", "NOT_FOUND", 404);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const movements = await tx.inventoryMovement.findMany({
+        where: { reason: { contains: order.orderNumber }, product: { bandId: user.bandId } },
+      });
+      const netByTarget = new Map<string, { productId: string; variantId: string | null; qty: number }>();
+      for (const m of movements) {
+        const key = `${m.productId}:${m.variantId ?? ""}`;
+        const entry = netByTarget.get(key) ?? { productId: m.productId, variantId: m.variantId, qty: 0 };
+        entry.qty += m.quantity;
+        netByTarget.set(key, entry);
+      }
+
+      for (const { productId, variantId, qty } of netByTarget.values()) {
+        if (qty >= 0) continue;
+        if (variantId) {
+          await tx.productVariant.update({
+            where: { id: variantId },
+            data: { stock: { increment: -qty } },
+          });
+        }
+        await tx.inventoryMovement.create({
+          data: {
+            productId,
+            variantId,
+            quantity: -qty,
+            reason: `Anulación ${order.orderNumber}`,
+            createdById: user.id,
+          },
+        });
+      }
+
+      await tx.order.delete({ where: { id } });
+    });
+
+    return { success: true as const, data: { id } };
   } catch (error) {
     return toActionError(error);
   }

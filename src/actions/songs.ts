@@ -20,7 +20,7 @@ async function authorizeSongs() {
 
 export async function listSongs(input: unknown = {}) {
   try {
-    await authorizeSongs();
+    const user = await authorizeSongs();
     const parsed = songFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -28,6 +28,7 @@ export async function listSongs(input: unknown = {}) {
 
     const { page, pageSize, search, status, artist, tag } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(search
         ? {
@@ -61,9 +62,9 @@ export async function listSongs(input: unknown = {}) {
 
 export async function getSong(id: string) {
   try {
-    await authorizeSongs();
+    const user = await authorizeSongs();
     const song = await prisma.song.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         repertoireSongs: {
           include: { repertoire: true },
@@ -83,13 +84,13 @@ export async function getSong(id: string) {
 
 export async function createSong(input: unknown) {
   try {
-    await authorizeSongs();
+    const user = await authorizeSongs();
     const parsed = createSongSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de la canción inválidos.", "VALIDATION", 400);
     }
 
-    const song = await prisma.song.create({ data: parsed.data });
+    const song = await prisma.song.create({ data: { ...parsed.data, bandId: user.bandId } });
     return { success: true as const, data: song };
   } catch (error) {
     return toActionError(error);
@@ -98,14 +99,14 @@ export async function createSong(input: unknown) {
 
 export async function updateSong(input: unknown) {
   try {
-    await authorizeSongs();
+    const user = await authorizeSongs();
     const parsed = updateSongSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de la canción inválidos.", "VALIDATION", 400);
     }
 
     const { id, ...data } = parsed.data;
-    const existing = await prisma.song.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.song.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Canción no encontrada.", "NOT_FOUND", 404);
     }
@@ -119,8 +120,8 @@ export async function updateSong(input: unknown) {
 
 export async function deleteSong(id: string) {
   try {
-    await authorizeSongs();
-    const existing = await prisma.song.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeSongs();
+    const existing = await prisma.song.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Canción no encontrada.", "NOT_FOUND", 404);
     }

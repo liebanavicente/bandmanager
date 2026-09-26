@@ -125,11 +125,21 @@ export function LoginForm() {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 className="animate-spin" />}
             Entrar
           </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            ¿Nuevo?{" "}
+            <Link href="/register" className="font-medium text-primary hover:underline">
+              Monta tu sala
+            </Link>{" "}
+            o{" "}
+            <Link href="/register?join=1" className="font-medium text-primary hover:underline">
+              únete con un código
+            </Link>
+          </p>
         </CardFooter>
       </form>
     </Card>

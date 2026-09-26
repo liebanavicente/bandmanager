@@ -21,7 +21,7 @@ async function authorizeProducts() {
 
 export async function listProducts(input: unknown = {}) {
   try {
-    await authorizeProducts();
+    const user = await authorizeProducts();
     const parsed = productFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -29,6 +29,7 @@ export async function listProducts(input: unknown = {}) {
 
     const { page, pageSize, search, category, status, lowStockOnly } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(search
         ? {
@@ -76,9 +77,9 @@ export async function listProducts(input: unknown = {}) {
 
 export async function getProduct(id: string) {
   try {
-    await authorizeProducts();
+    const user = await authorizeProducts();
     const product = await prisma.product.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         variants: true,
         inventoryMovements: {
@@ -101,7 +102,7 @@ export async function getProduct(id: string) {
 
 export async function createProduct(input: unknown) {
   try {
-    await authorizeProducts();
+    const user = await authorizeProducts();
     const parsed = createProductSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del producto inválidos.", "VALIDATION", 400);
@@ -111,6 +112,7 @@ export async function createProduct(input: unknown) {
     const product = await prisma.product.create({
       data: {
         ...data,
+        bandId: user.bandId,
         variants: {
           create: variants,
         },
@@ -126,24 +128,30 @@ export async function createProduct(input: unknown) {
 
 export async function updateProduct(input: unknown) {
   try {
-    await authorizeProducts();
+    const user = await authorizeProducts();
     const parsed = updateProductSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del producto inválidos.", "VALIDATION", 400);
     }
 
     const { id, variants, ...data } = parsed.data;
-    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.product.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Producto no encontrado.", "NOT_FOUND", 404);
     }
 
     const product = await prisma.$transaction(async (tx) => {
       if (variants) {
+        // La lista enviada es la definitiva: las variantes que ya no vienen se eliminan
+        const keptIds = variants.flatMap((variant) => (variant.id ? [variant.id] : []));
+        await tx.productVariant.deleteMany({
+          where: { productId: id, id: { notIn: keptIds } },
+        });
         for (const variant of variants) {
           if (variant.id) {
-            await tx.productVariant.update({
-              where: { id: variant.id },
+            // updateMany con productId: una variante de otro producto no se toca
+            await tx.productVariant.updateMany({
+              where: { id: variant.id, productId: id },
               data: {
                 name: variant.name,
                 size: variant.size,
@@ -182,8 +190,8 @@ export async function updateProduct(input: unknown) {
 
 export async function deleteProduct(id: string) {
   try {
-    await authorizeProducts();
-    const existing = await prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeProducts();
+    const existing = await prisma.product.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Producto no encontrado.", "NOT_FOUND", 404);
     }
@@ -201,9 +209,9 @@ export async function deleteProduct(id: string) {
 
 export async function getStockAlerts() {
   try {
-    await authorizeProducts();
+    const user = await authorizeProducts();
     const products = await prisma.product.findMany({
-      where: { deletedAt: null, status: "ACTIVE" },
+      where: { bandId: user.bandId, deletedAt: null, status: "ACTIVE" },
       include: { variants: true },
     });
 

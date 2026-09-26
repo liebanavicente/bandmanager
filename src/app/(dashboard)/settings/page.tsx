@@ -4,6 +4,9 @@ import { es } from "date-fns/locale";
 import { Settings } from "lucide-react";
 import { getSettings, triggerSync } from "@/actions/settings";
 import { PageHeader } from "@/components/shared/page-header";
+import { BandSettingsForm } from "@/components/settings/band-settings-form";
+import { InviteCard } from "@/components/band/invite-card";
+import { getBand, type BandLinks } from "@/lib/workspace";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +20,7 @@ async function syncAction(formData: FormData) {
 
 export default async function SettingsPage() {
   const settings = await getSettings();
+  const band = await getBand(settings.user.bandId);
 
   if (settings.user.role !== "ADMIN") {
     redirect("/");
@@ -27,6 +31,22 @@ export default async function SettingsPage() {
       <PageHeader
         title="Ajustes"
         description="Configuración, integraciones y sincronización."
+      />
+
+      {band && <InviteCard code={band.inviteCode} bandName={band.name} canRegenerate />}
+
+      <BandSettingsForm
+        band={{
+          name: band?.name ?? "",
+          logoData: band?.logoData ?? null,
+          genre: band?.genre ?? null,
+          city: band?.city ?? null,
+          foundedYear: band?.foundedYear ?? null,
+          bio: band?.bio ?? null,
+          hasStore: band?.hasStore ?? true,
+          storeUrl: band?.storeUrl ?? null,
+          links: (band?.links as BandLinks | null) ?? {},
+        }}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">

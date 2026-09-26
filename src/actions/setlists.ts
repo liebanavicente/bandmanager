@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
+import { assertInBand } from "@/lib/band-scope";
 import { formatDuration, sumDurations } from "@/lib/duration";
 import {
   createSetlistSchema,
@@ -22,9 +23,10 @@ async function authorizeSetlists() {
 
 export async function listSetlists(eventId?: string) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const items = await prisma.setlist.findMany({
       where: {
+        bandId: user.bandId,
         deletedAt: null,
         ...(eventId ? { eventId } : {}),
       },
@@ -44,9 +46,9 @@ export async function listSetlists(eventId?: string) {
 
 export async function getSetlist(id: string) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const setlist = await prisma.setlist.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         event: true,
         repertoire: true,
@@ -69,16 +71,20 @@ export async function getSetlist(id: string) {
 
 export async function createSetlist(input: unknown) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const parsed = createSetlistSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de la setlist inválidos.", "VALIDATION", 400);
     }
 
     const { items, ...data } = parsed.data;
+    await assertInBand(prisma, "song", items.map((item) => item.songId), user.bandId);
+    await assertInBand(prisma, "event", [data.eventId], user.bandId);
+    await assertInBand(prisma, "repertoire", [data.repertoireId], user.bandId);
     const setlist = await prisma.setlist.create({
       data: {
         ...data,
+        bandId: user.bandId,
         items: {
           create: items.map((item, index) => ({
             type: item.type,
@@ -101,17 +107,21 @@ export async function createSetlist(input: unknown) {
 
 export async function updateSetlist(input: unknown) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const parsed = updateSetlistSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de la setlist inválidos.", "VALIDATION", 400);
     }
 
     const { id, items, ...data } = parsed.data;
-    const existing = await prisma.setlist.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.setlist.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Setlist no encontrada.", "NOT_FOUND", 404);
     }
+
+    await assertInBand(prisma, "song", (items ?? []).map((item) => item.songId), user.bandId);
+    await assertInBand(prisma, "event", [data.eventId], user.bandId);
+    await assertInBand(prisma, "repertoire", [data.repertoireId], user.bandId);
 
     const setlist = await prisma.$transaction(async (tx) => {
       if (items) {
@@ -144,8 +154,8 @@ export async function updateSetlist(input: unknown) {
 
 export async function deleteSetlist(id: string) {
   try {
-    await authorizeSetlists();
-    const existing = await prisma.setlist.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeSetlists();
+    const existing = await prisma.setlist.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Setlist no encontrada.", "NOT_FOUND", 404);
     }
@@ -163,7 +173,7 @@ export async function deleteSetlist(id: string) {
 
 export async function reorderSetlistItems(input: unknown) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const parsed = reorderSetlistItemsSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de reordenación inválidos.", "VALIDATION", 400);
@@ -171,7 +181,7 @@ export async function reorderSetlistItems(input: unknown) {
 
     const { setlistId, itemIds } = parsed.data;
     const setlist = await prisma.setlist.findFirst({
-      where: { id: setlistId, deletedAt: null },
+      where: { id: setlistId, bandId: user.bandId, deletedAt: null },
     });
 
     if (!setlist) {
@@ -202,14 +212,14 @@ export async function reorderSetlistItems(input: unknown) {
 
 export async function duplicateSetlist(input: unknown) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const parsed = duplicateSetlistSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos inválidos.", "VALIDATION", 400);
     }
 
     const source = await prisma.setlist.findFirst({
-      where: { id: parsed.data.id, deletedAt: null },
+      where: { id: parsed.data.id, bandId: user.bandId, deletedAt: null },
       include: { items: { orderBy: { position: "asc" } } },
     });
 
@@ -219,6 +229,7 @@ export async function duplicateSetlist(input: unknown) {
 
     const duplicate = await prisma.setlist.create({
       data: {
+        bandId: user.bandId,
         name: parsed.data.name ?? `${source.name} (copia)`,
         eventId: source.eventId,
         repertoireId: source.repertoireId,
@@ -245,9 +256,9 @@ export async function duplicateSetlist(input: unknown) {
 
 export async function getSetlistStageView(id: string) {
   try {
-    await authorizeSetlists();
+    const user = await authorizeSetlists();
     const setlist = await prisma.setlist.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         event: true,
         items: {
@@ -298,6 +309,28 @@ export async function getSetlistStageView(id: string) {
         items: stageItems,
       },
     };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+/** Canciones y eventos disponibles para montar un setlist. */
+export async function listSetlistChoices() {
+  try {
+    const user = await authorizeSetlists();
+    const [songs, events] = await Promise.all([
+      prisma.song.findMany({
+        where: { bandId: user.bandId, deletedAt: null, status: { not: "ARCHIVED" } },
+        orderBy: { title: "asc" },
+        select: { id: true, title: true, artist: true, durationSeconds: true },
+      }),
+      prisma.event.findMany({
+        where: { bandId: user.bandId, deletedAt: null },
+        orderBy: { startAt: "desc" },
+        take: 50,
+        select: { id: true, title: true, startAt: true },
+      }),
+    ]);
+    return { success: true as const, data: { songs, events } };
   } catch (error) {
     return toActionError(error);
   }

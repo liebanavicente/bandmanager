@@ -5,6 +5,7 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { generateEventIcs } from "@/lib/ics";
+import { assertInBand } from "@/lib/band-scope";
 import {
   createEventSchema,
   eventFiltersSchema,
@@ -22,7 +23,7 @@ async function authorizeEvents() {
 
 export async function listEvents(input: unknown = {}) {
   try {
-    await authorizeEvents();
+    const user = await authorizeEvents();
     const parsed = eventFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -30,6 +31,7 @@ export async function listEvents(input: unknown = {}) {
 
     const { page, pageSize, search, type, status, from, to } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(search
         ? {
@@ -77,9 +79,9 @@ export async function listEvents(input: unknown = {}) {
 
 export async function getEvent(id: string) {
   try {
-    await authorizeEvents();
+    const user = await authorizeEvents();
     const event = await prisma.event.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         attendances: {
           include: { user: { include: { profile: true } } },
@@ -105,13 +107,13 @@ export async function getEvent(id: string) {
 
 export async function createEvent(input: unknown) {
   try {
-    await authorizeEvents();
+    const user = await authorizeEvents();
     const parsed = createEventSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del evento inválidos.", "VALIDATION", 400);
     }
 
-    const event = await prisma.event.create({ data: parsed.data });
+    const event = await prisma.event.create({ data: { ...parsed.data, bandId: user.bandId } });
     return { success: true as const, data: event };
   } catch (error) {
     return toActionError(error);
@@ -120,14 +122,14 @@ export async function createEvent(input: unknown) {
 
 export async function updateEvent(input: unknown) {
   try {
-    await authorizeEvents();
+    const user = await authorizeEvents();
     const parsed = updateEventSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del evento inválidos.", "VALIDATION", 400);
     }
 
     const { id, ...data } = parsed.data;
-    const existing = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.event.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Evento no encontrado.", "NOT_FOUND", 404);
     }
@@ -141,8 +143,8 @@ export async function updateEvent(input: unknown) {
 
 export async function deleteEvent(id: string) {
   try {
-    await authorizeEvents();
-    const existing = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeEvents();
+    const existing = await prisma.event.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Evento no encontrado.", "NOT_FOUND", 404);
     }
@@ -167,7 +169,7 @@ export async function updateEventAttendance(input: unknown) {
     }
 
     const { eventId, userId, status, note } = parsed.data;
-    const event = await prisma.event.findFirst({ where: { id: eventId, deletedAt: null } });
+    const event = await prisma.event.findFirst({ where: { id: eventId, bandId: user.bandId, deletedAt: null } });
     if (!event) {
       throw new AppError("Evento no encontrado.", "NOT_FOUND", 404);
     }
@@ -175,6 +177,7 @@ export async function updateEventAttendance(input: unknown) {
     if (user.role !== "ADMIN" && userId !== user.id) {
       throw new AppError("Solo puedes actualizar tu propia asistencia.", "FORBIDDEN", 403);
     }
+    await assertInBand(prisma, "user", [userId], user.bandId);
 
     const attendance = await prisma.eventAttendance.upsert({
       where: { eventId_userId: { eventId, userId } },
@@ -191,8 +194,8 @@ export async function updateEventAttendance(input: unknown) {
 
 export async function exportEventIcs(id: string) {
   try {
-    await authorizeEvents();
-    const event = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeEvents();
+    const event = await prisma.event.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!event) {
       throw new AppError("Evento no encontrado.", "NOT_FOUND", 404);
     }

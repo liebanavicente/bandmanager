@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ListMusic } from "lucide-react";
-import { listRepertoires } from "@/actions/repertoires";
+import { listRepertoireSongChoices, listRepertoires } from "@/actions/repertoires";
+import { NewRepertoireButton, RepertoireActions } from "@/components/music/repertoire-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { isActionSuccess } from "@/lib/action-result";
 
 export default async function RepertoiresPage() {
-  const result = await listRepertoires();
+  const [result, songsResult] = await Promise.all([listRepertoires(), listRepertoireSongChoices()]);
+  const songs = isActionSuccess(songsResult) ? songsResult.data : [];
 
   if (!isActionSuccess(result)) {
     return (
@@ -20,41 +22,52 @@ export default async function RepertoiresPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Repertorios"
-        description="Colecciones de canciones para giras y temporadas."
-      />
+      <PageHeader title="Repertorios" description="Colecciones de canciones para giras y temporadas.">
+        <NewRepertoireButton songs={songs} />
+      </PageHeader>
 
       {repertoires.length === 0 ? (
         <EmptyState
           icon={ListMusic}
           title="Sin repertorios"
-          description="Crea un repertorio activo para organizar el show."
+          description="Crea un repertorio con «Nuevo repertorio» para organizar el show."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {repertoires.map((rep) => (
-            <Link key={rep.id} href={`/repertoires/${rep.id}`}>
-              <Card className="h-full transition-colors hover:bg-muted/30">
-                <CardContent className="space-y-3 pt-6">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-medium">{rep.name}</h3>
+            <Card key={rep.id} className="stage-edge relative h-full transition-colors hover:bg-muted/30">
+              <CardContent className="space-y-3 pt-6">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <Link
+                      href={`/repertoires/${rep.id}`}
+                      className="font-display text-2xl uppercase leading-none after:absolute after:inset-0 after:content-['']"
+                    >
+                      {rep.name}
+                    </Link>
                     {rep.isActive && <Badge>Activo</Badge>}
-                    {rep.isArchived && (
-                      <Badge variant="secondary">Archivado</Badge>
-                    )}
+                    {rep.isArchived && <Badge variant="secondary">Archivado</Badge>}
                   </div>
-                  {rep.description && (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {rep.description}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    {rep.songs.length} canciones · {rep._count.setlists} setlists
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
+                  <RepertoireActions
+                    songs={songs}
+                    repertoire={{
+                      id: rep.id,
+                      name: rep.name,
+                      description: rep.description,
+                      notes: rep.notes,
+                      isActive: rep.isActive,
+                      songIds: rep.songs.map((item) => item.songId),
+                    }}
+                  />
+                </div>
+                {rep.description && (
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{rep.description}</p>
+                )}
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {rep.songs.length} canciones · {rep._count.setlists} setlists
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

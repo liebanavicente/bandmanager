@@ -6,6 +6,7 @@ import { Calendar, Plus } from "lucide-react";
 import type { EventStatus, EventType } from "@prisma/client";
 import { listEvents } from "@/actions/events";
 import { EmptyState } from "@/components/shared/empty-state";
+import { EntityActions } from "@/components/shared/entity-actions";
 import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -68,29 +69,49 @@ async function EventsList({
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3">
       {events.map((event) => (
-        <Link key={event.id} href={`/events/${event.id}`}>
-          <Card className="transition-colors hover:bg-muted/30">
-            <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="space-y-1">
+        <Card key={event.id} className="stage-edge relative transition-colors hover:bg-muted/30">
+          <CardContent className="flex items-center gap-4 pt-6">
+            {/* Fecha tipo entrada de gira */}
+            <div className="flex w-14 shrink-0 flex-col items-center border-r border-dashed border-foreground/15 pr-4 text-center">
+              <span className="font-display text-3xl leading-none">{format(event.startAt, "dd")}</span>
+              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                {format(event.startAt, "MMM yy", { locale: es })}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-medium">{event.title}</h3>
+                  <Link
+                    href={`/events/${event.id}`}
+                    className="font-medium after:absolute after:inset-0 after:content-['']"
+                  >
+                    {event.title}
+                  </Link>
                   <StatusBadge kind="event" status={event.status} />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {eventTypeLabels[event.type]} ·{" "}
-                  {format(event.startAt, "EEEE d MMM yyyy, HH:mm", { locale: es })}
-                  {event.venue ? ` · ${event.venue}` : ""}
+                  {format(event.startAt, "EEEE, HH:mm", { locale: es })}
+                  {event.venue ? (
+                    <span className="font-serif italic"> · {event.venue}</span>
+                  ) : null}
                 </p>
               </div>
               <div className="flex gap-4 text-xs text-muted-foreground">
                 <span>{event.attendances.length} asistencias</span>
                 <span>{event._count.setlists} setlists</span>
               </div>
-            </CardContent>
-          </Card>
-        </Link>
+            </div>
+            <EntityActions
+              entity="event"
+              id={event.id}
+              name={event.title}
+              editHref={`/events/${event.id}/edit`}
+            />
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

@@ -119,6 +119,7 @@ enum SetlistItemType {
 
 model User {
   id            String    @id @default(cuid())
+  bandId        String
   email         String    @unique
   passwordHash  String
   role          UserRole  @default(MEMBER)
@@ -131,15 +132,18 @@ model User {
 
   profile            MemberProfile?
   attendances        EventAttendance[]
-  assignedTasks      Task[]            @relation("TaskAssignee")
-  createdTasks       Task[]            @relation("TaskCreator")
+  assignedTasks      Task[]              @relation("TaskAssignee")
+  createdTasks       Task[]              @relation("TaskCreator")
   taskComments       TaskComment[]
   uploadedFiles      FileAsset[]
-  createdOrders      Order[]           @relation("OrderCreator")
+  createdOrders      Order[]             @relation("OrderCreator")
   inventoryMovements InventoryMovement[]
+
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
   @@index([email])
   @@index([role])
+  @@index([bandId])
 }
 
 model MemberProfile {
@@ -161,35 +165,39 @@ model MemberProfile {
 }
 
 model Event {
-  id              String      @id @default(cuid())
-  title           String
-  type            EventType
-  startAt         DateTime
-  endAt           DateTime
-  venue           String?
-  address         String?
-  mapsUrl         String?
-  description     String?
-  callTime        DateTime?
-  setupInfo       String?
-  soundcheckInfo  String?
-  expectedFeeCents Int?
+  id                String      @id @default(cuid())
+  bandId            String
+  title             String
+  type              EventType
+  startAt           DateTime
+  endAt             DateTime
+  venue             String?
+  address           String?
+  mapsUrl           String?
+  description       String?
+  callTime          DateTime?
+  setupInfo         String?
+  soundcheckInfo    String?
+  expectedFeeCents  Int?
   expectedCostCents Int?
-  contactName     String?
-  contactPhone    String?
-  status          EventStatus @default(DRAFT)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  deletedAt       DateTime?
+  contactName       String?
+  contactPhone      String?
+  status            EventStatus @default(DRAFT)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  deletedAt         DateTime?
 
   attendances EventAttendance[]
   setlists    Setlist[]
   tasks       Task[]
   fileAssets  FileAsset[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([startAt])
   @@index([type])
   @@index([status])
+  @@index([bandId])
 }
 
 model EventAttendance {
@@ -210,6 +218,7 @@ model EventAttendance {
 
 model Song {
   id              String     @id @default(cuid())
+  bandId          String
   title           String
   artist          String?
   composer        String?
@@ -236,13 +245,17 @@ model Song {
   repertoireSongs RepertoireSong[]
   setlistItems    SetlistItem[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([title])
   @@index([status])
   @@index([artist])
+  @@index([bandId])
 }
 
 model Repertoire {
   id          String    @id @default(cuid())
+  bandId      String
   name        String
   description String?
   isActive    Boolean   @default(false)
@@ -255,7 +268,10 @@ model Repertoire {
   songs    RepertoireSong[]
   setlists Setlist[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([isActive])
+  @@index([bandId])
 }
 
 model RepertoireSong {
@@ -274,6 +290,7 @@ model RepertoireSong {
 
 model Setlist {
   id           String    @id @default(cuid())
+  bandId       String
   name         String
   eventId      String?
   repertoireId String?
@@ -282,11 +299,14 @@ model Setlist {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  event      Event?      @relation(fields: [eventId], references: [id], onDelete: SetNull)
-  repertoire Repertoire? @relation(fields: [repertoireId], references: [id], onDelete: SetNull)
+  event      Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  repertoire Repertoire?   @relation(fields: [repertoireId], references: [id], onDelete: SetNull)
   items      SetlistItem[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([eventId])
+  @@index([bandId])
 }
 
 model SetlistItem {
@@ -306,6 +326,7 @@ model SetlistItem {
 
 model Task {
   id          String       @id @default(cuid())
+  bandId      String
   title       String
   description String?
   assigneeId  String?
@@ -319,15 +340,18 @@ model Task {
   updatedAt   DateTime     @updatedAt
   deletedAt   DateTime?
 
-  assignee User?  @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  creator  User?  @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
-  event    Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  assignee User?         @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator  User?         @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  event    Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
   comments TaskComment[]
   files    FileAsset[]
+
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([assigneeId])
   @@index([dueAt])
+  @@index([bandId])
 }
 
 model TaskComment {
@@ -343,6 +367,7 @@ model TaskComment {
 
 model FileAsset {
   id           String       @id @default(cuid())
+  bandId       String
   name         String
   description  String?
   category     FileCategory @default(OTHER)
@@ -362,49 +387,58 @@ model FileAsset {
   event      Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
   task       Task?  @relation(fields: [taskId], references: [id], onDelete: SetNull)
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([category])
   @@index([uploadedById])
+  @@index([bandId])
 }
 
 model Product {
-  id              String        @id @default(cuid())
-  name            String
-  description     String?
-  category        String
-  imagePaths      String[]
-  priceCents      Int
-  costCents       Int
-  sku             String        @unique
-  status          ProductStatus @default(ACTIVE)
-  minStock        Int           @default(5)
-  supplier        String?
-  externalId      String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  deletedAt       DateTime?
+  id          String        @id @default(cuid())
+  bandId      String
+  name        String
+  description String?
+  category    String
+  imagePaths  String[]
+  priceCents  Int
+  costCents   Int
+  sku         String
+  status      ProductStatus @default(ACTIVE)
+  minStock    Int           @default(5)
+  supplier    String?
+  externalId  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
 
   variants           ProductVariant[]
   orderItems         OrderItem[]
   inventoryMovements InventoryMovement[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
+  @@unique([bandId, sku])
   @@index([category])
   @@index([status])
+  @@index([bandId])
 }
 
 model ProductVariant {
-  id         String   @id @default(cuid())
-  productId  String
-  name       String
-  size       String?
-  color      String?
-  stock      Int      @default(0)
-  sku        String   @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  size      String?
+  color     String?
+  stock     Int      @default(0)
+  sku       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
+  @@unique([productId, sku])
   @@index([productId])
 }
 
@@ -425,34 +459,39 @@ model InventoryMovement {
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  orderNumber     String        @unique
-  customerName    String
-  customerEmail   String?
-  subtotalCents   Int
-  shippingCents   Int           @default(0)
-  totalCents      Int
-  paymentStatus   PaymentStatus @default(PENDING)
-  status          OrderStatus   @default(PENDING)
-  channel         SalesChannel  @default(WEB)
-  notes           String?
-  createdById     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  bandId        String
+  orderNumber   String
+  customerName  String
+  customerEmail String?
+  subtotalCents Int
+  shippingCents Int           @default(0)
+  totalCents    Int
+  paymentStatus PaymentStatus @default(PENDING)
+  status        OrderStatus   @default(PENDING)
+  channel       SalesChannel  @default(WEB)
+  notes         String?
+  createdById   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   createdBy User?       @relation("OrderCreator", fields: [createdById], references: [id], onDelete: SetNull)
   items     OrderItem[]
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
+  @@unique([bandId, orderNumber])
   @@index([status])
   @@index([createdAt])
+  @@index([bandId])
 }
 
 model OrderItem {
-  id         String  @id @default(cuid())
-  orderId    String
-  productId  String
-  variantId  String?
-  quantity   Int
+  id             String  @id @default(cuid())
+  orderId        String
+  productId      String
+  variantId      String?
+  quantity       Int
   unitPriceCents Int
 
   order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -464,6 +503,7 @@ model OrderItem {
 
 model SyncLog {
   id        String       @id @default(cuid())
+  bandId    String
   provider  SyncProvider
   action    String
   status    SyncStatus
@@ -471,8 +511,11 @@ model SyncLog {
   error     String?
   createdAt DateTime     @default(now())
 
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
   @@index([provider])
   @@index([createdAt])
+  @@index([bandId])
 }
 
 model CollaboratorAccess {
@@ -481,4 +524,36 @@ model CollaboratorAccess {
   areas     String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// Sala de una banda: todo lo que ve y edita su gente cuelga de aquí.
+/// Se entra creando la sala (admin) o con su código de invitación.
+model Band {
+  id          String    @id @default(cuid())
+  name        String
+  /// Código para unirse a la sala (p. ej. "VOLT-7K2Q"); se puede regenerar.
+  inviteCode  String    @unique
+  /// Logo como data URL (image/png|jpeg|webp|svg+xml), máx. ~512 KB.
+  logoData    String?
+  genre       String?
+  city        String?
+  foundedYear Int?
+  bio         String?
+  hasStore    Boolean   @default(false)
+  storeUrl    String?
+  links       Json?
+  onboardedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  users       User[]
+  events      Event[]
+  songs       Song[]
+  repertoires Repertoire[]
+  setlists    Setlist[]
+  tasks       Task[]
+  files       FileAsset[]
+  products    Product[]
+  orders      Order[]
+  syncLogs    SyncLog[]
 }
