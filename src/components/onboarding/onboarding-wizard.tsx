@@ -512,7 +512,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                 {hasStore && (
                   <div className="animate-in fade-in slide-in-from-top-2 space-y-4 rounded-2xl bg-card p-5 ring-1 ring-foreground/10">
                     <Field label="¿Tienda online? (opcional)" htmlFor="store-url">
-                      <Input id="store-url" type="url" value={storeUrl} onChange={(e) => setStoreUrl(e.target.value)} placeholder="https://tienda.tubanda.com" className="h-11 rounded-xl" />
+                      <Input id="store-url" type="text" inputMode="url" autoCapitalize="none" value={storeUrl} onChange={(e) => setStoreUrl(e.target.value)} placeholder="https://tienda.tubanda.com" className="h-11 rounded-xl" />
                     </Field>
                     <div className="grid gap-3 sm:grid-cols-[1fr_8rem]">
                       <Field label="Primer producto (opcional)" htmlFor="product-name">
@@ -533,7 +533,9 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                   <Field key={l.key} label={l.label} htmlFor={`link-${l.key}`}>
                     <Input
                       id={`link-${l.key}`}
-                      type="url"
+                      type="text"
+                      inputMode="url"
+                      autoCapitalize="none"
                       value={links[l.key] ?? ""}
                       onChange={(e) => setLinks((prev) => ({ ...prev, [l.key]: e.target.value }))}
                       placeholder={l.placeholder}

@@ -10,13 +10,29 @@ const optionalText = (max = 500) =>
     .or(z.literal(""))
     .transform((value) => (value ? value : undefined));
 
-const optionalUrl = z
-  .string()
-  .trim()
-  .url("URL inválida.")
-  .optional()
-  .or(z.literal(""))
-  .transform((value) => (value ? value : undefined));
+/**
+ * Enlace opcional. La gente escribe "instagram.com/tubanda" sin protocolo:
+ * se completa con https:// y solo se aceptan http(s) con dominio real.
+ */
+const optionalUrl = (label: string) =>
+  z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .transform((value) => {
+      if (!value) return undefined;
+      return /^[a-z][a-z\d+.-]*:/i.test(value) ? value : `https://${value.replace(/^\/+/, "")}`;
+    })
+    .pipe(
+      z
+        .url({
+          protocol: /^https?$/,
+          hostname: z.regexes.domain,
+          message: `${label}: el enlace no es válido (ej. https://instagram.com/tubanda).`,
+        })
+        .optional(),
+    );
 
 /** Logo como data URL de imagen, ya reducido en el navegador. */
 export const logoDataSchema = z
@@ -43,11 +59,11 @@ export const registerSchema = z.object({
 });
 
 export const bandLinksSchema = z.object({
-  instagram: optionalUrl,
-  spotify: optionalUrl,
-  youtube: optionalUrl,
-  tiktok: optionalUrl,
-  web: optionalUrl,
+  instagram: optionalUrl("Instagram"),
+  spotify: optionalUrl("Spotify"),
+  youtube: optionalUrl("YouTube"),
+  tiktok: optionalUrl("TikTok"),
+  web: optionalUrl("Web"),
 });
 
 export const onboardingMemberSchema = z.object({
@@ -80,7 +96,7 @@ export const onboardingSchema = z.object({
   songTitles: z.array(z.string().trim().min(1).max(200)).max(100).default([]),
   // Tienda
   hasStore: z.boolean().default(false),
-  storeUrl: optionalUrl,
+  storeUrl: optionalUrl("Tienda online"),
   firstProduct: z
     .object({
       name: z.string().trim().min(1).max(200),
@@ -109,7 +125,7 @@ export const updateBandSchema = z.object({
   foundedYear: z.coerce.number().int().min(1900).max(2100).optional(),
   bio: optionalText(1000),
   hasStore: z.boolean(),
-  storeUrl: optionalUrl,
+  storeUrl: optionalUrl("Tienda online"),
   links: bandLinksSchema.prefault({}),
 });
 

@@ -5,7 +5,7 @@ import {
   updateSongSchema,
   updateTaskSchema,
 } from "@/lib/validations";
-import { onboardingSchema, registerSchema } from "@/lib/validations/band";
+import { bandLinksSchema, onboardingSchema, registerSchema } from "@/lib/validations/band";
 
 const id = "ckabcdefghijklmnopqrstuvw";
 
@@ -63,5 +63,22 @@ describe("códigos de invitación", async () => {
   it("normalizan lo que teclea la gente", () => {
     expect(normalizeInviteCode(" volt 2026 ")).toBe("VOLT-2026");
     expect(normalizeInviteCode("volt-2026")).toBe("VOLT-2026");
+  });
+});
+
+describe("enlaces de la banda", () => {
+  it("completan https:// cuando se escribe sin protocolo", () => {
+    expect(bandLinksSchema.parse({ instagram: "instagram.com/nofp", web: "" })).toEqual({
+      instagram: "https://instagram.com/nofp",
+    });
+  });
+
+  it("rechazan lo que no es un enlace web indicando el campo", () => {
+    const result = bandLinksSchema.safeParse({ tiktok: "@nofp", web: "javascript:alert(1)" });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual([
+      expect.stringMatching(/^TikTok:/),
+      expect.stringMatching(/^Web:/),
+    ]);
   });
 });

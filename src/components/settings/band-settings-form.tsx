@@ -157,14 +157,14 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
             {hasStore && (
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="b-store">Tienda online</Label>
-                <Input id="b-store" name="storeUrl" type="url" defaultValue={band.storeUrl ?? ""} placeholder="https://" />
+                <Input id="b-store" name="storeUrl" type="text" inputMode="url" autoCapitalize="none" defaultValue={band.storeUrl ?? ""} placeholder="https://" />
               </div>
             )}
 
             {LINK_FIELDS.map((l) => (
               <div key={l.key} className="space-y-2">
                 <Label htmlFor={`b-link-${l.key}`}>{l.label}</Label>
-                <Input id={`b-link-${l.key}`} name={`link-${l.key}`} type="url" defaultValue={band.links[l.key] ?? ""} placeholder="https://" />
+                <Input id={`b-link-${l.key}`} name={`link-${l.key}`} type="text" inputMode="url" autoCapitalize="none" defaultValue={band.links[l.key] ?? ""} placeholder="https://" />
               </div>
             ))}
           </div>
