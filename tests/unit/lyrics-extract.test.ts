@@ -1,4 +1,6 @@
 // @vitest-environment node
+import { readFileSync } from "fs";
+import path from "path";
 import { describe, expect, it } from "vitest";
 import { strToU8, zipSync } from "fflate";
 import { PDFDocument, StandardFonts } from "pdf-lib";
@@ -31,6 +33,14 @@ async function makePdf(lines: string[]) {
   return doc.save();
 }
 
+// Archivos .doc/.odt reales generados con textutil y LibreOffice a partir de este texto inventado
+const FIXTURE_TEXT =
+  "Farolas de cartón\nTono: Mi menor\n\nCruzo la avenida con prisa\nbuscando un bar que no cierra\n\nEstribillo\nFarolas de cartón, ñandú €";
+
+function fixture(name: string) {
+  return new Uint8Array(readFileSync(path.join(__dirname, "../fixtures/lyrics", name)));
+}
+
 // Texto inventado para las pruebas
 const LINES = ["Farolas de carton", "Tono: Mi menor", "", "Cruzo la avenida", "con prisa", "", "Estribillo", "farolas de carton"];
 
@@ -45,24 +55,37 @@ describe("extractDocumentBytes", () => {
     expect("text" in doc && doc.text).toBe(LINES.join("\n"));
   });
 
-  it("abre un ZIP e ignora basura de macOS y formatos no admitidos", async () => {
+  it("abre un ZIP con varios formatos e ignora basura de macOS y lo que no son letras", async () => {
     const zip = zipSync({
       "letras/02 segunda.txt": strToU8("dos"),
       "letras/01 primera.docx": makeDocx(["uno"]),
       "__MACOSX/letras/._01 primera.docx": strToU8("x"),
       "letras/portada.jpg": strToU8("x"),
-      "letras/03 vieja.doc": strToU8("x"),
+      "letras/03 tercera.doc": fixture("libreoffice.doc"),
+      "letras/04 cuarta.odt": fixture("textutil.odt"),
+      "letras/05 notas.pages": strToU8("x"),
     });
     const docs = await extractDocumentBytes("letras.zip", zip);
     expect(docs.map((d) => [d.filename, "text" in d ? d.text.trim() : d.error])).toEqual([
       ["01 primera.docx", "uno"],
       ["02 segunda.txt", "dos"],
-      ["03 vieja.doc", "Formato .doc antiguo: ábrelo en Word y guárdalo como .docx."],
+      ["03 tercera.doc", FIXTURE_TEXT],
+      ["04 cuarta.odt", FIXTURE_TEXT],
     ]);
   });
 
+  it.each(["textutil.doc", "libreoffice.doc", "textutil.odt", "libreoffice.odt"])(
+    "lee %s (Word 97 y OpenDocument) con tildes, ñ, € y huecos entre estrofas",
+    async (name) => {
+      const [doc] = await extractDocumentBytes(name, fixture(name));
+      expect("text" in doc && doc.text.trim()).toBe(FIXTURE_TEXT);
+    },
+  );
+
   it("explica qué hacer con formatos que no puede leer", async () => {
-    const [doc] = await extractDocumentBytes("vieja.doc", strToU8("x"));
-    expect("error" in doc && doc.error).toMatch(/docx/);
+    const [pages] = await extractDocumentBytes("notas.pages", strToU8("x"));
+    expect("error" in pages && pages.error).toMatch(/docx/);
+    const [broken] = await extractDocumentBytes("rota.doc", strToU8("no soy un word"));
+    expect("error" in broken && broken.error).toMatch(/Word/);
   });
 });

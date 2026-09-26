@@ -164,7 +164,7 @@ export function LyricsImporter({ songs }: { songs: ImportSong[] }) {
           {reading ? "Leyendo archivos…" : "Arrastra aquí las letras"}
         </span>
         <span className="text-sm text-muted-foreground">
-          Word (.docx), PDF, .txt o un .zip con todas. Detectamos la canción, la tonalidad y los acordes.
+          Word (.docx o .doc), OpenDocument (.odt), PDF, .txt o un .zip con todas. Detectamos la canción, la tonalidad y los acordes.
         </span>
         <input
           ref={inputRef}

@@ -1,5 +1,7 @@
+import { DocReadError, readWord97 } from "@/lib/lyrics/word97";
+
 /**
- * Texto de los archivos de letras: Word (.docx), PDF, texto plano y ZIP con
+ * Texto de los archivos de letras: Word (.docx y .doc), OpenDocument (.odt), PDF, texto plano y ZIP con
  * cualquiera de ellos. Se ejecuta en el navegador (las librerías se cargan
  * solo al importar), así el archivo no se sube: solo viaja el texto.
  */
@@ -8,7 +10,7 @@ export type ExtractedDocument =
   | { filename: string; text: string }
   | { filename: string; error: string };
 
-export const ACCEPTED_EXTENSIONS = [".docx", ".pdf", ".txt", ".md", ".cho", ".chopro", ".zip"];
+export const ACCEPTED_EXTENSIONS = [".docx", ".doc", ".odt", ".pdf", ".txt", ".md", ".cho", ".chopro", ".zip"];
 
 const MAX_ZIP_ENTRIES = 200;
 
@@ -34,6 +36,34 @@ async function docxText(bytes: Uint8Array) {
   const result = await mammoth.extractRawText({ arrayBuffer, buffer: arrayBuffer } as unknown as { arrayBuffer: ArrayBuffer });
   // mammoth cierra cada párrafo con "\n\n": un párrafo vacío (hueco entre estrofas) queda como "\n\n\n\n"
   return result.value.replace(/\n\n/g, "\n");
+}
+
+const XML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+
+/** .odt: ZIP con content.xml; cada text:p / text:h es una línea. */
+async function odtText(bytes: Uint8Array) {
+  const { unzipSync, strFromU8 } = await import("fflate");
+  const files = unzipSync(bytes, { filter: (f) => f.name === "content.xml" });
+  if (!files["content.xml"]) throw new Error("content.xml no encontrado");
+  const xml = strFromU8(files["content.xml"]);
+  const body = xml.slice(Math.max(0, xml.indexOf("<office:body")));
+  return body
+    .replace(/<text:line-break\s*\/>/g, "\n")
+    .replace(/<text:tab\s*\/>/g, "\t")
+    .replace(/<text:s(?:\s+text:c="(\d+)")?\s*\/>/g, (_, n) => " ".repeat(Number(n ?? 1)))
+    // Notas al pie y anotaciones no son letra
+    .replace(/<text:note\b[\s\S]*?<\/text:note>/g, "")
+    .replace(/<office:annotation\b[\s\S]*?<\/office:annotation>/g, "")
+    .replace(/<text:(?:p|h)\b[^>]*\/>/g, "\n")
+    .replace(/<\/text:(?:p|h)>/g, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, name: string) =>
+      name.startsWith("#x")
+        ? String.fromCodePoint(parseInt(name.slice(2), 16))
+        : name.startsWith("#")
+          ? String.fromCodePoint(Number(name.slice(1)))
+          : (XML_ENTITIES[name] ?? entity),
+    );
 }
 
 type PdfTextItem = { str: string; transform: number[]; height: number };
@@ -85,6 +115,10 @@ async function extractBytes(filename: string, bytes: Uint8Array): Promise<Extrac
     switch (ext) {
       case ".docx":
         return [{ filename, text: await docxText(bytes) }];
+      case ".doc":
+        return [{ filename, text: await readWord97(bytes) }];
+      case ".odt":
+        return [{ filename, text: await odtText(bytes) }];
       case ".pdf":
         return [{ filename, text: await pdfText(bytes) }];
       case ".txt":
@@ -101,27 +135,24 @@ async function extractBytes(filename: string, bytes: Uint8Array): Promise<Extrac
               !file.name.startsWith("__MACOSX/") &&
               !name.startsWith(".") &&
               !name.startsWith("~$") &&
-              // .doc entra para avisar de que hay que convertirlo
-              (ACCEPTED_EXTENSIONS.includes(extension(name)) || extension(name) === ".doc") &&
+              ACCEPTED_EXTENSIONS.includes(extension(name)) &&
               extension(name) !== ".zip"
             );
           },
         });
         const names = Object.keys(entries).sort((a, b) => a.localeCompare(b, "es", { numeric: true })).slice(0, MAX_ZIP_ENTRIES);
-        if (names.length === 0) return [{ filename, error: "El ZIP no contiene letras en .docx, .pdf o .txt." }];
+        if (names.length === 0) return [{ filename, error: "El ZIP no contiene letras en Word, .odt, PDF o .txt." }];
         const nested = await Promise.all(names.map((name) => extractBytes(basename(name), entries[name])));
         return nested.flat();
       }
-      case ".doc":
-        return [{ filename, error: "Formato .doc antiguo: ábrelo en Word y guárdalo como .docx." }];
       case ".pages":
-      case ".odt":
       case ".rtf":
         return [{ filename, error: "Exporta el documento a .docx o PDF para importarlo." }];
       default:
         return [{ filename, error: "Formato no admitido." }];
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof DocReadError) return [{ filename, error: error.message }];
     return [{ filename, error: "No se pudo leer el archivo (¿está dañado o protegido?)." }];
   }
 }
