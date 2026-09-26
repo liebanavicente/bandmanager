@@ -50,3 +50,18 @@ describe("registro y asistente", () => {
     );
   });
 });
+
+describe("códigos de invitación", async () => {
+  const { buildInviteCode, normalizeInviteCode } = await import("@/lib/invite");
+
+  it("usan el nombre de la banda como prefijo", () => {
+    expect(buildInviteCode("Los Voltios")).toMatch(/^LOSV-[A-Z2-9]{4}$/);
+    expect(buildInviteCode("Las Mareas")).toMatch(/^LASM-/);
+    expect(buildInviteCode("")).toMatch(/^[A-Z2-9]{4}-[A-Z2-9]{4}$/);
+  });
+
+  it("normalizan lo que teclea la gente", () => {
+    expect(normalizeInviteCode(" volt 2026 ")).toBe("VOLT-2026");
+    expect(normalizeInviteCode("volt-2026")).toBe("VOLT-2026");
+  });
+});

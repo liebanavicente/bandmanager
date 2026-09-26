@@ -11,7 +11,7 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       const isLoggedIn = Boolean(auth?.user);
-      const publicPaths = ["/login", "/register", "/forgot-password", "/presentacion"];
+      const publicPaths = ["/login", "/register", "/join", "/forgot-password", "/presentacion"];
 
       if (publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
         if (isLoggedIn && ["/login", "/register", "/presentacion"].includes(pathname)) {

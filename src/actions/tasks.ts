@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { canManage, requirePermission } from "@/lib/permissions";
+import { assertInBand } from "@/lib/band-scope";
 import {
   createTaskCommentSchema,
   createTaskSchema,
@@ -21,7 +22,7 @@ async function authorizeTasks() {
 
 export async function listTasks(input: unknown = {}) {
   try {
-    await authorizeTasks();
+    const user = await authorizeTasks();
     const parsed = taskFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -29,6 +30,7 @@ export async function listTasks(input: unknown = {}) {
 
     const { page, pageSize, search, status, priority, assigneeId, eventId } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(search
         ? {
@@ -68,9 +70,9 @@ export async function listTasks(input: unknown = {}) {
 
 export async function getTask(id: string) {
   try {
-    await authorizeTasks();
+    const user = await authorizeTasks();
     const task = await prisma.task.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         assignee: { include: { profile: true } },
         creator: { include: { profile: true } },
@@ -101,9 +103,12 @@ export async function createTask(input: unknown) {
       throw new AppError("Datos de la tarea inválidos.", "VALIDATION", 400);
     }
 
+    await assertInBand(prisma, "user", [parsed.data.assigneeId], user.bandId);
+    await assertInBand(prisma, "event", [parsed.data.eventId], user.bandId);
     const task = await prisma.task.create({
       data: {
         ...parsed.data,
+        bandId: user.bandId,
         creatorId: user.id,
       },
       include: {
@@ -128,7 +133,7 @@ export async function updateTask(input: unknown) {
     }
 
     const { id, ...data } = parsed.data;
-    const existing = await prisma.task.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.task.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Tarea no encontrada.", "NOT_FOUND", 404);
     }
@@ -136,6 +141,8 @@ export async function updateTask(input: unknown) {
     if (!canManage(user.role, "tasks") && existing.assigneeId !== user.id) {
       throw new AppError("No tienes permisos para editar esta tarea.", "FORBIDDEN", 403);
     }
+    await assertInBand(prisma, "user", [data.assigneeId], user.bandId);
+    await assertInBand(prisma, "event", [data.eventId], user.bandId);
 
     const task = await prisma.task.update({
       where: { id },
@@ -156,7 +163,7 @@ export async function updateTask(input: unknown) {
 export async function deleteTask(id: string) {
   try {
     const user = await authorizeTasks();
-    const existing = await prisma.task.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.task.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Tarea no encontrada.", "NOT_FOUND", 404);
     }
@@ -185,7 +192,7 @@ export async function addTaskComment(input: unknown) {
     }
 
     const task = await prisma.task.findFirst({
-      where: { id: parsed.data.taskId, deletedAt: null },
+      where: { id: parsed.data.taskId, bandId: user.bandId, deletedAt: null },
     });
 
     if (!task) {
@@ -209,9 +216,9 @@ export async function addTaskComment(input: unknown) {
 /** Personas a las que se puede asignar una tarea (sin exigir acceso a Miembros). */
 export async function listAssignees() {
   try {
-    await authorizeTasks();
+    const user = await authorizeTasks();
     const users = await prisma.user.findMany({
-      where: { deletedAt: null, isActive: true },
+      where: { bandId: user.bandId, deletedAt: null, isActive: true },
       include: { profile: true },
       orderBy: { createdAt: "asc" },
     });

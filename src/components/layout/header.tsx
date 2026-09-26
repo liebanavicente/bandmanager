@@ -54,6 +54,7 @@ export function Header({ user, collaboratorAreas, band }: HeaderProps) {
         <div className="lg:hidden">
           <UserMenu
             user={user}
+            band={band}
             trigger={
               <Button variant="ghost" className="gap-2 px-2" aria-label="Menú de usuario">
                 <Avatar className="size-7">

@@ -131,9 +131,13 @@ export function LoginForm() {
             Entrar
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            ¿Montando una banda nueva?{" "}
+            ¿Nuevo?{" "}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Regístrala
+              Monta tu sala
+            </Link>{" "}
+            o{" "}
+            <Link href="/register?join=1" className="font-medium text-primary hover:underline">
+              únete con un código
             </Link>
           </p>
         </CardFooter>

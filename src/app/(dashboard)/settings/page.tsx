@@ -5,6 +5,7 @@ import { Settings } from "lucide-react";
 import { getSettings, triggerSync } from "@/actions/settings";
 import { PageHeader } from "@/components/shared/page-header";
 import { BandSettingsForm } from "@/components/settings/band-settings-form";
+import { InviteCard } from "@/components/band/invite-card";
 import { getBand, type BandLinks } from "@/lib/workspace";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,8 @@ async function syncAction(formData: FormData) {
 }
 
 export default async function SettingsPage() {
-  const [settings, band] = await Promise.all([getSettings(), getBand()]);
+  const settings = await getSettings();
+  const band = await getBand(settings.user.bandId);
 
   if (settings.user.role !== "ADMIN") {
     redirect("/");
@@ -30,6 +32,8 @@ export default async function SettingsPage() {
         title="Ajustes"
         description="Configuración, integraciones y sincronización."
       />
+
+      {band && <InviteCard code={band.inviteCode} bandName={band.name} canRegenerate />}
 
       <BandSettingsForm
         band={{

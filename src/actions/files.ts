@@ -5,6 +5,7 @@ import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
 import { deleteStoredFile, storeFile } from "@/lib/files";
+import { assertInBand } from "@/lib/band-scope";
 import {
   fileFiltersSchema,
   updateFileMetadataSchema,
@@ -21,7 +22,7 @@ async function authorizeFiles() {
 
 export async function listFiles(input: unknown = {}) {
   try {
-    await authorizeFiles();
+    const user = await authorizeFiles();
     const parsed = fileFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -29,6 +30,7 @@ export async function listFiles(input: unknown = {}) {
 
     const { page, pageSize, search, category, eventId, taskId } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(category ? { category } : {}),
       ...(eventId ? { eventId } : {}),
@@ -67,9 +69,9 @@ export async function listFiles(input: unknown = {}) {
 
 export async function getFileMetadata(id: string) {
   try {
-    await authorizeFiles();
+    const user = await authorizeFiles();
     const file = await prisma.fileAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         uploadedBy: { include: { profile: true } },
         event: true,
@@ -116,16 +118,22 @@ export async function uploadFile(formData: FormData) {
       throw new AppError("Metadatos del archivo inválidos.", "VALIDATION", 400);
     }
 
-    const subdirectory = parsed.data.eventId
+    await assertInBand(prisma, "event", [parsed.data.eventId], user.bandId);
+    await assertInBand(prisma, "task", [parsed.data.taskId], user.bandId);
+
+    // Cada sala guarda sus archivos en su propia carpeta
+    const scope = parsed.data.eventId
       ? `events/${parsed.data.eventId}`
       : parsed.data.taskId
         ? `tasks/${parsed.data.taskId}`
         : "general";
+    const subdirectory = `bands/${user.bandId}/${scope}`;
 
     const stored = await storeFile(file, subdirectory);
 
     const asset = await prisma.fileAsset.create({
       data: {
+        bandId: user.bandId,
         name: parsed.data.name ?? stored.originalName,
         description: parsed.data.description,
         category: parsed.data.category,
@@ -158,7 +166,7 @@ export async function deleteFile(id: string) {
   try {
     const user = await authorizeFiles();
     const file = await prisma.fileAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
     });
 
     if (!file) {
@@ -190,7 +198,7 @@ export async function updateFile(input: unknown) {
     }
 
     const { id, ...data } = parsed.data;
-    const file = await prisma.fileAsset.findFirst({ where: { id, deletedAt: null } });
+    const file = await prisma.fileAsset.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!file) {
       throw new AppError("Archivo no encontrado.", "NOT_FOUND", 404);
     }

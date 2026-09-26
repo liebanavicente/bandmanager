@@ -24,6 +24,7 @@ import { StageLights } from "@/components/art/stage-lights";
 import { Vinyl } from "@/components/art/vinyl";
 import { Waveform } from "@/components/art/waveform";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { InviteCard } from "@/components/band/invite-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,7 +134,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [done, setDone] = useState<CreatedMember[] | null>(null);
+  const [done, setDone] = useState<{ members: CreatedMember[]; inviteCode: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const nextKey = useRef(1);
 
@@ -233,7 +234,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
       toast.error(result.error);
       return;
     }
-    setDone(result.data.members);
+    setDone({ members: result.data.members, inviteCode: result.data.inviteCode });
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -245,7 +246,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
   }
 
   if (done) {
-    return <Finale bandName={bandName} logoData={logoData} members={done} onEnter={() => router.push("/")} />;
+    return <Finale bandName={bandName} logoData={logoData} members={done.members} inviteCode={done.inviteCode} onEnter={() => router.push("/")} />;
   }
 
   return (
@@ -430,8 +431,9 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
             {current.id === "members" && (
               <div className="space-y-4">
                 <p className="font-serif text-lg italic text-muted-foreground">
-                  Añade a cada componente y su función. Si pones su email, le crearemos acceso con una
-                  contraseña temporal; si no, quedará como ficha.
+                  Añade a cada componente y su función. Al terminar tendrás un <strong>código de sala</strong>{" "}
+                  para que cada uno entre con su propia cuenta; si prefieres, pon aquí su email y le
+                  crearemos acceso con una contraseña temporal.
                 </p>
                 {members.length === 0 && (
                   <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
@@ -640,11 +642,13 @@ function Finale({
   bandName,
   logoData,
   members,
+  inviteCode,
   onEnter,
 }: {
   bandName: string;
   logoData: string;
   members: CreatedMember[];
+  inviteCode: string;
   onEnter: () => void;
 }) {
   const withAccess = members.filter((m) => m.email && m.tempPassword);
@@ -661,7 +665,7 @@ function Finale({
     <div className="stage-surface grain relative isolate flex min-h-screen items-center justify-center overflow-hidden p-6">
       <StageLights />
       <Vinyl spin label={bandName} className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-30" />
-      <div className="animate-in fade-in zoom-in-95 w-full max-w-xl space-y-8 text-center duration-700">
+      <div className="animate-in fade-in zoom-in-95 w-full max-w-2xl space-y-8 py-10 text-center duration-700">
         {logoData ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoData} alt={`Logo de ${bandName}`} className="mx-auto size-28 rounded-full bg-white/5 object-contain p-2 ring-4 ring-white/15" />
@@ -674,6 +678,8 @@ function Finale({
             {bandName}, <span className="text-stage-gradient">a escena.</span>
           </h1>
         </div>
+
+        <InviteCard code={inviteCode} bandName={bandName} canRegenerate tone="stage" className="text-left" />
 
         {withAccess.length > 0 && (
           <div className="space-y-3 rounded-2xl bg-black/40 p-5 text-left ring-1 ring-white/10 backdrop-blur-sm">

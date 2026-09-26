@@ -31,6 +31,15 @@ export const registerSchema = z.object({
   name: z.string().trim().min(1, "Dinos tu nombre.").max(120),
   email: z.string().trim().toLowerCase().email("Email inválido."),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres.").max(200),
+  /** Con código te unes a esa sala; sin código creas una sala nueva. */
+  inviteCode: z
+    .string()
+    .trim()
+    .max(20)
+    .optional()
+    .or(z.literal(""))
+    .transform((value) => (value ? value : undefined)),
+  instrument: optionalText(120),
 });
 
 export const bandLinksSchema = z.object({

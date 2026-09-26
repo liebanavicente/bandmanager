@@ -4,6 +4,7 @@ import { es } from "date-fns/locale";
 import { ListMusic } from "lucide-react";
 import { listSetlistChoices, listSetlists } from "@/actions/setlists";
 import { NewSetlistButton } from "@/components/music/setlist-dialog";
+import { SetlistPdfMenu } from "@/components/music/setlist-pdf-menu";
 import { EntityActions } from "@/components/shared/entity-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
@@ -56,6 +57,7 @@ export default async function SetlistsPage() {
                     {setlist._count.items} elementos
                   </p>
                 </div>
+                <SetlistPdfMenu setlistId={setlist.id} variant="icon" />
                 <EntityActions
                   entity="setlist"
                   id={setlist.id}

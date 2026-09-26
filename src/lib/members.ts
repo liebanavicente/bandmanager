@@ -4,6 +4,7 @@ import type { Prisma, UserRole } from "@prisma/client";
 import { AppError } from "@/lib/errors";
 
 type NewMember = {
+  bandId: string;
   name: string;
   instrument?: string;
   email?: string;
@@ -60,6 +61,7 @@ export async function createBandMember(
 
   const user = await tx.user.create({
     data: {
+      bandId: member.bandId,
       email,
       passwordHash,
       role: member.role,

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Monitor } from "lucide-react";
 import { getSetlist, listSetlistChoices } from "@/actions/setlists";
 import { SetlistActions } from "@/components/music/setlist-dialog";
+import { SetlistPdfMenu } from "@/components/music/setlist-pdf-menu";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +51,7 @@ export default async function SetlistDetailPage({
             })),
           }}
         />
+        <SetlistPdfMenu setlistId={setlist.id} />
         <Button render={<Link href={`/setlists/${setlist.id}/stage`} />}>
           <Monitor />
           Vista escenario

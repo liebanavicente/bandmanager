@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronsLeft, ChevronsRight, Settings2, Sparkles } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Settings2, Sparkles, UserPlus } from "lucide-react";
 import type { UserRole } from "@prisma/client";
 import { hasPermission } from "@/lib/permissions";
 import { navItems } from "@/lib/navigation";
@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import type { BandSummary } from "@/lib/workspace";
 import { BmLogo } from "@/components/brand/bm-logo";
 import { BandBadge } from "@/components/layout/band-badge";
+import { InviteCard } from "@/components/band/invite-card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { NavList } from "@/components/layout/nav-list";
 import { QuickCreate } from "@/components/layout/quick-create";
@@ -144,7 +146,7 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
           {!collapsed && "Contraer"}
         </Button>
 
-        <UserMenu user={user} collapsed={collapsed} />
+        <UserMenu user={user} band={band} collapsed={collapsed} />
       </div>
     </aside>
   );
@@ -152,14 +154,17 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
 
 export function UserMenu({
   user,
+  band,
   collapsed = false,
   trigger,
 }: {
   user: AppSidebarProps["user"];
+  band: BandSummary;
   collapsed?: boolean;
   trigger?: React.ReactElement;
 }) {
   const initials = userInitials(user.name);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
     <DropdownMenu>
@@ -204,9 +209,13 @@ export function UserMenu({
             </span>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setInviteOpen(true)}>
+          <UserPlus />
+          Invitar a la sala
+        </DropdownMenuItem>
         {user.role === "ADMIN" && (
           <>
-            <DropdownMenuSeparator />
             <DropdownMenuItem render={<Link href="/settings" />}>
               <Settings2 />
               Ficha de la banda
@@ -220,6 +229,12 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <LogoutButton />
       </DropdownMenuContent>
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent className="bg-transparent p-0 ring-0 sm:max-w-xl" showCloseButton={false}>
+          <DialogTitle className="sr-only">Invitar a la sala</DialogTitle>
+          <InviteCard code={band.inviteCode} bandName={band.name} canRegenerate={user.role === "ADMIN"} />
+        </DialogContent>
+      </Dialog>
     </DropdownMenu>
   );
 }

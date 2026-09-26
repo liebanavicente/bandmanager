@@ -10,6 +10,7 @@ export async function getSettings() {
   const user = await getSessionUser();
 
   const recentSyncs = await prisma.syncLog.findMany({
+    where: { bandId: user.bandId },
     orderBy: { createdAt: "desc" },
     take: 10,
   });
@@ -33,6 +34,7 @@ export async function triggerSync(provider: SyncProvider) {
 
     const log = await prisma.syncLog.create({
       data: {
+        bandId: user.bandId,
         provider,
         action: "manual_sync",
         status: "SUCCESS",

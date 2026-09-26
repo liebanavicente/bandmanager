@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getOptionalSessionUser } from "@/lib/session";
 import { getBand, type BandLinks } from "@/lib/workspace";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 
@@ -11,18 +11,18 @@ export const metadata: Metadata = {
 };
 
 export default async function OnboardingPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-  if (session.user.role !== "ADMIN") redirect("/");
+  const user = await getOptionalSessionUser();
+  if (!user) redirect("/salir");
+  if (user.role !== "ADMIN") redirect("/");
 
-  const band = await getBand();
+  const band = await getBand(user.bandId);
 
   return (
     <OnboardingWizard
-      adminName={session.user.name.split(" ")[0]}
+      adminName={user.name.split(" ")[0]}
       rerun={Boolean(band?.onboardedAt)}
       initial={{
-        name: band?.name ?? "",
+        name: band?.onboardedAt ? band.name : "",
         logoData: band?.logoData ?? "",
         genre: band?.genre ?? "",
         city: band?.city ?? "",

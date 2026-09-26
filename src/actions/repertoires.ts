@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
+import { assertInBand } from "@/lib/band-scope";
 import {
   createRepertoireSchema,
   duplicateRepertoireSchema,
@@ -22,9 +23,9 @@ async function authorizeRepertoires() {
 
 export async function listRepertoires() {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const items = await prisma.repertoire.findMany({
-      where: { deletedAt: null },
+      where: { bandId: user.bandId, deletedAt: null },
       orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],
       include: {
         songs: {
@@ -43,9 +44,9 @@ export async function listRepertoires() {
 
 export async function getRepertoire(id: string) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const repertoire = await prisma.repertoire.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: {
         songs: {
           orderBy: { position: "asc" },
@@ -67,16 +68,18 @@ export async function getRepertoire(id: string) {
 
 export async function createRepertoire(input: unknown) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const parsed = createRepertoireSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del repertorio inválidos.", "VALIDATION", 400);
     }
 
     const { songIds, ...data } = parsed.data;
+    await assertInBand(prisma, "song", songIds, user.bandId);
     const repertoire = await prisma.repertoire.create({
       data: {
         ...data,
+        bandId: user.bandId,
         songs: {
           create: songIds.map((songId, index) => ({
             songId,
@@ -97,17 +100,19 @@ export async function createRepertoire(input: unknown) {
 
 export async function updateRepertoire(input: unknown) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const parsed = updateRepertoireSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos del repertorio inválidos.", "VALIDATION", 400);
     }
 
     const { id, songIds, ...data } = parsed.data;
-    const existing = await prisma.repertoire.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.repertoire.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Repertorio no encontrado.", "NOT_FOUND", 404);
     }
+
+    if (songIds) await assertInBand(prisma, "song", songIds, user.bandId);
 
     const repertoire = await prisma.$transaction(async (tx) => {
       if (songIds) {
@@ -138,8 +143,8 @@ export async function updateRepertoire(input: unknown) {
 
 export async function deleteRepertoire(id: string) {
   try {
-    await authorizeRepertoires();
-    const existing = await prisma.repertoire.findFirst({ where: { id, deletedAt: null } });
+    const user = await authorizeRepertoires();
+    const existing = await prisma.repertoire.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Repertorio no encontrado.", "NOT_FOUND", 404);
     }
@@ -161,7 +166,7 @@ export async function deleteRepertoire(id: string) {
 
 export async function reorderRepertoireSongs(input: unknown) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const parsed = reorderRepertoireSongsSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos de reordenación inválidos.", "VALIDATION", 400);
@@ -169,7 +174,7 @@ export async function reorderRepertoireSongs(input: unknown) {
 
     const { repertoireId, songIds } = parsed.data;
     const repertoire = await prisma.repertoire.findFirst({
-      where: { id: repertoireId, deletedAt: null },
+      where: { id: repertoireId, bandId: user.bandId, deletedAt: null },
     });
 
     if (!repertoire) {
@@ -200,14 +205,14 @@ export async function reorderRepertoireSongs(input: unknown) {
 
 export async function duplicateRepertoire(input: unknown) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const parsed = duplicateRepertoireSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos inválidos.", "VALIDATION", 400);
     }
 
     const source = await prisma.repertoire.findFirst({
-      where: { id: parsed.data.id, deletedAt: null },
+      where: { id: parsed.data.id, bandId: user.bandId, deletedAt: null },
       include: { songs: { orderBy: { position: "asc" } } },
     });
 
@@ -217,6 +222,7 @@ export async function duplicateRepertoire(input: unknown) {
 
     const duplicate = await prisma.repertoire.create({
       data: {
+        bandId: user.bandId,
         name: parsed.data.name ?? `${source.name} (copia)`,
         description: source.description,
         notes: source.notes,
@@ -241,14 +247,14 @@ export async function duplicateRepertoire(input: unknown) {
 
 export async function setActiveRepertoire(input: unknown) {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const parsed = setActiveRepertoireSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Datos inválidos.", "VALIDATION", 400);
     }
 
     const repertoire = await prisma.repertoire.findFirst({
-      where: { id: parsed.data.id, deletedAt: null },
+      where: { id: parsed.data.id, bandId: user.bandId, deletedAt: null },
     });
 
     if (!repertoire) {
@@ -257,7 +263,7 @@ export async function setActiveRepertoire(input: unknown) {
 
     await prisma.$transaction([
       prisma.repertoire.updateMany({
-        where: { deletedAt: null, isActive: true },
+        where: { bandId: user.bandId, deletedAt: null, isActive: true },
         data: { isActive: false },
       }),
       prisma.repertoire.update({
@@ -281,9 +287,9 @@ export async function setActiveRepertoire(input: unknown) {
 /** Canciones disponibles para montar un repertorio. */
 export async function listRepertoireSongChoices() {
   try {
-    await authorizeRepertoires();
+    const user = await authorizeRepertoires();
     const songs = await prisma.song.findMany({
-      where: { deletedAt: null, status: { not: "ARCHIVED" } },
+      where: { bandId: user.bandId, deletedAt: null, status: { not: "ARCHIVED" } },
       orderBy: { title: "asc" },
       select: { id: true, title: true, artist: true, durationSeconds: true },
     });

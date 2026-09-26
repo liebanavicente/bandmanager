@@ -33,6 +33,7 @@ export async function getDashboardData() {
   ] = await Promise.all([
     prisma.event.findMany({
       where: {
+        bandId: user.bandId,
         deletedAt: null,
         startAt: { gte: now },
         status: { in: ["DRAFT", "CONFIRMED"] },
@@ -41,15 +42,16 @@ export async function getDashboardData() {
       take: 5,
     }),
     prisma.event.findFirst({
-      where: { deletedAt: null, type: "CONCERT", startAt: { gte: now }, status: "CONFIRMED" },
+      where: { bandId: user.bandId, deletedAt: null, type: "CONCERT", startAt: { gte: now }, status: "CONFIRMED" },
       orderBy: { startAt: "asc" },
     }),
     prisma.event.findFirst({
-      where: { deletedAt: null, type: "REHEARSAL", startAt: { gte: now }, status: "CONFIRMED" },
+      where: { bandId: user.bandId, deletedAt: null, type: "REHEARSAL", startAt: { gte: now }, status: "CONFIRMED" },
       orderBy: { startAt: "asc" },
     }),
     prisma.task.findMany({
       where: {
+        bandId: user.bandId,
         deletedAt: null,
         assigneeId: user.id,
         status: { in: ["PENDING", "IN_PROGRESS"] },
@@ -59,28 +61,30 @@ export async function getDashboardData() {
     }),
     prisma.task.count({
       where: {
+        bandId: user.bandId,
         deletedAt: null,
         assigneeId: user.id,
         status: { in: ["PENDING", "IN_PROGRESS"] },
       },
     }),
     prisma.order.findMany({
+      where: { bandId: user.bandId },
       orderBy: { createdAt: "desc" },
       take: 5,
       include: { items: true },
     }),
     prisma.fileAsset.findMany({
-      where: { deletedAt: null },
+      where: { bandId: user.bandId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 5,
       include: { uploadedBy: { include: { profile: true } } },
     }),
     prisma.product.findMany({
-      where: { deletedAt: null, status: "ACTIVE" },
+      where: { bandId: user.bandId, deletedAt: null, status: "ACTIVE" },
       include: { variants: true },
     }),
     prisma.repertoire.findFirst({
-      where: { deletedAt: null, isActive: true },
+      where: { bandId: user.bandId, deletedAt: null, isActive: true },
       include: {
         songs: {
           orderBy: { position: "asc" },
@@ -92,21 +96,22 @@ export async function getDashboardData() {
       where: {
         userId: user.id,
         status: "PENDING",
-        event: { deletedAt: null, startAt: { gte: now } },
+        event: { bandId: user.bandId, deletedAt: null, startAt: { gte: now } },
       },
       include: { event: true },
       take: 5,
     }),
-    prisma.song.count({ where: { deletedAt: null, status: "READY" } }),
+    prisma.song.count({ where: { bandId: user.bandId, deletedAt: null, status: "READY" } }),
     prisma.event.count({
       where: {
+        bandId: user.bandId,
         deletedAt: null,
         startAt: { gte: monthStart, lte: monthEnd },
       },
     }),
     // Solo lectura: último setlist actualizado, sin cambios de esquema
     prisma.setlist.findFirst({
-      where: { deletedAt: null },
+      where: { bandId: user.bandId, deletedAt: null },
       orderBy: { updatedAt: "desc" },
       include: {
         event: true,
@@ -131,7 +136,7 @@ export async function getDashboardData() {
   );
 
   return {
-    user: { id: user.id, name: user.name, role: user.role },
+    user: { id: user.id, name: user.name, role: user.role, bandId: user.bandId },
     nextConcert,
     nextRehearsal,
     upcomingEvents,

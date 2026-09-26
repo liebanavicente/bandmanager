@@ -32,9 +32,10 @@ async function main() {
   await prisma.user.deleteMany();
   await prisma.band.deleteMany();
 
-  await prisma.band.create({
+  const band = await prisma.band.create({
     data: {
       name: "Los Voltios",
+      inviteCode: "VOLT-2026",
       genre: "Pop-rock",
       city: "Madrid",
       foundedYear: 2019,
@@ -49,6 +50,7 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
+      bandId: band.id,
       email: "admin@losvoltios.es",
       passwordHash,
       role: UserRole.ADMIN,
@@ -75,6 +77,7 @@ async function main() {
     ].map((m) =>
       prisma.user.create({
         data: {
+          bandId: band.id,
           email: m.email,
           passwordHash,
           role: UserRole.MEMBER,
@@ -92,6 +95,7 @@ async function main() {
 
   const collaborator = await prisma.user.create({
     data: {
+      bandId: band.id,
       email: "tecnicosala@losvoltios.es",
       passwordHash,
       role: UserRole.COLLABORATOR,
@@ -114,6 +118,7 @@ async function main() {
 
   const demoMember = await prisma.user.create({
     data: {
+      bandId: band.id,
       email: "miembro@losvoltios.es",
       passwordHash,
       role: UserRole.MEMBER,
@@ -143,11 +148,12 @@ async function main() {
   ];
 
   const songs = await Promise.all(
-    songsData.map((s) => prisma.song.create({ data: s })),
+    songsData.map((s) => prisma.song.create({ data: { ...s, bandId: band.id } })),
   );
 
   const mainRepertoire = await prisma.repertoire.create({
     data: {
+      bandId: band.id,
       name: "Repertorio principal",
       description: "Canciones para conciertos estándar de 90 minutos",
       isActive: true,
@@ -163,6 +169,7 @@ async function main() {
 
   const acousticRepertoire = await prisma.repertoire.create({
     data: {
+      bandId: band.id,
       name: "Versiones acústicas",
       description: "Set reducido para sesiones íntimas",
       songs: {
@@ -177,6 +184,7 @@ async function main() {
   const events = await Promise.all([
     prisma.event.create({
       data: {
+        bandId: band.id,
         title: "Concierto Sala Copérnico",
         type: "CONCERT",
         startAt: new Date("2026-07-25T21:00:00"),
@@ -197,6 +205,7 @@ async function main() {
     }),
     prisma.event.create({
       data: {
+        bandId: band.id,
         title: "Ensayo general",
         type: "REHEARSAL",
         startAt: new Date("2026-07-18T19:00:00"),
@@ -209,6 +218,7 @@ async function main() {
     }),
     prisma.event.create({
       data: {
+        bandId: band.id,
         title: "Sesión de grabación EP",
         type: "RECORDING",
         startAt: new Date("2026-08-05T10:00:00"),
@@ -220,6 +230,7 @@ async function main() {
     }),
     prisma.event.create({
       data: {
+        bandId: band.id,
         title: "Reunión de merchandising",
         type: "MEETING",
         startAt: new Date("2026-07-14T17:00:00"),
@@ -245,6 +256,7 @@ async function main() {
 
   const setlist1 = await prisma.setlist.create({
     data: {
+      bandId: band.id,
       name: "Setlist Copérnico",
       eventId: events[0].id,
       repertoireId: mainRepertoire.id,
@@ -266,6 +278,7 @@ async function main() {
 
   await prisma.setlist.create({
     data: {
+      bandId: band.id,
       name: "Setlist acústico promo",
       repertoireId: acousticRepertoire.id,
       items: {
@@ -294,6 +307,7 @@ async function main() {
   for (const t of tasksData) {
     await prisma.task.create({
       data: {
+        bandId: band.id,
         title: t.title,
         assigneeId: t.assigneeId,
         creatorId: admin.id,
@@ -321,6 +335,7 @@ async function main() {
   for (const p of productsData) {
     const product = await prisma.product.create({
       data: {
+        bandId: band.id,
         ...p,
         description: `Merchandising oficial: ${p.name}`,
         supplier: "MerchPrint España",
@@ -351,6 +366,7 @@ async function main() {
     const subtotal = variant ? product.priceCents * qty : product.priceCents;
     await prisma.order.create({
       data: {
+        bandId: band.id,
         orderNumber: o.orderNumber,
         customerName: o.customerName,
         customerEmail: o.customerEmail,
@@ -378,6 +394,7 @@ async function main() {
   for (let i = 0; i < fileCategories.length; i++) {
     await prisma.fileAsset.create({
       data: {
+        bandId: band.id,
         name: `Archivo demo ${i + 1}.pdf`,
         description: `Documento de demostración ${fileCategories[i]}`,
         category: fileCategories[i],
@@ -393,6 +410,7 @@ async function main() {
 
   await prisma.syncLog.create({
     data: {
+      bandId: band.id,
       provider: "WOOCOMMERCE",
       action: "SYNC_PRODUCTS",
       status: "SUCCESS",
@@ -405,7 +423,8 @@ async function main() {
   console.log("  Admin:         admin@losvoltios.es / demo1234");
   console.log("  Miembro:       miembro@losvoltios.es / demo1234");
   console.log("  Colaborador:   tecnicosala@losvoltios.es / demo1234");
-  console.log(`\nSetlist creado: ${setlist1.name}`);
+  console.log("\nCódigo de la sala Los Voltios: VOLT-2026");
+  console.log(`Setlist creado: ${setlist1.name}`);
 }
 
 main()

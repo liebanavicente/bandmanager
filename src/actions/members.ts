@@ -16,7 +16,7 @@ async function authorizeMembers() {
 
 export async function listMembers(input: unknown = {}) {
   try {
-    await authorizeMembers();
+    const user = await authorizeMembers();
     const parsed = memberFiltersSchema.safeParse(input);
     if (!parsed.success) {
       throw new AppError("Filtros inválidos.", "VALIDATION", 400);
@@ -24,6 +24,7 @@ export async function listMembers(input: unknown = {}) {
 
     const { page, pageSize, search, role, isActive } = parsed.data;
     const where = {
+      bandId: user.bandId,
       deletedAt: null,
       ...(role ? { role } : {}),
       ...(isActive !== undefined ? { isActive } : {}),
@@ -60,9 +61,9 @@ export async function listMembers(input: unknown = {}) {
 
 export async function getMember(id: string) {
   try {
-    await authorizeMembers();
+    const user = await authorizeMembers();
     const member = await prisma.user.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: { profile: true },
     });
 
@@ -86,7 +87,7 @@ export async function updateMember(input: unknown) {
 
     const { id, role, links, ...profileData } = parsed.data;
     const existing = await prisma.user.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, bandId: user.bandId, deletedAt: null },
       include: { profile: true },
     });
 
@@ -96,6 +97,16 @@ export async function updateMember(input: unknown) {
 
     if (role && user.role !== "ADMIN") {
       throw new AppError("Solo un administrador puede cambiar el rol.", "FORBIDDEN", 403);
+    }
+
+    // Una sala nunca se queda sin administrador
+    if (role && existing.role === "ADMIN" && role !== "ADMIN") {
+      const admins = await prisma.user.count({
+        where: { bandId: user.bandId, role: "ADMIN", deletedAt: null, isActive: true },
+      });
+      if (admins <= 1) {
+        throw new AppError("La sala necesita al menos un administrador.", "VALIDATION", 400);
+      }
     }
 
     const member = await prisma.$transaction(async (tx) => {
@@ -143,7 +154,7 @@ export async function activateMember(id: string) {
       throw new AppError("Solo un administrador puede activar miembros.", "FORBIDDEN", 403);
     }
 
-    const existing = await prisma.user.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.user.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Miembro no encontrado.", "NOT_FOUND", 404);
     }
@@ -171,7 +182,7 @@ export async function deactivateMember(id: string) {
       throw new AppError("No puedes desactivar tu propia cuenta.", "FORBIDDEN", 403);
     }
 
-    const existing = await prisma.user.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.user.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Miembro no encontrado.", "NOT_FOUND", 404);
     }
@@ -199,7 +210,7 @@ export async function createMember(input: unknown) {
       throw new AppError(parsed.error.issues[0]?.message ?? "Datos inválidos.", "VALIDATION", 400);
     }
 
-    const created = await prisma.$transaction((tx) => createBandMember(tx, parsed.data));
+    const created = await prisma.$transaction((tx) => createBandMember(tx, { ...parsed.data, bandId: user.bandId }));
     return { success: true as const, data: created };
   } catch (error) {
     return toActionError(error);
@@ -217,7 +228,7 @@ export async function removeMember(id: string) {
       throw new AppError("No puedes eliminar tu propia cuenta.", "FORBIDDEN", 403);
     }
 
-    const existing = await prisma.user.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.user.findFirst({ where: { id, bandId: user.bandId, deletedAt: null } });
     if (!existing) {
       throw new AppError("Miembro no encontrado.", "NOT_FOUND", 404);
     }

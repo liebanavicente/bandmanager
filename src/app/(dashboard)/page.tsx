@@ -26,7 +26,8 @@ import { centsToEuros } from "@/lib/money";
 import { getBandSummary } from "@/lib/workspace";
 
 async function DashboardContent() {
-  const [data, band] = await Promise.all([getDashboardData(), getBandSummary()]);
+  const data = await getDashboardData();
+  const band = await getBandSummary(data.user.bandId);
   const nextEvent = data.nextConcert ?? data.nextRehearsal ?? data.upcomingEvents[0] ?? null;
   const repertoireSongs = data.activeRepertoire?.songs.length ?? 0;
 

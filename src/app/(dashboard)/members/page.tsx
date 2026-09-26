@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { Users } from "lucide-react";
 import { listMembers } from "@/actions/members";
+import { InviteCard } from "@/components/band/invite-card";
+import { getBandSummary } from "@/lib/workspace";
+import { getSessionUser } from "@/lib/session";
 import { MemberActions, NewMemberButton } from "@/components/members/member-dialogs";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
@@ -8,7 +11,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { isActionSuccess } from "@/lib/action-result";
-import { auth } from "@/lib/auth";
 import { isPlaceholderEmail } from "@/lib/members";
 
 const roleLabels = {
@@ -18,14 +20,15 @@ const roleLabels = {
 } as const;
 
 export default async function MembersPage() {
-  const [result, session] = await Promise.all([listMembers({ pageSize: 100 }), auth()]);
+  const [result, me] = await Promise.all([listMembers({ pageSize: 100 }), getSessionUser()]);
 
   if (!isActionSuccess(result)) {
     return <p className="text-sm text-destructive">{result.error}</p>;
   }
 
   const members = result.data.items;
-  const isAdmin = session?.user.role === "ADMIN";
+  const isAdmin = me.role === "ADMIN";
+  const band = await getBandSummary(me.bandId);
 
   return (
     <div className="space-y-6">
@@ -36,6 +39,8 @@ export default async function MembersPage() {
           </Suspense>
         )}
       </PageHeader>
+
+      <InviteCard code={band.inviteCode} bandName={band.name} canRegenerate={isAdmin} />
 
       {members.length === 0 ? (
         <EmptyState
@@ -87,7 +92,7 @@ export default async function MembersPage() {
                   </div>
                   <MemberActions
                     isAdmin={isAdmin}
-                    isSelf={session?.user.id === member.id}
+                    isSelf={me.id === member.id}
                     member={{
                       id: member.id,
                       role: member.role,
