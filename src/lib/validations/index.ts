@@ -379,6 +379,15 @@ export const uploadFileMetadataSchema = z.object({
   eventId: z.string().cuid().optional(),
   taskId: z.string().cuid().optional(),
 });
+export type UploadFileMetadata = z.infer<typeof uploadFileMetadataSchema>;
+
+/** Archivo ya subido por el navegador a Vercel Blob, pendiente de registrar. */
+export const registerUploadedFileSchema = uploadFileMetadataSchema
+  .omit({ eventId: true, taskId: true })
+  .extend({
+    pathname: z.string().min(1).max(500),
+    originalName: z.string().trim().min(1).max(255),
+  });
 
 export const requestPasswordResetSchema = z.object({
   email: z.string().email("Email inválido."),
@@ -386,7 +395,7 @@ export const requestPasswordResetSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token inválido."),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres.").max(200),
 });
 
 export const syncRequestSchema = z.object({
@@ -408,4 +417,14 @@ export const updateFileMetadataSchema = z.object({
   name: z.string().trim().min(1, "El nombre es obligatorio.").max(200),
   description: optionalString,
   category: z.nativeEnum(FileCategory),
+});
+
+export const createFeedbackSchema = z.object({
+  kind: z.enum(["BUG", "IDEA", "CONFUSING"]),
+  message: z
+    .string()
+    .trim()
+    .min(3, "Cuéntanos un poco más.")
+    .max(4000, "El mensaje es demasiado largo (máx. 4000 caracteres)."),
+  path: z.string().max(500).optional(),
 });

@@ -139,6 +139,7 @@ model User {
   createdOrders      Order[]             @relation("OrderCreator")
   inventoryMovements InventoryMovement[]
   lyricsProgress     LyricsProgress[]
+  feedback           Feedback[]
 
   band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
@@ -560,6 +561,7 @@ model Band {
   products    Product[]
   orders      Order[]
   syncLogs    SyncLog[]
+  feedback    Feedback[]
 }
 
 /// Lo bien que cada componente se sabe la letra de cada canción.
@@ -585,4 +587,28 @@ model LyricsProgress {
 
   @@unique([userId, songId])
   @@index([userId, nextReviewAt])
+}
+
+enum FeedbackKind {
+  BUG
+  IDEA
+  CONFUSING
+}
+
+/// Lo que cuentan las bandas desde el botón "Feedback" (piloto).
+model Feedback {
+  id        String       @id @default(cuid())
+  bandId    String
+  userId    String
+  kind      FeedbackKind
+  message   String
+  /// Pantalla desde la que se envió (p. ej. "/setlists/abc/edit")
+  path      String?
+  userAgent String?
+  createdAt DateTime     @default(now())
+
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bandId, createdAt])
 }

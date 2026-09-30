@@ -6,6 +6,7 @@ import type { UserRole } from "@prisma/client";
 import type { BandSummary } from "@/lib/workspace";
 import Link from "next/link";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { UserMenu, userInitials } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -40,6 +41,7 @@ export function Header({ user, collaboratorAreas, band }: HeaderProps) {
       </Link>
 
       <div className="flex flex-1 items-center justify-end gap-2">
+        <FeedbackButton />
         <Button
           variant="ghost"
           size="icon"

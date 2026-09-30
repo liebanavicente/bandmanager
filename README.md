@@ -38,8 +38,12 @@ Abre [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Conexión PostgreSQL |
 | `AUTH_SECRET` | Secreto para sesiones (generar en producción) |
 | `AUTH_URL` | URL base de la app |
-| `UPLOAD_DIR` | Carpeta local para archivos |
+| `BLOB_READ_WRITE_TOKEN` | Almacén Vercel Blob (privado) para los archivos; el navegador sube directo. Vercel la crea al conectar el almacén. Sin ella se usa `UPLOAD_DIR` |
+| `UPLOAD_DIR` | Carpeta local para archivos (solo desarrollo) |
 | `MAX_FILE_SIZE_MB` | Límite de subida |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Servidor SMTP para los emails (p. ej. Gmail con contraseña de aplicación). Sin él, los emails solo se escriben en el log |
+| `MAIL_FROM` | Remitente (por defecto, `BandManager <SMTP_USER>`) |
+| `FEEDBACK_NOTIFY_EMAIL` | Email que recibe cada mensaje del botón Feedback |
 | `WOOCOMMERCE_*` | Integración futura WooCommerce |
 | `GELATO_*` | Integración futura Gelato |
 
@@ -88,7 +92,6 @@ Ver [ARCHITECTURE.md](./ARCHITECTURE.md) para detalle.
 
 ## Pendiente / mejoras futuras
 
-- Subida real de archivos desde la UI (API preparada)
 - Exportación PDF de setlists
 - Vista calendario mensual interactiva
 - Notificaciones por email
@@ -99,5 +102,5 @@ Ver [ARCHITECTURE.md](./ARCHITECTURE.md) para detalle.
 
 - **App**: Vercel o Docker
 - **Base de datos**: Neon, Supabase o RDS
-- **Archivos**: S3, Cloudflare R2 o Vercel Blob
+- **Archivos**: Vercel Blob (privado), ya integrado
 - Generar `AUTH_SECRET` seguro y configurar variables de producción

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  createFeedbackSchema,
+  resetPasswordSchema,
   updateEventSchema,
   updateRepertoireSchema,
   updateSongSchema,
@@ -80,5 +82,20 @@ describe("enlaces de la banda", () => {
       expect.stringMatching(/^TikTok:/),
       expect.stringMatching(/^Web:/),
     ]);
+  });
+});
+
+describe("recuperar contraseña y feedback", () => {
+  it("exige 8 caracteres en la contraseña nueva, como el registro", () => {
+    expect(resetPasswordSchema.safeParse({ token: "abc", password: "1234567" }).success).toBe(false);
+    expect(resetPasswordSchema.safeParse({ token: "abc", password: "12345678" }).success).toBe(true);
+  });
+
+  it("recorta el mensaje de feedback y rechaza tipos desconocidos o mensajes vacíos", () => {
+    expect(createFeedbackSchema.parse({ kind: "IDEA", message: "  Modo oscuro  " }).message).toBe(
+      "Modo oscuro",
+    );
+    expect(createFeedbackSchema.safeParse({ kind: "IDEA", message: "   " }).success).toBe(false);
+    expect(createFeedbackSchema.safeParse({ kind: "SPAM", message: "Hola hola" }).success).toBe(false);
   });
 });
