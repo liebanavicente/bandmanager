@@ -112,15 +112,22 @@
   --chart-4: #16131A;
   --chart-5: #B9AE9C;
   --radius: 0.625rem;
-  /* Backstage: la barra lateral es oscura en ambos temas */
-  --sidebar: #110E15;
-  --sidebar-foreground: #F3EEE5;
-  --sidebar-primary: #FF4A33;
+  /* Barra lateral en papel, un punto más clara que el fondo */
+  --sidebar: #FBF7F0;
+  --sidebar-foreground: #16131A;
+  --sidebar-primary: #E0301E;
   --sidebar-primary-foreground: #FFF8F0;
-  --sidebar-accent: #1E1924;
-  --sidebar-accent-foreground: #F3EEE5;
-  --sidebar-border: #FFFFFF12;
-  --sidebar-ring: #FFB547;
+  --sidebar-accent: #EDE6DA;
+  --sidebar-accent-foreground: #16131A;
+  --sidebar-border: #16131A14;
+  --sidebar-ring: #E0301E;
+  /* Cristal: tarjetas esmeriladas sobre las luces de fondo del panel */
+  --glass-bg: rgba(255, 251, 244, 0.58);
+  --glass-row: rgba(255, 255, 255, 0.5);
+  --glass-row-hover: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 10px 30px -14px rgba(22, 19, 26, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glow-opacity: 0.22;
   --stage-red: #E0301E;
   --stage-amber: #D98308;
   --stage-violet: #6A3DE0;
@@ -167,6 +174,12 @@
   --sidebar-accent-foreground: #F4EEE4;
   --sidebar-border: #FFFFFF0F;
   --sidebar-ring: #FFB547;
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --glass-row: rgba(255, 255, 255, 0.03);
+  --glass-row-hover: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glow-opacity: 0.28;
   --stage-red: #FF4A33;
   --stage-amber: #FFB547;
   --stage-violet: #9B6BFF;
