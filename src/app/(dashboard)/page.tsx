@@ -17,7 +17,6 @@ import { LoadingGrid } from "@/components/shared/loading-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { BackgroundVideo } from "@/components/art/background-video";
 import { StageLights } from "@/components/art/stage-lights";
-import { Vinyl } from "@/components/art/vinyl";
 import { Waveform } from "@/components/art/waveform";
 import { Countdown } from "@/components/punk/countdown";
 import { StatBlock } from "@/components/punk/stat-block";
@@ -39,23 +38,35 @@ async function DashboardContent() {
         aria-labelledby="next-show-title"
         className="stage-surface grain relative isolate overflow-hidden rounded-2xl p-6 shadow-poster sm:p-8 lg:p-10"
       >
-        {/* Vinilo en primer plano, volteado para que el disco quede a la derecha */}
+        {/* Vídeo del vinilo, volteado para que el disco quede a la derecha */}
         <div aria-hidden="true" className="absolute inset-0 -z-20">
           <BackgroundVideo name="/video/bg-vinilo" className="absolute inset-0 size-full -scale-x-100 opacity-70" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/10" />
         </div>
         <StageLights />
-        <Vinyl
-          spin
-          label={band.name}
-          className="pointer-events-none absolute -right-24 -top-16 -z-10 size-72 opacity-35 sm:opacity-80 sm:-right-16 sm:size-96 lg:-right-10 lg:top-1/2 lg:size-[26rem] lg:-translate-y-1/2"
-        />
+        {/* Logo de la banda, grande y con su forma, donde el cartel deja hueco */}
+        {band.logoData && (
+          <div className="pointer-events-none absolute bottom-10 right-12 top-28 -z-10 hidden w-[26%] max-w-64 items-center justify-center lg:flex">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={band.logoData}
+              alt={`Logo de ${band.name}`}
+              className="max-h-full max-w-full object-contain drop-shadow-[0_0_40px_rgba(255,122,51,0.35)]"
+            />
+          </div>
+        )}
 
         <div className="relative flex flex-col gap-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-serif text-2xl italic text-white/85 sm:text-3xl">
-              Hola, {data.user.name.split(" ")[0]}.
-            </p>
+            <div className="flex items-center gap-3">
+              {band.logoData && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={band.logoData} alt="" className="size-10 object-contain sm:size-12 lg:hidden" />
+              )}
+              <p className="font-serif text-2xl italic text-white/85 sm:text-3xl">
+                Hola, {data.user.name.split(" ")[0]}.
+              </p>
+            </div>
             <Button render={<Link href="/events/new" />} size="lg">
               <CalendarPlus />
               Crear evento
@@ -101,7 +112,7 @@ async function DashboardContent() {
               </div>
             </div>
           ) : (
-            <div className="max-w-xl space-y-3">
+            <div className="max-w-xl space-y-3 lg:max-w-[62%]">
               <h2 id="next-show-title" className="poster-title text-5xl text-white sm:text-6xl">
                 Escenario <span className="text-stage-gradient">vacío</span>
               </h2>
