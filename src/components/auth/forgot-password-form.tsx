@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { requestPasswordReset } from "@/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,12 +18,14 @@ export function ForgotPasswordForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
+    const result = await requestPasswordReset({ email });
     setLoading(false);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
     setSent(true);
-    toast.success("Enlace de recuperación enviado (simulado).");
   }
 
   if (sent) {
@@ -35,7 +38,7 @@ export function ForgotPasswordForm() {
           <CardTitle className="poster-title text-3xl">Revisa tu correo</CardTitle>
           <CardDescription>
             Si existe una cuenta con <strong>{email}</strong>, recibirás un enlace
-            para restablecer la contraseña. Este flujo es simulado en desarrollo.
+            para restablecer la contraseña. Caduca en 1 hora; mira también en spam.
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
