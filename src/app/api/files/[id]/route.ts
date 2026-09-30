@@ -38,9 +38,9 @@ export async function GET(_request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Archivo no encontrado." }, { status: 404 });
     }
 
-    const buffer = await readStoredFile(file.storagePath);
+    const body = await readStoredFile(file.storagePath);
 
-    return new NextResponse(new Uint8Array(buffer), {
+    return new NextResponse(body, {
       status: 200,
       headers: {
         "Content-Type": file.mimeType,

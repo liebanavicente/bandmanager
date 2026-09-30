@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 import { Upload } from "lucide-react";
 import type { FileAsset, FileCategory } from "@prisma/client";
 import { toast } from "sonner";
-import { updateFile, uploadFile } from "@/actions/files";
+import { registerUploadedFile, updateFile, uploadFile } from "@/actions/files";
 import { fileCategoryLabels } from "@/lib/file-categories";
 import { EntityActions } from "@/components/shared/entity-actions";
 import { FormDialog } from "@/components/shared/form-dialog";
@@ -22,13 +23,50 @@ const categoryOptions = Object.entries(fileCategoryLabels).map(([value, label]) 
 
 export type FileDraft = Pick<FileAsset, "id" | "name" | "description" | "category">;
 
+/** Subida directa del navegador a Vercel Blob; null = pasa por el servidor (local). */
+export type DirectUpload = { prefix: string; maxBytes: number } | null;
+
 type FileDialogProps = {
   file?: FileDraft;
+  directUpload?: DirectUpload;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function FileDialog({ file, open, onOpenChange }: FileDialogProps) {
+async function uploadDirect(form: FormData, category: FileCategory, target: NonNullable<DirectUpload>) {
+  const picked = form.get("file");
+  if (!(picked instanceof File) || picked.size === 0) {
+    return { error: "Debes seleccionar un archivo." };
+  }
+  if (picked.size > target.maxBytes) {
+    return { error: `El archivo supera el límite de ${Math.round(target.maxBytes / (1024 * 1024))} MB.` };
+  }
+
+  const safeName = picked.name.replace(/[^a-zA-Z0-9._-]/g, "_") || "archivo";
+  let pathname: string;
+  try {
+    const blob = await upload(`${target.prefix}general/${safeName}`, picked, {
+      access: "private",
+      handleUploadUrl: "/api/files/upload",
+      contentType: picked.type || undefined,
+    });
+    pathname = blob.pathname;
+  } catch (error) {
+    console.error(error);
+    return { error: "No se pudo subir el archivo. Revisa el tipo y el tamaño e inténtalo de nuevo." };
+  }
+
+  const name = (form.get("name") as string)?.trim();
+  return registerUploadedFile({
+    pathname,
+    originalName: picked.name,
+    name: name || undefined,
+    description: (form.get("description") as string) ?? "",
+    category,
+  });
+}
+
+export function FileDialog({ file, directUpload, open, onOpenChange }: FileDialogProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState<FileCategory>(file?.category ?? "OTHER");
@@ -43,6 +81,8 @@ export function FileDialog({ file, open, onOpenChange }: FileDialogProps) {
         description: form.get("description") ?? "",
         category,
       });
+    } else if (directUpload) {
+      result = await uploadDirect(form, category, directUpload);
     } else {
       form.set("category", category);
       if (!form.get("name")) form.delete("name");
@@ -105,7 +145,7 @@ export function FileDialog({ file, open, onOpenChange }: FileDialogProps) {
   );
 }
 
-export function UploadFileButton() {
+export function UploadFileButton({ directUpload = null }: { directUpload?: DirectUpload }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -113,7 +153,7 @@ export function UploadFileButton() {
         <Upload />
         Subir archivo
       </Button>
-      {open && <FileDialog open={open} onOpenChange={setOpen} />}
+      {open && <FileDialog directUpload={directUpload} open={open} onOpenChange={setOpen} />}
     </>
   );
 }

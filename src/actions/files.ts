@@ -4,12 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { AppError, toActionError } from "@/lib/errors";
 import { getCollaboratorAreas, getSessionUser } from "@/lib/session";
 import { requirePermission } from "@/lib/permissions";
-import { deleteStoredFile, storeFile } from "@/lib/files";
+import { deleteStoredFile, storeFile, verifyUploadedBlob, type StoredFile } from "@/lib/files";
 import { assertInBand } from "@/lib/band-scope";
 import {
   fileFiltersSchema,
+  registerUploadedFileSchema,
   updateFileMetadataSchema,
   uploadFileMetadataSchema,
+  type UploadFileMetadata,
 } from "@/lib/validations";
 
 async function authorizeFiles() {
@@ -130,36 +132,59 @@ export async function uploadFile(formData: FormData) {
     const subdirectory = `bands/${user.bandId}/${scope}`;
 
     const stored = await storeFile(file, subdirectory);
+    return { success: true as const, data: await createFileAsset(user, parsed.data, stored) };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
 
-    const asset = await prisma.fileAsset.create({
-      data: {
-        bandId: user.bandId,
-        name: parsed.data.name ?? stored.originalName,
-        description: parsed.data.description,
-        category: parsed.data.category,
-        tags: parsed.data.tags,
-        mimeType: stored.mimeType,
-        sizeBytes: stored.sizeBytes,
-        storagePath: stored.storagePath,
-        uploadedById: user.id,
-        eventId: parsed.data.eventId,
-        taskId: parsed.data.taskId,
-      },
-      include: {
-        uploadedBy: { include: { profile: true } },
-      },
-    });
+/**
+ * Registra un archivo que el navegador ya ha subido a Vercel Blob
+ * (ver /api/files/upload). Se comprueba en Blob su sala, tipo y tamaño.
+ */
+export async function registerUploadedFile(input: unknown) {
+  try {
+    const user = await authorizeFiles();
+    const parsed = registerUploadedFileSchema.safeParse(input);
+    if (!parsed.success) {
+      throw new AppError("Metadatos del archivo inválidos.", "VALIDATION", 400);
+    }
 
+    const { pathname, originalName, ...metadata } = parsed.data;
+    const stored = await verifyUploadedBlob(pathname, user.bandId);
     return {
       success: true as const,
-      data: {
-        ...asset,
-        downloadUrl: `/api/files/${asset.id}`,
-      },
+      data: await createFileAsset(user, metadata, { ...stored, originalName }),
     };
   } catch (error) {
     return toActionError(error);
   }
+}
+
+async function createFileAsset(
+  user: { id: string; bandId: string },
+  metadata: UploadFileMetadata,
+  stored: StoredFile,
+) {
+  const asset = await prisma.fileAsset.create({
+    data: {
+      bandId: user.bandId,
+      name: metadata.name ?? stored.originalName,
+      description: metadata.description,
+      category: metadata.category,
+      tags: metadata.tags,
+      mimeType: stored.mimeType,
+      sizeBytes: stored.sizeBytes,
+      storagePath: stored.storagePath,
+      uploadedById: user.id,
+      eventId: metadata.eventId,
+      taskId: metadata.taskId,
+    },
+    include: {
+      uploadedBy: { include: { profile: true } },
+    },
+  });
+  return { ...asset, downloadUrl: `/api/files/${asset.id}` };
 }
 
 export async function deleteFile(id: string) {

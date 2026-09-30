@@ -4,6 +4,12 @@ import { runIntegrationSync } from "@/lib/integrations/sync";
 import { syncRequestSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
+  // Las integraciones aún son simuladas: en producción meterían productos y
+  // pedidos inventados en la sala de una banda real.
+  if (process.env.VERCEL_ENV === "production") {
+    return NextResponse.json({ error: "Integraciones no disponibles." }, { status: 404 });
+  }
+
   try {
     const user = await getOptionalSessionUser();
     if (!user) {

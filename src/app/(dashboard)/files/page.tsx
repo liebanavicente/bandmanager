@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
 import { fileCategoryLabels } from "@/lib/file-categories";
+import { bandStoragePrefix, getMaxFileSizeBytes, isBlobStorage } from "@/lib/files";
+import { getSessionUser } from "@/lib/session";
 import { FileActions, UploadFileButton } from "@/components/files/file-dialog";
 
 const categoryLabels = fileCategoryLabels;
@@ -97,15 +99,20 @@ async function FilesList({
   );
 }
 
-export default function FilesPage({
+export default async function FilesPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; category?: FileCategory }>;
 }) {
+  const user = await getSessionUser();
+  const directUpload = isBlobStorage()
+    ? { prefix: bandStoragePrefix(user.bandId), maxBytes: getMaxFileSizeBytes() }
+    : null;
+
   return (
     <div className="space-y-6">
       <PageHeader title="Archivos" description="Documentación compartida de la banda.">
-        <UploadFileButton />
+        <UploadFileButton directUpload={directUpload} />
       </PageHeader>
 
       <Suspense fallback={<Skeleton className="h-10 w-full max-w-xl" />}>
