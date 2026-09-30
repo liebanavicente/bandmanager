@@ -15,6 +15,7 @@ import { presentationSlides } from "@/lib/presentation-slides";
 import { Button } from "@/components/ui/button";
 import { BmLogo } from "@/components/brand/bm-logo";
 import { StageLights } from "@/components/art/stage-lights";
+import { BackgroundVideo } from "@/components/art/background-video";
 import { Vinyl } from "@/components/art/vinyl";
 import { cn } from "@/lib/utils";
 
@@ -100,23 +101,31 @@ export function SlideDeck() {
 
       {/* Diapositiva */}
       <main className="relative flex flex-1 flex-col justify-center overflow-hidden px-4 py-10 sm:px-8">
-        {/* Portada: escenario con focos, foto en duotono y vinilo girando */}
+        {/* Portada: humo con haces de luz, focos y vinilo girando */}
         {isIntro && (
           <div aria-hidden="true" className="stage-surface grain absolute inset-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/logo-hero.webp"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-left opacity-25 mix-blend-luminosity"
+            <BackgroundVideo
+              name="/video/bg-humo"
+              waitForIntro
+              className="absolute inset-0 size-full opacity-70"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
             <StageLights />
+          </div>
+        )}
+        {/* Resto de pistas: vinilo en primer plano, tenue y solo en tema oscuro */}
+        {!isIntro && (
+          <div aria-hidden="true" className="absolute inset-0 hidden dark:block">
+            {/* Volteado: el disco queda a la derecha, lejos del texto */}
+            <BackgroundVideo name="/video/bg-vinilo" className="absolute inset-0 size-full -scale-x-100 opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-transparent" />
           </div>
         )}
         <Vinyl
           spin={isPlaying}
           className={cn(
             "pointer-events-none absolute -right-40 top-1/2 size-[30rem] -translate-y-1/2 transition-opacity duration-500 sm:size-[40rem]",
-            isIntro ? "opacity-80" : "opacity-15",
+            isIntro ? "opacity-80" : "opacity-15 dark:opacity-0",
           )}
         />
 

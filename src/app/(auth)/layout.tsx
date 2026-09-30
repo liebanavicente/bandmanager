@@ -1,3 +1,4 @@
+import { BackgroundVideo } from "@/components/art/background-video";
 import { BmLogo } from "@/components/brand/bm-logo";
 import { StageLights } from "@/components/art/stage-lights";
 import { Vinyl } from "@/components/art/vinyl";
@@ -12,14 +13,10 @@ export default function AuthLayout({
     <div className="grid min-h-screen lg:grid-cols-[1.15fr_1fr]">
       {/* Cartel: escenario con focos, vinilo y titular de gira (solo escritorio) */}
       <div className="stage-surface grain relative isolate hidden overflow-hidden lg:block">
-        {/* Imagen local generada en postinstall desde scripts/brand, en duotono */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/brand/logo-hero.webp"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 h-full w-full object-cover object-left opacity-25 mix-blend-luminosity"
-        />
+        {/* Aro de neón sobre hormigón: su luz "respira" tras el titular */}
+        <BackgroundVideo name="/video/bg-neon" className="absolute inset-0 -z-10 size-full object-left opacity-80" />
+        {/* Sombra inferior: el titular y el subtítulo se leen en el pico de luz */}
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <StageLights />
         <Vinyl
           spin

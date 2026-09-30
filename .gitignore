@@ -47,5 +47,6 @@ next-env.d.ts
 # recursos de marca generados en postinstall (scripts/ensure-brand.mjs)
 /public/brand/
 
-# Vídeo original de la intro (se sirve la versión recortada bm-entrada.mp4)
+# Originales de vídeo (se sirven las versiones web: bm-entrada, bg-humo, bg-vinilo, bg-neon)
 /public/video/BMentrada.mp4
+/public/video/*_2026*.mp4
