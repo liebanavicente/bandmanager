@@ -15,6 +15,7 @@ import {
 import { getDashboardData } from "@/actions/dashboard";
 import { LoadingGrid } from "@/components/shared/loading-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { BackgroundVideo } from "@/components/art/background-video";
 import { StageLights } from "@/components/art/stage-lights";
 import { Vinyl } from "@/components/art/vinyl";
 import { Waveform } from "@/components/art/waveform";
@@ -38,6 +39,11 @@ async function DashboardContent() {
         aria-labelledby="next-show-title"
         className="stage-surface grain relative isolate overflow-hidden rounded-2xl p-6 shadow-poster sm:p-8 lg:p-10"
       >
+        {/* Vinilo en primer plano, volteado para que el disco quede a la derecha */}
+        <div aria-hidden="true" className="absolute inset-0 -z-20">
+          <BackgroundVideo name="/video/bg-vinilo" className="absolute inset-0 size-full -scale-x-100 opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/10" />
+        </div>
         <StageLights />
         <Vinyl
           spin
