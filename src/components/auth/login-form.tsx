@@ -11,6 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+/** Solo en local: en producción entran bandas reales. */
+const showDemoAccounts = process.env.NODE_ENV === "development";
+
 const demoAccounts = [
   { role: "Admin", email: "admin@losvoltios.es", password: "demo1234" },
   { role: "Miembro", email: "miembro@losvoltios.es", password: "demo1234" },
@@ -96,34 +99,36 @@ export function LoginForm() {
             />
           </div>
 
-          <div className="rounded-lg border border-dashed bg-muted/40 p-3">
-            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Pases de demostración
-            </p>
-            <div className="flex flex-col gap-2">
-              {demoAccounts.map((account) => (
-                <button
-                  key={account.email}
-                  type="button"
-                  onClick={() => fillDemo(account)}
-                  className="group flex items-stretch overflow-hidden rounded-md border bg-background text-left text-xs transition-all hover:-translate-y-px hover:shadow-poster-sm"
-                >
-                  {/* Talón del pase */}
-                  <span className="flex w-20 shrink-0 items-center justify-center border-r border-dashed bg-stage-ink px-2 font-display text-sm uppercase tracking-wide text-white transition-colors group-hover:bg-primary">
-                    {account.role}
-                  </span>
-                  <span className="min-w-0 px-3 py-2">
-                    <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-primary">
-                      All access
+          {showDemoAccounts && (
+            <div className="rounded-lg border border-dashed bg-muted/40 p-3">
+              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                Pases de demostración
+              </p>
+              <div className="flex flex-col gap-2">
+                {demoAccounts.map((account) => (
+                  <button
+                    key={account.email}
+                    type="button"
+                    onClick={() => fillDemo(account)}
+                    className="group flex items-stretch overflow-hidden rounded-md border bg-background text-left text-xs transition-all hover:-translate-y-px hover:shadow-poster-sm"
+                  >
+                    {/* Talón del pase */}
+                    <span className="flex w-20 shrink-0 items-center justify-center border-r border-dashed bg-stage-ink px-2 font-display text-sm uppercase tracking-wide text-white transition-colors group-hover:bg-primary">
+                      {account.role}
                     </span>
-                    <span className="mt-0.5 block truncate text-muted-foreground">
-                      {account.email} · {account.password}
+                    <span className="min-w-0 px-3 py-2">
+                      <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-primary">
+                        All access
+                      </span>
+                      <span className="mt-0.5 block truncate text-muted-foreground">
+                        {account.email} · {account.password}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={loading}>
