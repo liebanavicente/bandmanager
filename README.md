@@ -38,7 +38,7 @@ Abre [http://localhost:3000](http://localhost:3000).
 | `DATABASE_URL` | Conexión PostgreSQL |
 | `AUTH_SECRET` | Secreto para sesiones (generar en producción) |
 | `AUTH_URL` | URL base de la app |
-| `BLOB_READ_WRITE_TOKEN` | Almacén Vercel Blob (privado) para los archivos; el navegador sube directo. Vercel la crea al conectar el almacén. Sin ella se usa `UPLOAD_DIR` |
+| `BLOB_STORE_ID` o `BLOB_READ_WRITE_TOKEN` | Almacén Vercel Blob (privado) para los archivos; el navegador sube directo con una URL firmada. Vercel crea `BLOB_STORE_ID` (OIDC) al conectar el almacén. Sin ninguna se usa `UPLOAD_DIR` |
 | `UPLOAD_DIR` | Carpeta local para archivos (solo desarrollo) |
 | `MAX_FILE_SIZE_MB` | Límite de subida |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Servidor SMTP para los emails (p. ej. Gmail con contraseña de aplicación). Sin él, los emails solo se escriben en el log |

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
+import { uploadPresigned } from "@vercel/blob/client";
 import { Upload } from "lucide-react";
 import type { FileAsset, FileCategory } from "@prisma/client";
 import { toast } from "sonner";
@@ -42,10 +42,11 @@ async function uploadDirect(form: FormData, category: FileCategory, target: NonN
     return { error: `El archivo supera el límite de ${Math.round(target.maxBytes / (1024 * 1024))} MB.` };
   }
 
+  // La firma vale para una ruta exacta: el prefijo aleatorio la hace única
   const safeName = picked.name.replace(/[^a-zA-Z0-9._-]/g, "_") || "archivo";
   let pathname: string;
   try {
-    const blob = await upload(`${target.prefix}general/${safeName}`, picked, {
+    const blob = await uploadPresigned(`${target.prefix}general/${crypto.randomUUID()}-${safeName}`, picked, {
       access: "private",
       handleUploadUrl: "/api/files/upload",
       contentType: picked.type || undefined,

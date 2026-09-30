@@ -25,11 +25,12 @@ export const ALLOWED_MIME_TYPES = new Set([
 ]);
 
 /**
- * Con BLOB_READ_WRITE_TOKEN (Vercel) los archivos van a Vercel Blob y el
- * navegador los sube directamente; sin él, al disco local (desarrollo).
+ * Con un almacén Vercel Blob conectado (BLOB_STORE_ID con OIDC, o el
+ * BLOB_READ_WRITE_TOKEN clásico) los archivos van a Blob y el navegador los
+ * sube directamente; sin él, al disco local (desarrollo).
  */
 export function isBlobStorage(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 }
 
 /** Carpeta de una sala dentro del almacén: nadie sube fuera de la suya. */
