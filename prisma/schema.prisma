@@ -126,6 +126,8 @@ model User {
   isActive      Boolean   @default(true)
   resetToken    String?
   resetTokenExp DateTime?
+  /// Último uso de la app (se actualiza como mucho una vez por hora)
+  lastSeenAt    DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?

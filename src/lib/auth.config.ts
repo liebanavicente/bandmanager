@@ -47,6 +47,7 @@ export const authConfig: NextAuthConfig = {
         "/orders",
         "/settings",
         "/onboarding",
+        "/piloto",
       ];
 
       const isProtected = protectedPaths.some(

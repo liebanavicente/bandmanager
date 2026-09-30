@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/lib/errors";
 
+const LAST_SEEN_THROTTLE_MS = 60 * 60 * 1000;
+
 export type SessionUser = {
   id: string;
   email: string;
@@ -29,6 +31,12 @@ export const getSessionUser = cache(async (): Promise<SessionUser> => {
   });
   if (!user) {
     throw new AppError("Tu acceso a esta sala ya no está activo.", "UNAUTHORIZED", 401);
+  }
+  // Uso activo para las métricas del piloto: como mucho una escritura por hora
+  if (!user.lastSeenAt || Date.now() - user.lastSeenAt.getTime() > LAST_SEEN_THROTTLE_MS) {
+    await prisma.user
+      .update({ where: { id: user.id }, data: { lastSeenAt: new Date() } })
+      .catch((error: unknown) => console.error("[lastSeenAt]", error));
   }
   return {
     id: user.id,

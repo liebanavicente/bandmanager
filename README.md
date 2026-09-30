@@ -43,6 +43,7 @@ Abre [http://localhost:3000](http://localhost:3000).
 | `MAX_FILE_SIZE_MB` | Límite de subida |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Servidor SMTP para los emails (p. ej. Gmail con contraseña de aplicación). Sin él, los emails solo se escriben en el log |
 | `MAIL_FROM` | Remitente (por defecto, `BandManager <SMTP_USER>`) |
+| `PILOT_ADMIN_EMAILS` | Emails (separados por comas) que pueden abrir `/piloto`: métricas por banda y todo el feedback |
 | `FEEDBACK_NOTIFY_EMAIL` | Email que recibe cada mensaje del botón Feedback |
 | `WOOCOMMERCE_*` | Integración futura WooCommerce |
 | `GELATO_*` | Integración futura Gelato |
