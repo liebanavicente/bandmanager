@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { IntroVideo, introGateScript } from "@/components/presentation/intro-video";
 import { SlideDeck } from "@/components/presentation/slide-deck";
 
 export const metadata: Metadata = {
@@ -13,5 +14,12 @@ export default async function PresentacionPage() {
   const session = await auth();
   if (session?.user) redirect("/");
 
-  return <SlideDeck />;
+  return (
+    <>
+      {/* Antes de pintar: decide si la intro se ve (primera visita) */}
+      <script dangerouslySetInnerHTML={{ __html: introGateScript }} />
+      <IntroVideo />
+      <SlideDeck />
+    </>
+  );
 }

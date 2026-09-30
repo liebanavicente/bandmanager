@@ -371,6 +371,11 @@
   }
 }
 
+/* Vídeo de entrada: oculto si ya se vio o se pide reducir movimiento */
+[data-intro="off"] .bm-intro {
+  display: none;
+}
+
 /* Reducción de movimiento: alternativa estática global */
 @media (prefers-reduced-motion: reduce) {
   *,
