@@ -39,7 +39,7 @@ export function BandBadge({ band, collapsed = false, className }: BandBadgeProps
             className="size-10 rounded-full bg-white/5 object-cover ring-2 ring-white/15"
           />
         ) : (
-          <span className="flex size-10 items-center justify-center rounded-full bg-stage-gradient font-display text-lg text-stage-ink ring-2 ring-white/15">
+          <span className="flex size-10 items-center justify-center rounded-full bg-stage-gradient font-display text-lg text-band-ink ring-2 ring-white/15">
             {initials(band.name)}
           </span>
         )}

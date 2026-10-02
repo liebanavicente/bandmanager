@@ -42,3 +42,25 @@ export async function logoToDataUrl(file: File, maxSize = 320): Promise<string> 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/png");
 }
+
+/**
+ * Color dominante de un logo (data URL) para proponerlo como acento de la
+ * banda. Reduce la imagen a 48 px y descarta fondo, trazo y grises.
+ */
+export async function logoAccentColor(dataUrl: string): Promise<string | null> {
+  const { dominantColor } = await import("@/lib/brand-color");
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("La imagen no se pudo abrir."));
+    el.src = dataUrl;
+  });
+  const size = 48;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.drawImage(img, 0, 0, size, size);
+  return dominantColor(ctx.getImageData(0, 0, size, size).data);
+}

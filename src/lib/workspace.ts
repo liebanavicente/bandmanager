@@ -15,6 +15,8 @@ export const getBand = cache(async (bandId: string) => {
 export type BandSummary = {
   name: string;
   logoData: string | null;
+  /** Acento de la interfaz (#RRGGBB) o null para el de BandManager. */
+  accentColor: string | null;
   genre: string | null;
   city: string | null;
   hasStore: boolean;
@@ -27,6 +29,7 @@ export async function getBandSummary(bandId: string): Promise<BandSummary> {
   return {
     name: band?.name ?? DEFAULT_BAND_NAME,
     logoData: band?.logoData ?? null,
+    accentColor: band?.accentColor ?? null,
     genre: band?.genre ?? null,
     city: band?.city ?? null,
     hasStore: band?.hasStore ?? true,

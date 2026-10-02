@@ -1,8 +1,7 @@
-import { BackgroundVideo } from "@/components/art/background-video";
 import { BmLogo } from "@/components/brand/bm-logo";
-import { StageLights } from "@/components/art/stage-lights";
-import { Vinyl } from "@/components/art/vinyl";
+import { RecordDisc } from "@/components/art/record-disc";
 import { Waveform } from "@/components/art/waveform";
+import { StageGlow } from "@/components/glass/stage-glow";
 
 export default function AuthLayout({
   children,
@@ -10,43 +9,35 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1.15fr_1fr]">
-      {/* Cartel: escenario con focos, vinilo y titular de gira (solo escritorio) */}
-      <div className="stage-surface grain relative isolate hidden overflow-hidden lg:block">
-        {/* Aro de neón sobre hormigón: su luz "respira" tras el titular */}
-        <BackgroundVideo name="/video/bg-neon" className="absolute inset-0 -z-10 size-full object-left opacity-80" />
-        {/* Sombra inferior: el titular y el subtítulo se leen en el pico de luz */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-        <StageLights />
-        <Vinyl
-          spin
-          label="BandManager"
-          className="pointer-events-none absolute -bottom-40 -right-40 -z-10 size-[34rem] opacity-90"
+    <div className="relative isolate grid min-h-screen lg:grid-cols-[1.15fr_1fr]">
+      <StageGlow />
+      {/* Cartel editorial: titular de gira, disco y onda (solo escritorio) */}
+      <div className="relative hidden overflow-hidden lg:block">
+        <RecordDisc
+          label="Band Manager"
+          className="pointer-events-none absolute -bottom-56 -right-44 size-[28rem] animate-spin-slow"
         />
 
         <div className="relative flex h-full flex-col justify-between p-12">
           <div className="flex items-center gap-3">
             <BmLogo size={40} />
-            <span className="poster-title text-2xl text-white">
-              Band<span className="text-stage-gradient">Manager</span>
-            </span>
+            <span className="poster-title text-3xl">BandManager</span>
           </div>
 
-          <div className="space-y-6">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-stage-amber">
-              Gira 2026 · Todas las fechas
-            </p>
-            <h2 className="poster-title text-[5.5rem] text-white xl:text-[7rem]">
+          <div className="max-w-[34rem] space-y-6 pb-24">
+            <p className="eyebrow">Gira 2026 · Todas las fechas</p>
+            <h2 className="poster-title text-[5.5rem] xl:text-[7rem]">
               Tu banda,
               <br />
-              <span className="text-outline [--stroke:#F4EEE4]">en</span>{" "}
+              <span className="text-outline [--stroke:var(--ink)]">en</span>{" "}
               <span className="text-stage-gradient">directo.</span>
             </h2>
-            <p className="max-w-md font-serif text-2xl italic leading-snug text-white/75">
+            <div className="rule max-w-md" />
+            <p className="max-w-md font-serif text-2xl italic leading-snug text-muted-foreground">
               Conciertos, ensayos, repertorio, setlists y merch. Todo el trabajo
               de la banda, detrás del escenario.
             </p>
-            <Waveform seed="tu banda en directo" bars={64} progress={0.4} className="h-10 max-w-md text-white" />
+            <Waveform seed="tu banda en directo" bars={64} progress={0.4} className="h-10 max-w-md text-ink" />
           </div>
         </div>
       </div>
@@ -56,9 +47,7 @@ export default function AuthLayout({
         <div className="mb-8 flex flex-col items-center gap-3 text-center lg:hidden">
           <BmLogo size={56} />
           <div>
-            <h1 className="poster-title text-4xl">
-              Band<span className="text-stage-gradient">Manager</span>
-            </h1>
+            <h1 className="poster-title text-5xl">BandManager</h1>
             <p className="mt-1 font-serif text-lg italic text-muted-foreground">Tu banda, en directo</p>
           </div>
         </div>

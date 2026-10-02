@@ -17,7 +17,9 @@ import {
 import { toast } from "sonner";
 import { completeOnboarding } from "@/actions/band";
 import { isActionSuccess } from "@/lib/action-result";
-import { logoToDataUrl } from "@/lib/image";
+import { logoAccentColor, logoToDataUrl } from "@/lib/image";
+import { DEFAULT_BAND_COLOR } from "@/lib/brand-color";
+import { BandColorPicker } from "@/components/brand/band-color-picker";
 import { cn } from "@/lib/utils";
 import type { BandLinks } from "@/lib/workspace";
 import { StageLights } from "@/components/art/stage-lights";
@@ -41,6 +43,7 @@ type MemberDraft = {
 type Initial = {
   name: string;
   logoData: string;
+  accentColor: string;
   genre: string;
   city: string;
   foundedYear: string;
@@ -107,8 +110,8 @@ function Chip({
       className={cn(
         "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
         active
-          ? "border-transparent bg-stage-gradient text-stage-ink shadow-poster-red"
-          : "border-foreground/15 bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:text-primary",
+          ? "border-transparent bg-stage-gradient text-band-ink shadow-poster-red"
+          : "border-foreground/15 bg-card hover:-translate-y-0.5 hover:border-primary/50 hover:text-band-text",
       )}
     >
       {children}
@@ -140,6 +143,8 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
 
   const [name, setName] = useState(initial.name);
   const [logoData, setLogoData] = useState(initial.logoData);
+  const [accentColor, setAccentColor] = useState(initial.accentColor || DEFAULT_BAND_COLOR);
+  const [suggestedColor, setSuggestedColor] = useState<string | null>(null);
   const [genre, setGenre] = useState(initial.genre);
   const [city, setCity] = useState(initial.city);
   const [foundedYear, setFoundedYear] = useState(initial.foundedYear);
@@ -187,7 +192,12 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
   async function handleLogo(file: File | undefined) {
     if (!file) return;
     try {
-      setLogoData(await logoToDataUrl(file));
+      const data = await logoToDataUrl(file);
+      setLogoData(data);
+      // El color del logo pasa a ser el acento propuesto de la banda
+      const color = await logoAccentColor(data).catch(() => null);
+      setSuggestedColor(color);
+      if (color) setAccentColor(color);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo cargar el logo.");
     }
@@ -209,6 +219,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
     const result = await completeOnboarding({
       name,
       logoData,
+      accentColor,
       genre,
       city,
       foundedYear: foundedYear || undefined,
@@ -354,7 +365,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                     <img src={logoData} alt="Vista previa del logo" className="size-full object-contain p-8" />
                   ) : (
                     <>
-                      <span className="flex size-14 items-center justify-center rounded-full bg-stage-gradient text-stage-ink transition-transform group-hover:scale-110">
+                      <span className="flex size-14 items-center justify-center rounded-full bg-stage-gradient text-band-ink transition-transform group-hover:scale-110">
                         <ImageUp className="size-6" />
                       </span>
                       <span className="font-display text-xl uppercase">Suelta aquí tu logo</span>
@@ -384,6 +395,13 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                 <p className="font-serif text-lg italic text-muted-foreground">
                   ¿Aún no tenéis logo? Sin problema: usaremos vuestras iniciales hasta que lo tengáis.
                 </p>
+                <div className="space-y-2 border-t border-hairline pt-5">
+                  <p className="text-sm font-bold">Color de la banda</p>
+                  <p className="text-xs text-muted-foreground">
+                    Tiñe toda la app. Lo sacamos de vuestro logo; cámbialo si queréis.
+                  </p>
+                  <BandColorPicker value={accentColor} onChange={setAccentColor} suggested={suggestedColor} />
+                </div>
               </div>
             )}
 
@@ -502,7 +520,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                       )}
                     >
                       <span className="flex items-center gap-2 font-display text-2xl uppercase">
-                        {opt.value ? <ShoppingBag className="size-5 text-primary" /> : <X className="size-5 text-muted-foreground" />}
+                        {opt.value ? <ShoppingBag className="size-5 text-band-text" /> : <X className="size-5 text-muted-foreground" />}
                         {opt.title}
                       </span>
                       <span className="mt-1 block text-sm text-muted-foreground">{opt.text}</span>
@@ -633,7 +651,7 @@ function ReviewRow({ label, value, onEdit }: { label: string; value: string; onE
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium">{value}</p>
       </div>
-      <Button type="button" variant="ghost" size="sm" onClick={onEdit} className="shrink-0 text-primary">
+      <Button type="button" variant="ghost" size="sm" onClick={onEdit} className="shrink-0 text-band-text">
         Cambiar
       </Button>
     </div>

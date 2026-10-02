@@ -39,6 +39,7 @@ export default async function SettingsPage() {
         band={{
           name: band?.name ?? "",
           logoData: band?.logoData ?? null,
+          accentColor: band?.accentColor ?? null,
           genre: band?.genre ?? null,
           city: band?.city ?? null,
           foundedYear: band?.foundedYear ?? null,

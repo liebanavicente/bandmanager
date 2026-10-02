@@ -210,7 +210,7 @@ export function PracticeSession({ song, queue }: Props) {
         {allLines.length === 0 ? (
           <p className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
             Esta canción aún no tiene letra.{" "}
-            <Link href="/songs/import" className="text-primary hover:underline">
+            <Link href="/songs/import" className="text-band-text hover:underline">
               Importar letras
             </Link>
           </p>
@@ -220,7 +220,7 @@ export function PracticeSession({ song, queue }: Props) {
               {MODES.map((m) => (
                 <div key={m.value} className="flex flex-col rounded-xl border bg-card p-4">
                   <p className="flex items-center gap-2 font-display text-xl uppercase tracking-wide">
-                    <m.icon className="size-5 text-primary" />
+                    <m.icon className="size-5 text-band-text" />
                     {m.title}
                   </p>
                   <p className="mt-1 flex-1 text-sm text-muted-foreground">{m.text}</p>
@@ -235,7 +235,7 @@ export function PracticeSession({ song, queue }: Props) {
                           onClick={() => setGapRatio(level.value)}
                           className={cn(
                             "flex-1 rounded-md border px-2 py-1 text-xs",
-                            gapRatio === level.value ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground",
+                            gapRatio === level.value ? "border-primary bg-primary/10 text-band-text" : "text-muted-foreground",
                           )}
                         >
                           {level.label}
@@ -369,7 +369,7 @@ export function PracticeSession({ song, queue }: Props) {
       </div>
 
       <div className="min-h-72 rounded-2xl border bg-card p-6 sm:p-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">
           {line.section ?? (line.startsStanza ? "Nueva estrofa" : " ")}
         </p>
         <p className="mt-4 min-h-6 font-serif text-lg italic text-muted-foreground">

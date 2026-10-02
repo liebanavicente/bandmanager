@@ -64,7 +64,7 @@ export default async function MembersPage() {
               <Card key={member.id} className="stage-edge">
                 <CardContent className="flex items-start gap-4 pt-6">
                   <Avatar className="size-14 ring-2 ring-primary/30">
-                    <AvatarFallback className="bg-stage-gradient font-display text-lg text-stage-ink">
+                    <AvatarFallback className="bg-stage-gradient font-display text-lg text-band-ink">
                       {initials}
                     </AvatarFallback>
                   </Avatar>

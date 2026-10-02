@@ -56,7 +56,7 @@ export default async function SetlistDetailPage({
       {setlist.event && (
         <p className="text-sm text-muted-foreground">
           Evento:{" "}
-          <Link href={`/events/${setlist.event.id}`} className="text-primary hover:underline">
+          <Link href={`/events/${setlist.event.id}`} className="text-band-text hover:underline">
             {setlist.event.title}
           </Link>
         </p>
@@ -87,7 +87,7 @@ export default async function SetlistDetailPage({
                     <p
                       className={
                         item.type === "ENCORE"
-                          ? "flex-1 font-display uppercase tracking-wide text-primary"
+                          ? "flex-1 font-display uppercase tracking-wide text-band-text"
                           : "flex-1 font-serif text-base italic text-muted-foreground"
                       }
                     >
@@ -110,7 +110,7 @@ export default async function SetlistDetailPage({
 
               return (
                 <div key={item.id} className="flex items-center gap-4 rounded-lg border px-4 py-3">
-                  <span className="w-8 text-lg font-semibold text-primary tabular-nums">
+                  <span className="w-8 text-lg font-semibold text-band-text tabular-nums">
                     {String(songNumber).padStart(2, "0")}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -131,7 +131,7 @@ export default async function SetlistDetailPage({
                     <span
                       className={
                         tuningChanged
-                          ? "rounded bg-stage-amber px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-stage-ink"
+                          ? "rounded bg-stage-amber px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-band-ink"
                           : "rounded bg-stage-amber/15 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-stage-amber"
                       }
                       title={tuningChanged ? "Cambia la afinación" : "Afinación"}

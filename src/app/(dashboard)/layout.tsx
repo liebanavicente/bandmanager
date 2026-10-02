@@ -5,6 +5,8 @@ import { getCollaboratorAreas, getOptionalSessionUser } from "@/lib/session";
 import { getBandSummary } from "@/lib/workspace";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Header } from "@/components/layout/header";
+import { BandTheme } from "@/components/brand/band-theme";
+import { StageGlow } from "@/components/glass/stage-glow";
 
 export default async function DashboardLayout({
   children,
@@ -30,6 +32,8 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
+      <BandTheme color={band.accentColor} />
+      <StageGlow />
       <AppSidebar
         role={user.role}
         collaboratorAreas={collaboratorAreas}
@@ -38,7 +42,7 @@ export default async function DashboardLayout({
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header user={user} collaboratorAreas={collaboratorAreas} band={band} />
-        <main className="flex-1 overflow-x-clip p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-x-clip px-4 py-6 sm:px-8 sm:py-8">{children}</main>
       </div>
     </div>
   );

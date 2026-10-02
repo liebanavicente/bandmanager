@@ -60,7 +60,7 @@ export default async function PilotPage({
         title="Piloto"
         description={`${activeBands} de ${bands.length} bandas activas en los últimos 7 días. Objetivo en la semana 6: 3 o más.`}
       >
-        <Link href="/" className="text-sm text-primary hover:underline">
+        <Link href="/" className="text-sm text-band-text hover:underline">
           Volver a mi sala
         </Link>
       </PageHeader>
@@ -91,7 +91,7 @@ export default async function PilotPage({
                   <TableCell
                     className={cn(
                       "text-right tabular-nums",
-                      band.members > 0 && band.activeMembers / band.members >= 0.75 && "text-primary font-semibold",
+                      band.members > 0 && band.activeMembers / band.members >= 0.75 && "text-band-text font-semibold",
                     )}
                   >
                     {band.activeMembers} / {band.members}

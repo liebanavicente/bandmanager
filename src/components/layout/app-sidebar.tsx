@@ -84,25 +84,23 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 lg:flex",
+        "sticky top-0 z-30 hidden h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[1px_0_0_rgba(255,255,255,0.8)_inset] backdrop-blur-2xl backdrop-saturate-150 transition-[width] duration-200 lg:flex",
         collapsed ? "w-[76px]" : "w-72",
       )}
     >
       {/* Marca */}
       <div
         className={cn(
-          "flex h-16 items-center gap-3 border-b border-sidebar-border",
+          "flex h-[72px] items-center gap-3 border-b-2 border-ink",
           collapsed ? "justify-center px-2" : "px-5",
         )}
       >
         <Link href="/" aria-label="Ir al panel" className="flex items-center gap-3">
-          <BmLogo size={34} className="transition-transform duration-700 hover:rotate-[200deg]" />
+          <BmLogo size={36} className="transition-transform duration-700 hover:rotate-[200deg]" />
           {!collapsed && (
             <span className="min-w-0">
-              <span className="poster-title block truncate text-xl leading-none">
-                Band<span className="text-stage-gradient">Manager</span>
-              </span>
-              <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/50">
+              <span className="poster-title block truncate text-[1.6rem] leading-none">BandManager</span>
+              <span className="mt-1 inline-block bg-ink px-1.5 py-0.5 text-[9px] font-extrabold uppercase leading-none text-band-bright">
                 Backstage
               </span>
             </span>
@@ -128,7 +126,7 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
       {/* Pie: colapsar + perfil de usuario */}
       <div
         className={cn(
-          "flex flex-col gap-2 border-t border-sidebar-border p-3",
+          "flex flex-col gap-2 border-t border-ink/15 p-3",
           collapsed && "items-center px-2",
         )}
       >
@@ -138,7 +136,7 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
           onClick={toggleCollapsed}
           aria-label={collapsed ? "Expandir barra lateral" : "Contraer barra lateral"}
           className={cn(
-            "text-sidebar-foreground/55 hover:bg-sidebar-accent hover:text-sidebar-foreground",
+            "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground",
             !collapsed && "justify-start gap-2",
           )}
         >
@@ -173,7 +171,7 @@ export function UserMenu({
           trigger ?? (
             <button
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
+                "flex w-full items-center gap-2.5 rounded-[10px] px-2 py-1.5 text-left transition-colors hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
                 collapsed && "w-auto justify-center px-1",
               )}
               aria-label="Menú de usuario"
@@ -183,15 +181,15 @@ export function UserMenu({
       >
         {trigger ? null : (
           <>
-            <Avatar className="size-9 ring-2 ring-sidebar-primary/40">
-              <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
+            <Avatar className="size-9 ring-1 ring-ink">
+              <AvatarFallback className="bg-stage-gradient text-[11px] font-extrabold text-band-ink">
                 {initials}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{user.name}</span>
-                <span className="block font-mono text-[10px] uppercase tracking-wider text-sidebar-foreground/50">
+                <span className="block truncate text-sm font-bold">{user.name}</span>
+                <span className="block text-[10px] font-bold uppercase text-muted-foreground">
                   {roleLabels[user.role]}
                 </span>
               </span>
@@ -204,7 +202,7 @@ export function UserMenu({
           <div className="flex flex-col gap-0.5">
             <span className="font-display text-lg uppercase leading-none">{user.name}</span>
             <span className="text-xs font-normal text-muted-foreground">{user.email}</span>
-            <span className="mt-1.5 inline-block w-fit rounded-sm bg-stage-gradient px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-widest text-stage-ink">
+            <span className="eyebrow mt-1.5 w-fit px-1.5 py-0.5 text-[10px]">
               {roleLabels[user.role]}
             </span>
           </div>

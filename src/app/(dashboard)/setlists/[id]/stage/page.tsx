@@ -24,7 +24,7 @@ export default async function SetlistStagePage({
   let previousTuning: string | null = null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-sidebar text-sidebar-foreground">
+    <div className="dark fixed inset-0 z-50 flex flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-3 sm:px-6">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-widest text-sidebar-primary">

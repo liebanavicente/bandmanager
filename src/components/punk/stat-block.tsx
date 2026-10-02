@@ -15,17 +15,18 @@ type StatBlockProps = {
 };
 
 /**
- * Cifra destacada tipo marcador de mesa de mezclas: etiqueta en mono,
- * número en tipografía de cartel y una onda de fondo como firma.
+ * Cifra destacada tipo marcador de mesa de mezclas: etiqueta en caja alta,
+ * número en tipografía de cartel y una onda de fondo como firma. Enlazada,
+ * se invierte a tinta al pasar el ratón (como las tarjetas de Apuntes).
  */
 export function StatBlock({ label, value, icon: Icon, accent = "none", href, className }: StatBlockProps) {
   const body = (
     <>
       <div className="flex items-center justify-between gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
+        <p className="text-[11px] font-extrabold uppercase text-muted-foreground transition-colors group-hover:text-white/70">{label}</p>
         {href ? (
           <ArrowUpRight
-            className="size-[18px] shrink-0 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+            className="size-[18px] shrink-0 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:rotate-45 group-hover:text-band-bright"
             aria-hidden="true"
           />
         ) : (
@@ -34,7 +35,7 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", href, cla
       </div>
       <p
         className={cn(
-          "relative z-10 mt-3 flex items-center gap-2 font-display text-5xl leading-none tabular-nums",
+          "relative z-10 mt-3 flex items-center gap-2 font-display text-6xl leading-none tabular-nums transition-colors group-hover:text-band-bright",
           accent === "red" && "text-punk-red",
           accent === "acid" && "text-punk-acid",
         )}
@@ -54,7 +55,7 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", href, cla
         seed={label}
         bars={40}
         className={cn(
-          "pointer-events-none absolute -right-2 bottom-2 h-10 w-2/3 opacity-50 transition-opacity group-hover:opacity-100",
+          "pointer-events-none absolute -right-2 bottom-2 h-10 w-2/3 opacity-30 transition-[opacity,color] group-hover:text-band-bright group-hover:opacity-90",
           accent === "red" ? "text-punk-red" : accent === "acid" ? "text-punk-acid" : "text-foreground",
         )}
       />
@@ -62,7 +63,7 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", href, cla
   );
 
   const base = cn(
-    "stage-edge group relative block overflow-hidden rounded-xl p-4",
+    "group relative block overflow-hidden rounded-xl p-5",
     glassCard,
     className,
   );
@@ -73,7 +74,7 @@ export function StatBlock({ label, value, icon: Icon, accent = "none", href, cla
       href={href}
       className={cn(
         base,
-        "transition-all hover:-translate-y-0.5 hover:shadow-poster focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        "transition-[background-color,color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-ink hover:text-white hover:ring-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.99]",
       )}
     >
       {body}

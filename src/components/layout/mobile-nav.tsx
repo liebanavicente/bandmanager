@@ -31,26 +31,24 @@ export function MobileNav({ role, collaboratorAreas, band }: MobileNavProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
-        render={<Button variant="ghost" size="icon" className="lg:hidden" />}
+        render={<Button variant="outline" className="h-10 gap-2 px-3.5 font-extrabold lg:hidden" />}
       >
         <Menu className="size-5" />
-        <span className="sr-only">Abrir menú</span>
+        Menú
       </SheetTrigger>
-      <SheetContent side="left" className="w-80 gap-0 bg-sidebar p-0 text-sidebar-foreground">
-        <SheetHeader className="border-b border-sidebar-border px-4 py-4 text-left">
+      <SheetContent side="left" className="w-full gap-0 bg-background p-0 text-foreground data-[side=left]:w-full data-[side=left]:sm:max-w-none">
+        <SheetHeader className="border-b-2 border-ink px-4 py-4 text-left">
           <SheetTitle className="flex items-center gap-2.5">
             <BmLogo size={32} />
-            <span className="poster-title text-xl text-sidebar-foreground">
-              Band<span className="text-stage-gradient">Manager</span>
-            </span>
+            <span className="poster-title text-2xl">BandManager</span>
           </SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col gap-3 border-b border-sidebar-border px-4 py-4">
+        <div className="flex flex-col gap-3 px-4 py-4">
           <BandBadge band={band} />
           <QuickCreate role={role} collaboratorAreas={collaboratorAreas} hasStore={band.hasStore} />
         </div>
         <div className="flex-1 overflow-y-auto pt-4">
-          <NavList items={items} label="Navegación móvil" onNavigate={() => setOpen(false)} />
+          <NavList items={items} label="Navegación móvil" variant="mobile" onNavigate={() => setOpen(false)} />
         </div>
       </SheetContent>
     </Sheet>

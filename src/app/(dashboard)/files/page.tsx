@@ -62,7 +62,7 @@ async function FilesList({
       {files.map((file) => (
         <Card key={file.id} className="stage-edge">
           <CardContent className="flex items-start gap-4 pt-6">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-band-text">
               <FileIcon className="size-5" />
             </div>
             <div className="min-w-0 flex-1">

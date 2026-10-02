@@ -31,7 +31,7 @@ export function EmptyState({
     >
       {/* Vinilo parado con el icono en la galleta */}
       <div className="vinyl-grooves relative mb-5 flex size-20 items-center justify-center rounded-full bg-stage-ink shadow-poster ring-1 ring-foreground/10">
-        <div className="flex size-9 items-center justify-center rounded-full bg-stage-gradient text-stage-ink">
+        <div className="flex size-9 items-center justify-center rounded-full bg-stage-gradient text-band-ink">
           <Icon className="size-[18px]" aria-hidden="true" />
         </div>
       </div>

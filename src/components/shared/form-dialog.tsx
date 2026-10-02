@@ -55,7 +55,7 @@ export function FormDialog({
         >
           <DialogHeader>
             {kicker && (
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">{kicker}</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">{kicker}</p>
             )}
             <DialogTitle className="poster-title text-3xl">{title}</DialogTitle>
             {description && (

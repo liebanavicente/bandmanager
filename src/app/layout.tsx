@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Anton, Geist_Mono, Instrument_Serif, Inter } from "next/font/google";
+import { Anton, Archivo, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+/* Texto de la interfaz: la grotesca densa de Apuntes */
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
 });
 
@@ -46,7 +47,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${inter.variable} ${anton.variable} ${instrumentSerif.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${archivo.variable} ${anton.variable} ${instrumentSerif.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>

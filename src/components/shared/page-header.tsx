@@ -30,7 +30,7 @@ export function PageHeader({ title, description, eyebrow, children, className }:
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0 space-y-2">
           {kicker && (
-            <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
+            <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-band-text">
               <span aria-hidden="true" className="h-px w-6 bg-stage-gradient" />
               {kicker}
             </p>

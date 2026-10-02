@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOptionalSessionUser } from "@/lib/session";
 import { getBand, type BandLinks } from "@/lib/workspace";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import { BandTheme } from "@/components/brand/band-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +19,15 @@ export default async function OnboardingPage() {
   const band = await getBand(user.bandId);
 
   return (
-    <OnboardingWizard
+    <>
+      <BandTheme color={band?.accentColor} />
+      <OnboardingWizard
       adminName={user.name.split(" ")[0]}
       rerun={Boolean(band?.onboardedAt)}
       initial={{
         name: band?.onboardedAt ? band.name : "",
         logoData: band?.logoData ?? "",
+        accentColor: band?.accentColor ?? "",
         genre: band?.genre ?? "",
         city: band?.city ?? "",
         foundedYear: band?.foundedYear ? String(band.foundedYear) : "",
@@ -32,6 +36,7 @@ export default async function OnboardingPage() {
         storeUrl: band?.storeUrl ?? "",
         links: (band?.links as BandLinks | null) ?? {},
       }}
-    />
+      />
+    </>
   );
 }

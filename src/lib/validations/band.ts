@@ -43,6 +43,15 @@ export const logoDataSchema = z
   .or(z.literal(""))
   .transform((value) => (value ? value : undefined));
 
+/** Color de acento (#RRGGBB); vacío vuelve al de BandManager. */
+export const accentColorSchema = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, "El color debe ser un hex como #E0301E.")
+  .transform((value) => value.toUpperCase())
+  .optional()
+  .or(z.literal("").transform(() => undefined));
+
 export const registerSchema = z.object({
   name: z.string().trim().min(1, "Dinos tu nombre.").max(120),
   email: z.string().trim().toLowerCase().email("Email inválido."),
@@ -84,6 +93,7 @@ export const onboardingSchema = z.object({
   // Banda
   name: z.string().trim().min(1, "La banda necesita un nombre.").max(120),
   logoData: logoDataSchema,
+  accentColor: accentColorSchema,
   genre: optionalText(80),
   city: optionalText(80),
   foundedYear: z.coerce.number().int().min(1900).max(2100).optional(),
@@ -120,6 +130,7 @@ export const onboardingSchema = z.object({
 export const updateBandSchema = z.object({
   name: z.string().trim().min(1, "La banda necesita un nombre.").max(120),
   logoData: z.null().or(logoDataSchema),
+  accentColor: accentColorSchema,
   genre: optionalText(80),
   city: optionalText(80),
   foundedYear: z.coerce.number().int().min(1900).max(2100).optional(),

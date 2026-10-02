@@ -159,7 +159,7 @@ export function LyricsImporter({ songs }: { songs: ImportSong[] }) {
           dragOver ? "border-primary bg-primary/5" : "hover:border-primary/60 hover:bg-muted/40",
         )}
       >
-        {reading ? <Loader2 className="size-8 animate-spin text-primary" /> : <Upload className="size-8 text-primary" />}
+        {reading ? <Loader2 className="size-8 animate-spin text-band-text" /> : <Upload className="size-8 text-band-text" />}
         <span className="font-display text-xl uppercase tracking-wide">
           {reading ? "Leyendo archivos…" : "Arrastra aquí las letras"}
         </span>

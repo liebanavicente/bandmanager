@@ -84,7 +84,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
   return (
     <Card className="stage-edge shadow-poster">
       <CardHeader>
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Tu pase</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">Tu pase</p>
         <CardTitle className="poster-title text-4xl">
           {joining ? "Únete a tu banda" : "Monta tu sala"}
         </CardTitle>
@@ -109,7 +109,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
               className={cn(
                 "flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all",
                 mode === option.value
-                  ? "bg-stage-gradient text-stage-ink shadow-poster-sm"
+                  ? "bg-stage-gradient text-band-ink shadow-poster-sm"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
@@ -143,7 +143,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={band.logoData} alt="" className="size-10 rounded-full bg-white/10 object-contain" />
                   ) : (
-                    <span className="flex size-10 items-center justify-center rounded-full bg-stage-gradient font-display text-lg text-stage-ink">
+                    <span className="flex size-10 items-center justify-center rounded-full bg-stage-gradient font-display text-lg text-band-ink">
                       {band.name
                         .split(/\s+/)
                         .map((word) => word[0])
@@ -194,7 +194,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-band-text hover:underline">
               Inicia sesión
             </Link>
           </p>

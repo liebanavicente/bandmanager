@@ -1,7 +1,5 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import type { UserRole } from "@prisma/client";
 import type { BandSummary } from "@/lib/workspace";
 import Link from "next/link";
@@ -23,34 +21,16 @@ type HeaderProps = {
 };
 
 export function Header({ user, collaboratorAreas, band }: HeaderProps) {
-  const { theme, setTheme } = useTheme();
-
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-background/80 px-4 backdrop-blur-md sm:px-6">
-      {/* Filete inferior: línea de luz que se apaga hacia la derecha */}
-      <span
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-stage-red/70 via-border to-border"
-      />
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b-2 border-ink bg-white/80 px-4 backdrop-blur-xl backdrop-saturate-150 sm:px-6 lg:h-14 lg:border-b lg:border-hairline lg:bg-transparent lg:backdrop-blur-none">
       <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} band={band} />
       <Link href="/" className="flex items-center gap-2 lg:hidden" aria-label="Ir al panel">
-        <BmLogo size={26} title="" />
-        <span className="poster-title text-lg">
-          Band<span className="text-stage-gradient">Manager</span>
-        </span>
+        <BmLogo size={28} title="" />
+        <span className="poster-title text-xl">BandManager</span>
       </Link>
 
       <div className="flex flex-1 items-center justify-end gap-2">
         <FeedbackButton />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          aria-label="Cambiar tema"
-        >
-          <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-        </Button>
 
         {/* Menú de usuario: en escritorio vive al pie de la sidebar */}
         <div className="lg:hidden">
@@ -59,8 +39,8 @@ export function Header({ user, collaboratorAreas, band }: HeaderProps) {
             band={band}
             trigger={
               <Button variant="ghost" className="gap-2 px-2" aria-label="Menú de usuario">
-                <Avatar className="size-7">
-                  <AvatarFallback className="bg-stage-gradient text-[11px] font-semibold text-stage-ink">
+                <Avatar className="size-8 ring-1 ring-ink">
+                  <AvatarFallback className="bg-stage-gradient text-[11px] font-extrabold text-band-ink">
                     {userInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>

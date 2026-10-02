@@ -122,6 +122,7 @@ export async function completeOnboarding(input: unknown) {
         data: {
           name: data.name,
           logoData: data.logoData ?? current.logoData ?? null,
+          accentColor: data.accentColor ?? current.accentColor ?? null,
           genre: data.genre ?? null,
           city: data.city ?? null,
           foundedYear: data.foundedYear ?? null,
@@ -210,12 +211,13 @@ export async function updateBand(input: unknown) {
     if (!parsed.success) {
       throw new AppError(parsed.error.issues[0]?.message ?? "Datos inválidos.", "VALIDATION", 400);
     }
-    const { logoData, ...rest } = parsed.data;
+    const { logoData, accentColor, ...rest } = parsed.data;
 
     await prisma.band.update({
       where: { id: admin.bandId },
       data: {
         ...rest,
+        accentColor: accentColor ?? null,
         genre: rest.genre ?? null,
         city: rest.city ?? null,
         foundedYear: rest.foundedYear ?? null,

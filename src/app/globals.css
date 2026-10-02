@@ -5,25 +5,39 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Sistema de diseño BandManager — "Luz de escenario".
- * La app se viste como una noche de concierto: tinta profunda, focos
- * cálidos (rojo escenario + ámbar) con un contraluz violeta, grano de
- * película y tipografía de cartel (Anton) acompañada de una serif en
- * cursiva (Instrument Serif) que pone la voz de la banda. La barra
- * lateral es siempre "backstage" (oscura) en ambos temas.
- * Los nombres heredados (--punk-*, --poster-shadow*) se mantienen como
- * alias para no romper pantallas antiguas.
+ * Sistema de diseño BandManager — "Cartel editorial".
+ * Papel hueso, tinta negra y un único acento: el color de cada banda
+ * (--band, que el layout de la sala inyecta a partir de Band.accentColor;
+ * fuera de la sala, el rojo escenario de BandManager). De ese color se
+ * derivan --band-ink (texto encima), --band-text (texto sobre papel),
+ * --band-display (titulares) y --band-bright (sobre escenario negro).
+ * Titulares de cartel en Anton, texto en Archivo y la "voz" de la banda
+ * en Instrument Serif cursiva. Filetes finos, cristal suave y sombras
+ * cortas. Solo tema claro: la vista de escenario usa .dark.
+ * Los nombres heredados (--stage-*, --punk-*, --poster-shadow*) se
+ * mantienen como alias del nuevo sistema para no romper pantallas.
  */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), Arial, Helvetica, sans-serif;
+  /* Las etiquetas pequeñas "de mesa de mezclas" pasan a Archivo en caja alta */
+  --font-mono: var(--font-archivo), Arial, Helvetica, sans-serif;
+  --font-code: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-archivo), Arial, Helvetica, sans-serif;
   --font-display: var(--font-anton), Impact, "Arial Narrow", sans-serif;
   --font-serif: var(--font-instrument), Georgia, serif;
-  --font-punk: var(--font-geist-mono), ui-monospace, monospace;
+  --font-punk: var(--font-archivo), Arial, Helvetica, sans-serif;
+  /* Acento de la banda */
+  --color-band: var(--band);
+  --color-band-ink: var(--band-ink);
+  --color-band-text: var(--band-text);
+  --color-band-display: var(--band-display);
+  --color-band-bright: var(--band-bright);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-hairline: var(--hairline);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -86,111 +100,102 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Tema claro = "prueba de sonido": papel de cartel cálido, tinta, foco rojo */
+/* Papel claro: el único tema de la app */
 :root {
-  --background: #F3EEE5;
-  --foreground: #16131A;
-  --card: #FFFBF4;
-  --card-foreground: #16131A;
-  --popover: #FFFBF4;
-  --popover-foreground: #16131A;
-  --primary: #E0301E;
-  --primary-foreground: #FFF8F0;
-  --secondary: #EAE3D6;
-  --secondary-foreground: #16131A;
-  --muted: #ECE5D8;
-  --muted-foreground: #6B626D;
-  --accent: #E6DDCD;
-  --accent-foreground: #16131A;
-  --destructive: #C42A1C;
-  --border: #16131A17;
-  --input: #16131A29;
-  --ring: #E0301E;
-  --chart-1: #E0301E;
-  --chart-2: #D98308;
-  --chart-3: #6A3DE0;
-  --chart-4: #16131A;
-  --chart-5: #B9AE9C;
-  --radius: 0.625rem;
-  /* Barra lateral en papel, un punto más clara que el fondo */
-  --sidebar: #FBF7F0;
-  --sidebar-foreground: #16131A;
-  --sidebar-primary: #E0301E;
-  --sidebar-primary-foreground: #FFF8F0;
-  --sidebar-accent: #EDE6DA;
-  --sidebar-accent-foreground: #16131A;
-  --sidebar-border: #16131A14;
-  --sidebar-ring: #E0301E;
-  /* Cristal: tarjetas esmeriladas sobre las luces de fondo del panel */
-  --glass-bg: rgba(255, 251, 244, 0.58);
-  --glass-row: rgba(255, 255, 255, 0.5);
-  --glass-row-hover: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.75);
-  --glass-shadow: 0 10px 30px -14px rgba(22, 19, 26, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --glow-opacity: 0.22;
-  --stage-red: #E0301E;
-  --stage-amber: #D98308;
-  --stage-violet: #6A3DE0;
-  --stage-ink: #110E15;
-  --punk-red: #E0301E;
-  --punk-acid: #178A55;
-  --punk-paper: #FFFBF4;
-  --punk-ash: #6B626D;
-  --poster-shadow: 0 18px 40px -18px rgba(22, 19, 26, 0.35);
-  --poster-shadow-sm: 0 1px 2px rgba(22, 19, 26, 0.1);
-  --poster-shadow-red: 0 10px 30px -10px rgba(224, 48, 30, 0.55);
+  --paper: #F7F7F3;
+  --ink: #090909;
+  --hairline: rgba(9, 9, 9, 0.1);
+  /* Acento por defecto (rojo escenario); la sala lo sustituye por el de la banda */
+  --band: #E0301E;
+  --band-ink: #FFFFFF;
+  --band-text: #C52A1A;
+  --band-display: #E0301E;
+  --band-bright: #F16052;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: rgba(255, 255, 255, 0.62);
+  --card-foreground: var(--ink);
+  --popover: #FFFFFF;
+  --popover-foreground: var(--ink);
+  --primary: var(--band);
+  --primary-foreground: var(--band-ink);
+  --secondary: rgba(255, 255, 255, 0.78);
+  --secondary-foreground: var(--ink);
+  --muted: #ECECE6;
+  --muted-foreground: #5F625D;
+  --accent: color-mix(in oklab, var(--band) 16%, white);
+  --accent-foreground: var(--ink);
+  --destructive: #B42318;
+  --border: var(--hairline);
+  --input: rgba(9, 9, 9, 0.16);
+  --ring: var(--ink);
+  --chart-1: var(--band);
+  --chart-2: var(--ink);
+  --chart-3: #8A8D86;
+  --chart-4: color-mix(in oklab, var(--band) 45%, white);
+  --chart-5: #D4D6CF;
+  --radius: 0.75rem;
+  /* Barra lateral: cristal sobre el papel */
+  --sidebar: rgba(255, 255, 255, 0.55);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--band-text);
+  --sidebar-primary-foreground: var(--band-ink);
+  --sidebar-accent: rgba(9, 9, 9, 0.05);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--ink);
+  /* Cristal tipo Apple: blanco translúcido, desenfoque y canto claro */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-row: rgba(255, 255, 255, 0.55);
+  --glass-row-hover: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(9, 9, 9, 0.08);
+  --glass-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 10px 30px rgba(9, 9, 9, 0.07), 0 1px 3px rgba(9, 9, 9, 0.06);
+  --glow-opacity: 0.32;
+  /* Alias heredados */
+  --stage-red: var(--band-text);
+  --stage-amber: var(--band);
+  --stage-violet: color-mix(in oklab, var(--band) 55%, var(--ink));
+  --stage-ink: var(--ink);
+  --punk-red: var(--band-text);
+  --punk-acid: #177245;
+  --punk-paper: var(--paper);
+  --punk-ash: #5F625D;
+  --poster-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 12px 28px rgba(9, 9, 9, 0.1);
+  --poster-shadow-sm: 0 1px 2px rgba(9, 9, 9, 0.08);
+  --poster-shadow-red: 3px 3px 0 var(--ink);
 }
 
-/* Tema oscuro = "directo": tinta de sala, focos cálidos y contraluz violeta */
+/* Escenario: tinta de sala para la vista de escenario de los setlists */
 .dark {
-  --background: #0B090E;
-  --foreground: #F4EEE4;
-  --card: #141119;
-  --card-foreground: #F4EEE4;
-  --popover: #18141E;
-  --popover-foreground: #F4EEE4;
-  --primary: #FF4A33;
-  --primary-foreground: #FFF8F0;
-  --secondary: #1D1924;
-  --secondary-foreground: #F4EEE4;
-  --muted: #1A1620;
-  --muted-foreground: #A69DA8;
-  --accent: #231E2B;
-  --accent-foreground: #F4EEE4;
-  --destructive: #FF4A33;
-  --border: #FFFFFF14;
-  --input: #FFFFFF21;
-  --ring: #FF4A33;
-  --chart-1: #FF4A33;
-  --chart-2: #FFB547;
-  --chart-3: #9B6BFF;
-  --chart-4: #F4EEE4;
-  --chart-5: #4A4250;
-  --sidebar: #08070B;
-  --sidebar-foreground: #F4EEE4;
-  --sidebar-primary: #FF4A33;
-  --sidebar-primary-foreground: #FFF8F0;
-  --sidebar-accent: #17131C;
-  --sidebar-accent-foreground: #F4EEE4;
-  --sidebar-border: #FFFFFF0F;
-  --sidebar-ring: #FFB547;
-  --glass-bg: rgba(255, 255, 255, 0.035);
-  --glass-row: rgba(255, 255, 255, 0.03);
-  --glass-row-hover: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --glass-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --glow-opacity: 0.28;
-  --stage-red: #FF4A33;
-  --stage-amber: #FFB547;
-  --stage-violet: #9B6BFF;
-  --stage-ink: #08070B;
-  --punk-red: #FF4A33;
+  --background: #090909;
+  --foreground: #F4F4EF;
+  --card: #141414;
+  --card-foreground: #F4F4EF;
+  --popover: #18181A;
+  --popover-foreground: #F4F4EF;
+  --primary: var(--band);
+  --primary-foreground: var(--band-ink);
+  --secondary: #1C1C1E;
+  --secondary-foreground: #F4F4EF;
+  --muted: #1A1A1A;
+  --muted-foreground: #A3A59F;
+  --accent: #232323;
+  --accent-foreground: #F4F4EF;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: var(--band-bright);
+  --sidebar: #090909;
+  --sidebar-foreground: #F4F4EF;
+  --sidebar-primary: var(--band-bright);
+  --sidebar-primary-foreground: var(--band-ink);
+  --sidebar-accent: #1A1A1A;
+  --sidebar-accent-foreground: #F4F4EF;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--band-bright);
+  --stage-red: var(--band-bright);
+  --punk-red: var(--band-bright);
   --punk-acid: #3DDC84;
-  --punk-paper: #F4EEE4;
-  --punk-ash: #A69DA8;
-  --poster-shadow: 0 20px 48px -20px rgba(0, 0, 0, 0.8);
-  --poster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --poster-shadow-red: 0 10px 34px -8px rgba(255, 74, 51, 0.55);
 }
 
 @keyframes equalize {
@@ -205,8 +210,8 @@
 
 @keyframes stamp-in {
   0% { opacity: 0; transform: scale(1.8) rotate(-14deg); }
-  60% { opacity: 1; transform: scale(0.94) rotate(-5deg); }
-  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+  60% { opacity: 1; transform: scale(0.96) rotate(-2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-3deg); }
 }
 
 @keyframes rise-in {
@@ -243,11 +248,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Ambiente de sala: dos focos muy tenues que no compiten con el contenido */
-    background-image:
-      radial-gradient(1100px 520px at 100% -8%, color-mix(in oklab, var(--stage-red) 9%, transparent), transparent 62%),
-      radial-gradient(900px 520px at -10% 108%, color-mix(in oklab, var(--stage-violet) 8%, transparent), transparent 60%);
-    background-attachment: fixed;
+    letter-spacing: 0;
   }
   html {
     @apply font-sans;
@@ -285,29 +286,45 @@
     -webkit-text-stroke: 1.5px var(--stroke, currentColor);
   }
 
-  /* Gradiente de foco: rojo escenario → ámbar */
-  .bg-stage-gradient {
-    background-image: linear-gradient(100deg, var(--stage-red) 0%, color-mix(in oklab, var(--stage-red), var(--stage-amber) 55%) 60%, var(--stage-amber) 100%);
-  }
-  /* Variante para botones: menos ámbar, para mantener el contraste del texto */
+  /* Antes "gradiente de foco": ahora el acento plano de la banda */
+  .bg-stage-gradient,
   .bg-stage-button {
-    background-image: linear-gradient(100deg, var(--stage-red) 0%, color-mix(in oklab, var(--stage-red), var(--stage-amber) 30%) 100%);
+    background-color: var(--band);
   }
+  /* Palabra destacada de un titular, en el acento legible a gran tamaño */
   .text-stage-gradient {
-    background-image: linear-gradient(100deg, var(--stage-red) 10%, var(--stage-amber) 90%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--band-display);
   }
 
-  /* Superficie "escenario": siempre oscura, con focos y contraluz */
+  /* Superficie "escenario": bloque de tinta (como la fila activa de Apuntes)
+     con un único foco del acento de la banda */
   .stage-surface {
-    background-color: var(--stage-ink);
-    background-image:
-      radial-gradient(70% 90% at 88% 0%, color-mix(in oklab, var(--stage-red) 38%, transparent), transparent 60%),
-      radial-gradient(60% 80% at 0% 100%, color-mix(in oklab, var(--stage-violet) 34%, transparent), transparent 65%),
-      radial-gradient(40% 50% at 55% 110%, color-mix(in oklab, var(--stage-amber) 18%, transparent), transparent 70%);
-    color: #F4EEE4;
+    --stage-red: var(--band-bright);
+    --stage-amber: var(--band-bright);
+    --punk-red: var(--band-bright);
+    background-color: var(--ink);
+    background-image: radial-gradient(70% 90% at 92% 0%, color-mix(in oklab, var(--band) 30%, transparent), transparent 62%);
+    color: #F4F4EF;
+  }
+  .stage-surface .text-stage-gradient {
+    color: var(--band-bright);
+  }
+
+  /* Etiqueta de sección de Apuntes: bloque del acento, caja alta y negrita */
+  .eyebrow {
+    display: inline-block;
+    padding: 5px 8px;
+    background: var(--band);
+    color: var(--band-ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  /* Filete editorial bajo los titulares */
+  .rule {
+    border-bottom: 2px solid var(--ink);
   }
 
   /* Surcos de vinilo */
@@ -321,16 +338,16 @@
     background-size: 9px 9px;
   }
 
-  /* Sello de tinta estampado (legado, modo escenario) */
+  /* Sello: etiqueta de cartel con filete, apenas ladeada */
   .stamp {
     display: inline-block;
-    border: 3px double currentColor;
-    border-radius: 2px;
-    padding: 0.15em 0.6em;
+    border: 1.5px solid currentColor;
+    border-radius: 6px;
+    padding: 0.2em 0.6em;
     font-family: var(--font-display);
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    transform: rotate(-6deg);
+    letter-spacing: 0.08em;
+    transform: rotate(-3deg);
   }
 
   /* Trozo de cinta adhesiva (legado, decorativo, aria-hidden) */
@@ -338,9 +355,9 @@
     display: block;
     width: 5.5rem;
     height: 1.4rem;
-    background: color-mix(in oklab, var(--punk-paper) 72%, transparent);
-    opacity: 0.75;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    background: color-mix(in oklab, var(--band) 55%, transparent);
+    opacity: 0.85;
+    box-shadow: 0 1px 2px rgba(9, 9, 9, 0.12);
     clip-path: polygon(3% 0, 97% 6%, 100% 94%, 0 100%);
   }
 
@@ -366,8 +383,8 @@
     content: "";
     position: absolute;
     inset: 0 0 auto 0;
-    height: 2px;
-    background-image: linear-gradient(90deg, var(--stage-red), var(--stage-amber), transparent);
+    height: 3px;
+    background: var(--band);
     opacity: 0;
     transition: opacity 200ms ease;
     z-index: 1;

@@ -96,7 +96,7 @@ export function TrackEditor({ songs, tracks, onChange, allowMarkers = false, uni
                   isSong ? "bg-card" : "bg-muted/60",
                 )}
               >
-                <span className="w-7 text-center font-display text-lg leading-none text-primary">
+                <span className="w-7 text-center font-display text-lg leading-none text-band-text">
                   {isSong ? String(songNumbers[index]).padStart(2, "0") : "—"}
                 </span>
                 <span className="min-w-0 flex-1">

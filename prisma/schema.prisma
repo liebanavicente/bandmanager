@@ -542,6 +542,8 @@ model Band {
   inviteCode  String    @unique
   /// Logo como data URL (image/png|jpeg|webp|svg+xml), máx. ~512 KB.
   logoData    String?
+  /// Color de acento de la interfaz (#RRGGBB); sin él, el rojo de BandManager.
+  accentColor String?
   genre       String?
   city        String?
   foundedYear Int?

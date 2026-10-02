@@ -88,9 +88,9 @@ export default async function PracticePage() {
         <>
           {nextGig && gigItems.length > 0 && (
             <div className="flex flex-wrap items-center gap-4 rounded-xl border border-primary/40 bg-primary/5 p-5">
-              <CalendarClock className="size-8 text-primary" />
+              <CalendarClock className="size-8 text-band-text" />
               <div className="min-w-0 flex-1">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-band-text">
                   Próximo bolo · {formatDistanceToNowStrict(nextGig.startAt, { locale: es, addSuffix: true })}
                 </p>
                 <p className="font-display text-2xl uppercase">{nextGig.title}</p>

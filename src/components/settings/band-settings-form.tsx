@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImageUp, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { updateBand } from "@/actions/band";
-import { logoToDataUrl } from "@/lib/image";
+import { logoAccentColor, logoToDataUrl } from "@/lib/image";
+import { DEFAULT_BAND_COLOR } from "@/lib/brand-color";
+import { BandColorPicker } from "@/components/brand/band-color-picker";
 import type { BandLinks } from "@/lib/workspace";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 type BandSettings = {
   name: string;
   logoData: string | null;
+  accentColor: string | null;
   genre: string | null;
   city: string | null;
   foundedYear: number | null;
@@ -42,11 +45,28 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
   const [saving, setSaving] = useState(false);
   const [logo, setLogo] = useState<string | null>(band.logoData);
   const [hasStore, setHasStore] = useState(band.hasStore);
+  const [accent, setAccent] = useState(band.accentColor ?? DEFAULT_BAND_COLOR);
+  const [suggested, setSuggested] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!logo) return;
+    let cancelled = false;
+    logoAccentColor(logo)
+      .then((color) => !cancelled && setSuggested(color))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [logo]);
 
   async function handleLogo(file?: File) {
     if (!file) return;
     try {
-      setLogo(await logoToDataUrl(file));
+      const data = await logoToDataUrl(file);
+      setLogo(data);
+      // Logo nuevo: su color pasa a ser el acento propuesto
+      const color = await logoAccentColor(data).catch(() => null);
+      if (color) setAccent(color);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo cargar el logo.");
     }
@@ -60,6 +80,7 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
     const result = await updateBand({
       name: text("name"),
       logoData: logo === band.logoData ? undefined : logo,
+      accentColor: accent,
       genre: text("genre"),
       city: text("city"),
       foundedYear: text("foundedYear") || undefined,
@@ -78,10 +99,10 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
   }
 
   return (
-    <Card className="stage-edge">
+    <Card>
       <form onSubmit={handleSubmit}>
         <CardHeader>
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Identidad</p>
+          <p className="eyebrow w-fit">Identidad</p>
           <CardTitle className="poster-title text-3xl">Ficha de la banda</CardTitle>
           <CardDescription className="font-serif text-base italic">
             Lo que respondiste en el asistente. Cámbialo cuando queráis.
@@ -92,7 +113,7 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex size-40 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-foreground/20 bg-muted/40 transition-colors hover:border-primary"
+              className="flex size-40 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-foreground/20 bg-muted/40 transition-colors hover:border-ink"
               aria-label="Cambiar logo"
             >
               {logo ? (
@@ -139,6 +160,13 @@ export function BandSettingsForm({ band }: { band: BandSettings }) {
                 <Label htmlFor="b-year">Desde</Label>
                 <Input id="b-year" name="foundedYear" type="number" min={1900} max={2100} defaultValue={band.foundedYear ?? undefined} />
               </div>
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Color de la banda</Label>
+              <p className="text-xs text-muted-foreground">
+                Tiñe botones, el menú y el panel para toda la banda. Al subir un logo se propone su color.
+              </p>
+              <BandColorPicker value={accent} onChange={setAccent} suggested={suggested} />
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="b-bio">Bio</Label>

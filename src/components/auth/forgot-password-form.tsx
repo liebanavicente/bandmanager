@@ -32,7 +32,7 @@ export function ForgotPasswordForm() {
     return (
       <Card className="stage-edge shadow-poster">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-band-text">
             <Mail className="size-6" />
           </div>
           <CardTitle className="poster-title text-3xl">Revisa tu correo</CardTitle>

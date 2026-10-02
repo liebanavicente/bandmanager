@@ -3,13 +3,14 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
 
-/** La identidad Backstage es oscura por defecto; el claro "fotocopia"
- *  queda disponible desde el selector de tema. */
+/** La app es solo clara (papel editorial). La vista de escenario de los
+ *  setlists aplica la clase .dark en su propio contenedor. */
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="dark"
+      forcedTheme="light"
+      defaultTheme="light"
       disableTransitionOnChange
       {...props}
     >

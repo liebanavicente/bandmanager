@@ -427,14 +427,14 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                 {sourceSongs.length === 0 ? (
                   <>
                     Este repertorio está vacío.{" "}
-                    <Link href="/songs/new" className="text-primary hover:underline">
+                    <Link href="/songs/new" className="text-band-text hover:underline">
                       Añade canciones
                     </Link>
                   </>
                 ) : sourceId !== ALL_SONGS ? (
                   <>
                     No está en este repertorio.{" "}
-                    <button type="button" onClick={() => setSourceId(ALL_SONGS)} className="text-primary hover:underline">
+                    <button type="button" onClick={() => setSourceId(ALL_SONGS)} className="text-band-text hover:underline">
                       Buscar en todo el catálogo
                     </button>
                   </>
@@ -468,7 +468,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                         <span className="block truncate text-sm font-medium">{song.title}</span>
                         <SongMeta song={song} />
                       </span>
-                      {number && <Check className="size-4 shrink-0 text-primary" aria-hidden />}
+                      {number && <Check className="size-4 shrink-0 text-band-text" aria-hidden />}
                     </button>
                   </li>
                 );
@@ -504,7 +504,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                       ? (byId.get(cursorTrack.songId ?? "")?.title ?? "canción")
                       : cursorTrack.comment || "la pausa"}
                   </strong>
-                  <button type="button" onClick={() => setCursor(null)} className="ml-1 text-primary hover:underline">
+                  <button type="button" onClick={() => setCursor(null)} className="ml-1 text-band-text hover:underline">
                     ir al final
                   </button>
                 </>
@@ -554,7 +554,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                         <button
                           type="button"
                           onClick={() => insertTuningBreak(track.key, tuningChange.to)}
-                          className="ml-auto font-medium text-primary hover:underline"
+                          className="ml-auto font-medium text-band-text hover:underline"
                         >
                           + Pausa para afinar
                         </button>
@@ -585,7 +585,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                         type="button"
                         onClick={() => setCursor(cursor === track.key ? null : track.key)}
                         title="Insertar lo siguiente detrás de esta pista"
-                        className="flex w-8 shrink-0 justify-center font-display text-xl leading-none text-primary tabular-nums"
+                        className="flex w-8 shrink-0 justify-center font-display text-xl leading-none text-band-text tabular-nums"
                       >
                         {isSong ? String(songNumbers.get(track.key)).padStart(2, "0") : <Icon className="size-4 text-muted-foreground" />}
                       </button>
@@ -617,7 +617,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
                               aria-label="Descripción"
                               className={cn(
                                 "h-8 border-transparent bg-transparent font-serif text-base italic shadow-none md:text-base",
-                                track.type === "ENCORE" && "font-display not-italic uppercase tracking-wide text-primary",
+                                track.type === "ENCORE" && "font-display not-italic uppercase tracking-wide text-band-text",
                               )}
                             />
                             {track.type !== "ENCORE" && (

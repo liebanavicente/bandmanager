@@ -137,14 +137,14 @@ export function SlideDeck() {
           )}
         >
           <div className="mb-8 flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-full bg-stage-gradient text-stage-ink shadow-poster-red sm:size-14">
+            <div className="flex size-12 items-center justify-center rounded-full bg-stage-gradient text-band-ink shadow-poster-red sm:size-14">
               <Icon className="size-6 sm:size-7" aria-hidden />
             </div>
             <div>
               <p className={cn("font-serif text-lg italic sm:text-xl", isIntro ? "text-white/75" : "text-muted-foreground")}>
                 {slide.subtitle}
               </p>
-              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
+              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.25em] text-band-text">
                 Pista {number} / {String(total).padStart(2, "0")}
               </p>
             </div>
@@ -167,7 +167,7 @@ export function SlideDeck() {
                   i === 0 && "sm:col-span-2",
                 )}
               >
-                <span className="mt-0.5 font-mono text-xs font-semibold text-primary">
+                <span className="mt-0.5 font-mono text-xs font-semibold text-band-text">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {item}
