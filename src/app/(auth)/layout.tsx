@@ -18,6 +18,8 @@ export default function AuthLayout({
           className="pointer-events-none absolute -bottom-56 -right-44 size-[28rem] animate-spin-slow"
         />
 
+        {/* Velo de papel tras el titular para que se lea sobre los focos */}
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgba(247,247,243,0.7),rgba(247,247,243,0.35)_70%,transparent)]" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <div className="flex items-center gap-3">
             <BmLogo size={40} />
