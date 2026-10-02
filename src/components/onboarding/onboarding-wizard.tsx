@@ -26,6 +26,7 @@ import { StageLights } from "@/components/art/stage-lights";
 import { Vinyl } from "@/components/art/vinyl";
 import { Waveform } from "@/components/art/waveform";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { InviteCard } from "@/components/band/invite-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -272,10 +273,8 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
         />
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <BmLogo size={32} />
-            <span className="poster-title text-lg text-white">
-              Band<span className="text-stage-gradient">Manager</span>
-            </span>
+            <BmLogo size={32} title="" />
+            <BmWordmark className="h-[18px] text-white" />
           </div>
           {rerun && (
             <Button

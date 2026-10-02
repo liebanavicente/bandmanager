@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-  <defs>
-    <linearGradient id="l" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FF4A33"/>
-      <stop offset="100%" stop-color="#FFB547"/>
-    </linearGradient>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#0B090E"/>
-  <circle cx="24" cy="24" r="22.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="0.8"/>
-  <circle cx="24" cy="24" r="19.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="0.7"/>
-  <path d="M8.5 9.5 A 22 22 0 0 1 20 2.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round"/>
-  <circle cx="24" cy="24" r="15.5" fill="url(#l)"/>
-  <text x="24" y="29.8" text-anchor="middle" font-family="Anton, Impact, 'Arial Narrow', sans-serif" font-size="16" font-weight="700" fill="#0B090E">BM</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 100 100"><path d="M50 97C45 97 41.5 93 37 86C26 69 9 47 6.5 31C4 15 19 4 50 4C81 4 96 15 93.5 31C91 47 74 69 63 86C58.5 93 55 97 50 97Z" fill="#F0301A"/><rect x="21" y="44" width="58" height="3" rx="1.5" fill="#FFFFFF" opacity="0.35"/><rect x="18" y="42" width="6" height="7" rx="3" fill="#FFFFFF"/><rect x="28" y="30.5" width="6" height="30" rx="3" fill="#FFFFFF"/><rect x="37.5" y="22.5" width="6" height="46" rx="3" fill="#FFFFFF"/><rect x="47" y="13.5" width="6" height="64" rx="3" fill="#FFFFFF"/><rect x="56.5" y="23.5" width="6" height="44" rx="3" fill="#FFFFFF"/><rect x="66" y="32" width="6" height="27" rx="3" fill="#FFFFFF"/><rect x="76" y="42" width="6" height="7" rx="3" fill="#FFFFFF"/></svg>

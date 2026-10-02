@@ -14,6 +14,7 @@ import {
 import { presentationSlides } from "@/lib/presentation-slides";
 import { Button } from "@/components/ui/button";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { StageLights } from "@/components/art/stage-lights";
 import { BackgroundVideo } from "@/components/art/background-video";
 import { Vinyl } from "@/components/art/vinyl";
@@ -67,11 +68,9 @@ export function SlideDeck() {
       {/* Navbar */}
       <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-background/85 px-4 py-3 backdrop-blur-sm sm:px-6">
         <Link href="/presentacion" className="flex items-center gap-2.5">
-          <BmLogo size={34} />
+          <BmLogo size={36} title="" />
           <div className="leading-tight">
-            <span className="poster-title block text-xl">
-              Band<span className="text-stage-gradient">Manager</span>
-            </span>
+            <BmWordmark className="block h-5 text-ink" />
             <span className="block font-serif text-sm italic text-muted-foreground">
               Tu banda, en directo
             </span>

@@ -1,4 +1,5 @@
 import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { RecordDisc } from "@/components/art/record-disc";
 import { Waveform } from "@/components/art/waveform";
 import { StageGlow } from "@/components/glass/stage-glow";
@@ -14,7 +15,7 @@ export default function AuthLayout({
       {/* Cartel editorial: titular de gira, disco y onda (solo escritorio) */}
       <div className="relative hidden overflow-hidden lg:block">
         <RecordDisc
-          label="Band Manager"
+          center={<BmLogo size={96} title="" className="-rotate-12" />}
           className="pointer-events-none absolute -bottom-56 -right-44 size-[28rem] animate-spin-slow"
         />
 
@@ -22,8 +23,8 @@ export default function AuthLayout({
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(90deg,rgba(247,247,243,0.7),rgba(247,247,243,0.35)_70%,transparent)]" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <div className="flex items-center gap-3">
-            <BmLogo size={40} />
-            <span className="poster-title text-3xl">BandManager</span>
+            <BmLogo size={46} title="" />
+            <BmWordmark className="h-8 text-ink" />
           </div>
 
           <div className="max-w-[34rem] space-y-6 pb-24">
@@ -47,9 +48,10 @@ export default function AuthLayout({
       {/* Zona de acceso: limpia y funcional */}
       <div className="relative flex flex-col items-center justify-center p-4 sm:p-8">
         <div className="mb-8 flex flex-col items-center gap-3 text-center lg:hidden">
-          <BmLogo size={56} />
+          <BmLogo size={64} title="" />
           <div>
-            <h1 className="poster-title text-5xl">BandManager</h1>
+            <h1 className="sr-only">BandManager</h1>
+            <BmWordmark title="" className="mx-auto h-8 text-ink" />
             <p className="mt-1 font-serif text-lg italic text-muted-foreground">Tu banda, en directo</p>
           </div>
         </div>

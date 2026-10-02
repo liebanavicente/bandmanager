@@ -4,6 +4,7 @@ import type { UserRole } from "@prisma/client";
 import type { BandSummary } from "@/lib/workspace";
 import Link from "next/link";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { FeedbackButton } from "@/components/feedback/feedback-button";
 import { UserMenu, userInitials } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -22,11 +23,10 @@ type HeaderProps = {
 
 export function Header({ user, collaboratorAreas, band }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b-2 border-ink bg-white/80 px-4 backdrop-blur-xl backdrop-saturate-150 sm:px-6 lg:h-14 lg:border-b lg:border-hairline lg:bg-transparent lg:backdrop-blur-none">
-      <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} band={band} />
-      <Link href="/" className="flex items-center gap-2 lg:hidden" aria-label="Ir al panel">
-        <BmLogo size={28} title="" />
-        <span className="poster-title text-xl">BandManager</span>
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-2 border-b border-hairline bg-white/90 px-4 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_6px_20px_-12px_rgba(9,9,9,0.18)] backdrop-blur-xl backdrop-saturate-150 sm:px-6 lg:h-[76px] lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+      <Link href="/" className="flex min-w-0 items-center gap-2 lg:hidden" aria-label="Ir al panel">
+        <BmLogo size={30} title="" />
+        <BmWordmark title="" className="h-[15px] text-ink sm:h-[18px]" />
       </Link>
 
       <div className="flex flex-1 items-center justify-end gap-2">
@@ -48,6 +48,7 @@ export function Header({ user, collaboratorAreas, band }: HeaderProps) {
             }
           />
         </div>
+        <MobileNav role={user.role} collaboratorAreas={collaboratorAreas} band={band} />
       </div>
     </header>
   );

@@ -6,6 +6,8 @@ type RecordDiscProps = {
   logoData?: string | null;
   /** Nombre de la banda: sus iniciales van en la galleta si no hay logo. */
   label?: string;
+  /** Contenido propio de la galleta (p. ej. el símbolo de BandManager). */
+  center?: React.ReactNode;
   className?: string;
 };
 
@@ -24,7 +26,7 @@ function initials(name: string) {
  * recortado en círculo y teñido con el acento de la banda, con filete de
  * tinta y la galleta central en papel con el logo. Decorativo.
  */
-export function RecordDisc({ logoData, label, className }: RecordDiscProps) {
+export function RecordDisc({ logoData, label, center, className }: RecordDiscProps) {
   return (
     <div
       aria-hidden="true"
@@ -41,12 +43,12 @@ export function RecordDisc({ logoData, label, className }: RecordDiscProps) {
       <div className="vinyl-grooves absolute inset-0 rounded-full opacity-70" />
       {/* Galleta central */}
       <div className="absolute left-1/2 top-1/2 flex size-[38%] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full bg-paper ring-[6px] ring-band">
-        {logoData ? (
+        {center ?? (logoData ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoData} alt="" className="size-[78%] object-contain" />
         ) : (
           <span className="poster-title text-[2.6rem] text-ink">{initials(label ?? "")}</span>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { navItems } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import type { BandSummary } from "@/lib/workspace";
 import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { BandBadge } from "@/components/layout/band-badge";
 import { InviteCard } from "@/components/band/invite-card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -91,20 +92,13 @@ export function AppSidebar({ role, collaboratorAreas, band, user }: AppSidebarPr
       {/* Marca */}
       <div
         className={cn(
-          "flex h-[72px] items-center gap-3 border-b-2 border-ink",
+          "flex h-[76px] items-center gap-3 border-b border-hairline bg-white/70",
           collapsed ? "justify-center px-2" : "px-5",
         )}
       >
         <Link href="/" aria-label="Ir al panel" className="flex items-center gap-3">
-          <BmLogo size={36} className="transition-transform duration-700 hover:rotate-[200deg]" />
-          {!collapsed && (
-            <span className="min-w-0">
-              <span className="poster-title block truncate text-[1.6rem] leading-none">BandManager</span>
-              <span className="mt-1 inline-block bg-ink px-1.5 py-0.5 text-[9px] font-extrabold uppercase leading-none text-band-bright">
-                Backstage
-              </span>
-            </span>
-          )}
+          <BmLogo size={38} title="" className="transition-transform duration-300 hover:-rotate-12" />
+          {!collapsed && <BmWordmark className="h-[22px] text-ink" />}
         </Link>
       </div>
 
