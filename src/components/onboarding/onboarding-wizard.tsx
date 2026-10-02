@@ -22,8 +22,9 @@ import { DEFAULT_BAND_COLOR } from "@/lib/brand-color";
 import { BandColorPicker } from "@/components/brand/band-color-picker";
 import { cn } from "@/lib/utils";
 import type { BandLinks } from "@/lib/workspace";
-import { StageLights } from "@/components/art/stage-lights";
-import { Vinyl } from "@/components/art/vinyl";
+import { RecordDisc } from "@/components/art/record-disc";
+import { StageGlow } from "@/components/glass/stage-glow";
+import { glassCard } from "@/components/glass/glass";
 import { Waveform } from "@/components/art/waveform";
 import { BmLogo } from "@/components/brand/bm-logo";
 import { BmWordmark } from "@/components/brand/bm-wordmark";
@@ -123,7 +124,7 @@ function Chip({
 function Field({ label, htmlFor, hint, children }: { label: string; htmlFor?: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={htmlFor} className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+      <Label htmlFor={htmlFor} className="font-extrabold text-[11px] uppercase text-muted-foreground">
         {label}
       </Label>
       {children}
@@ -262,25 +263,24 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" onKeyDown={handleKeyDown}>
-      {/* Cartel: la pregunta en grande */}
-      <aside className="stage-surface grain relative isolate flex flex-col justify-between gap-8 overflow-hidden p-6 sm:p-10">
-        <StageLights />
-        <Vinyl
-          spin
-          label={bandName}
-          className="pointer-events-none absolute -bottom-32 -right-32 -z-10 size-80 opacity-60 lg:size-[28rem]"
+    <div className="relative isolate grid min-h-screen lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" onKeyDown={handleKeyDown}>
+      <StageGlow />
+      {/* Cartel: la pregunta en grande, con el disco de la banda tomando forma */}
+      <aside className="relative isolate flex flex-col justify-between gap-8 overflow-hidden p-6 sm:p-10">
+        <RecordDisc
+          logoData={logoData || null}
+          label={bandName || "Tu banda"}
+          className="pointer-events-none absolute -bottom-52 -right-44 -z-10 hidden size-[24rem] animate-spin-slow lg:block"
         />
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <BmLogo size={32} title="" />
-            <BmWordmark className="h-[18px] text-white" />
+            <BmLogo size={34} title="" />
+            <BmWordmark className="h-5 text-ink" />
           </div>
           {rerun && (
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/70 hover:bg-white/10 hover:text-white"
               onClick={() => router.push("/")}
             >
               <X />
@@ -290,12 +290,13 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
         </div>
 
         <div key={current.id} className="animate-in fade-in slide-in-from-bottom-3 space-y-4 duration-500">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-stage-amber">
+          <p className="eyebrow">
             Pista {String(step + 1).padStart(2, "0")} / {String(STEPS.length).padStart(2, "0")} · {current.kicker}
           </p>
-          <h1 className="poster-title text-5xl text-white sm:text-6xl xl:text-7xl">{current.question}</h1>
+          <h1 className="poster-title max-w-xl text-5xl sm:text-6xl xl:text-7xl">{current.question}</h1>
+          <div className="rule max-w-md" />
           {step === 0 && (
-            <p className="max-w-md font-serif text-xl italic text-white/75">
+            <p className="max-w-md font-serif text-xl italic text-muted-foreground">
               Hola, {adminName}. Diez preguntas rápidas y el backstage queda listo: formación,
               repertorio, merch y agenda.
             </p>
@@ -303,7 +304,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
         </div>
 
         {/* Tracklist de progreso */}
-        <ol className="hidden gap-1.5 lg:flex" aria-label="Progreso">
+        <ol className="relative z-10 hidden max-w-[58%] gap-1.5 lg:flex" aria-label="Progreso">
           {STEPS.map((s, i) => (
             <li key={s.id} className="flex-1">
               <button
@@ -314,9 +315,9 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                 aria-current={i === step ? "step" : undefined}
                 className={cn(
                   "block h-1.5 w-full rounded-full transition-all",
-                  i < step && "cursor-pointer bg-stage-amber hover:bg-white",
-                  i === step && "bg-stage-gradient",
-                  i > step && "bg-white/15",
+                  i < step && "cursor-pointer bg-ink hover:bg-band",
+                  i === step && "bg-band ring-1 ring-ink",
+                  i > step && "bg-ink/15",
                 )}
               />
             </li>
@@ -325,7 +326,7 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
       </aside>
 
       {/* Respuesta */}
-      <main className="flex flex-col px-5 py-8 sm:px-10 lg:py-16">
+      <main className="flex flex-col border-hairline bg-white/72 px-5 py-8 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset] backdrop-blur-2xl backdrop-saturate-150 sm:px-10 lg:border-l lg:py-16">
         <div className="mx-auto flex w-full max-w-xl flex-1 flex-col">
           <div key={current.id} className="animate-in fade-in slide-in-from-right-4 flex-1 space-y-6 duration-300">
             {current.id === "name" && (
@@ -625,12 +626,12 @@ export function OnboardingWizard({ adminName, rerun, initial }: WizardProps) {
                 </Button>
               )}
               {current.id === "review" ? (
-                <Button type="button" size="lg" onClick={submit} disabled={saving} className="font-display text-lg uppercase tracking-wider">
+                <Button type="button" size="lg" onClick={submit} disabled={saving} className="font-display text-lg uppercase">
                   {saving ? <Loader2 className="animate-spin" /> : <Check />}
                   ¡Que empiece el show!
                 </Button>
               ) : (
-                <Button type="button" size="lg" onClick={next} disabled={!canContinue(current.id)} className="font-display text-lg uppercase tracking-wider">
+                <Button type="button" size="lg" onClick={next} disabled={!canContinue(current.id)} className="font-display text-lg uppercase">
                   Siguiente
                   <ArrowRight />
                 </Button>
@@ -647,7 +648,7 @@ function ReviewRow({ label, value, onEdit }: { label: string; value: string; onE
   return (
     <div className="flex items-start justify-between gap-4 rounded-xl bg-card px-4 py-3 ring-1 ring-foreground/10">
       <div className="min-w-0">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</p>
+        <p className="font-extrabold text-[10px] uppercase text-muted-foreground">{label}</p>
         <p className="mt-0.5 break-words text-sm font-medium">{value}</p>
       </div>
       <Button type="button" variant="ghost" size="sm" onClick={onEdit} className="shrink-0 text-band-text">
@@ -681,19 +682,23 @@ function Finale({
   }
 
   return (
-    <div className="stage-surface grain relative isolate flex min-h-screen items-center justify-center overflow-hidden p-6">
-      <StageLights />
-      <Vinyl spin label={bandName} className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-30" />
+    <div className="relative isolate flex min-h-screen items-center justify-center overflow-hidden p-6">
+      <StageGlow />
+      <RecordDisc
+        logoData={logoData || null}
+        label={bandName}
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[40rem] -translate-x-1/2 -translate-y-1/2 animate-spin-slow opacity-15"
+      />
       <div className="animate-in fade-in zoom-in-95 w-full max-w-2xl space-y-8 py-10 text-center duration-700">
         {logoData ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoData} alt={`Logo de ${bandName}`} className="mx-auto size-28 rounded-full bg-white/5 object-contain p-2 ring-4 ring-white/15" />
+          <img src={logoData} alt={`Logo de ${bandName}`} className="mx-auto size-28 rounded-full bg-white object-contain p-2 ring-4 ring-band" />
         ) : (
           <BmLogo size={96} className="mx-auto" />
         )}
         <div className="space-y-3">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-stage-amber">Backstage listo</p>
-          <h1 className="poster-title text-6xl text-white sm:text-7xl">
+          <p className="eyebrow">Backstage listo</p>
+          <h1 className="poster-title text-6xl sm:text-7xl">
             {bandName}, <span className="text-stage-gradient">a escena.</span>
           </h1>
         </div>
@@ -701,34 +706,34 @@ function Finale({
         <InviteCard code={inviteCode} bandName={bandName} canRegenerate tone="stage" className="text-left" />
 
         {withAccess.length > 0 && (
-          <div className="space-y-3 rounded-2xl bg-black/40 p-5 text-left ring-1 ring-white/10 backdrop-blur-sm">
+          <div className={cn("space-y-3 rounded-2xl p-5 text-left", glassCard)}>
             <div className="flex items-center justify-between gap-3">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">
                 Pases para la banda · compártelos ahora
               </p>
-              <Button size="sm" variant="ghost" onClick={copyAll} className="text-white hover:bg-white/10 hover:text-white">
+              <Button size="sm" variant="outline" onClick={copyAll}>
                 <Copy />
                 Copiar
               </Button>
             </div>
             <ul className="space-y-2">
               {withAccess.map((m) => (
-                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-white/10 pt-2 text-sm text-white">
+                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-hairline pt-2 text-sm">
                   <span className="font-medium">{m.name}</span>
-                  <span className="font-mono text-xs text-white/70">
-                    {m.email} · <span className="text-stage-amber">{m.tempPassword}</span>
+                  <span className="font-code text-xs text-muted-foreground">
+                    {m.email} · <span className="font-bold text-band-text">{m.tempPassword}</span>
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-muted-foreground">
               Las contraseñas temporales no se volverán a mostrar. Cada persona puede cambiarla con
               «¿Olvidaste la contraseña?».
             </p>
           </div>
         )}
 
-        <Button size="lg" onClick={onEnter} className="h-14 px-8 font-display text-xl uppercase tracking-wider">
+        <Button size="lg" onClick={onEnter} className="h-14 px-8 font-display text-xl uppercase">
           Entrar al backstage
           <ArrowRight />
         </Button>

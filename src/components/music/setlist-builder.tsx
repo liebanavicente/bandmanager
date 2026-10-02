@@ -114,7 +114,7 @@ function SongMeta({ song, className }: { song: BuilderSong; className?: string }
   return (
     <span className={cn("flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground", className)}>
       {song.tuning && (
-        <span className="rounded bg-stage-amber/15 px-1.5 py-px font-mono text-[10px] uppercase tracking-wider text-stage-amber">
+        <span className="rounded bg-stage-amber/15 px-1.5 py-px font-extrabold text-[10px] uppercase text-stage-amber">
           {song.tuning}
         </span>
       )}
@@ -337,7 +337,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
       {/* Cabecera: nombre, evento y notas */}
       <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="space-y-2">
-          <Label htmlFor="setlist-name" className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          <Label htmlFor="setlist-name" className="font-extrabold text-[10px] uppercase text-muted-foreground">
             {setlist ? "Editar setlist" : "Nuevo setlist"}
           </Label>
           <Input
@@ -349,7 +349,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
           />
         </div>
         <div className="space-y-2">
-          <Label className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Evento</Label>
+          <Label className="font-extrabold text-[10px] uppercase text-muted-foreground">Evento</Label>
           <OptionSelect value={eventId} onValueChange={setEventId} options={eventOptions} aria-label="Evento" className="h-14 rounded-xl" />
         </div>
       </div>
@@ -389,7 +389,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
         >
           <div className="space-y-3 border-b p-4">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              <h2 className="font-extrabold text-[10px] uppercase text-muted-foreground">
                 Toca en el orden del show
               </h2>
               <Button type="button" variant="ghost" size="sm" onClick={addAllFromSource} disabled={sourceSongs.length === 0}>
@@ -481,7 +481,7 @@ export function SetlistBuilder({ setlist, songs, repertoires, events, defaultEve
         <section aria-label="Orden del show" className={cn("space-y-3", mobileView !== "show" && "hidden lg:block")}>
           <div className="flex flex-wrap items-end justify-between gap-2 rounded-xl border bg-card p-4">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Orden del show</p>
+              <p className="font-extrabold text-[10px] uppercase text-muted-foreground">Orden del show</p>
               <p className="font-display text-3xl tabular-nums">
                 {songCount} {songCount === 1 ? "canción" : "canciones"} · {formatTotalDuration(totalSeconds)}
               </p>

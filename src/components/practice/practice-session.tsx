@@ -278,7 +278,7 @@ export function PracticeSession({ song, queue }: Props) {
           <p className="rounded-xl border bg-card p-6 text-center font-display text-2xl uppercase">Leída entera</p>
         ) : (
           <div className="rounded-xl border bg-card p-6 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Resultado</p>
+            <p className="font-extrabold text-[10px] uppercase text-muted-foreground">Resultado</p>
             <p className={cn("font-display text-7xl tabular-nums", scoreTone(average))}>{Math.round(average * 100)}%</p>
             {saving ? (
               <p className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -297,12 +297,12 @@ export function PracticeSession({ song, queue }: Props) {
 
         {failed.length > 0 && (
           <div className="space-y-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            <p className="font-extrabold text-[10px] uppercase text-muted-foreground">
               Para repasar ({failed.length})
             </p>
             {failed.map((o) => (
               <div key={o.line.index} className="rounded-lg border bg-card px-4 py-2">
-                {o.line.section && <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{o.line.section}</p>}
+                {o.line.section && <p className="text-[10px] uppercase text-muted-foreground">{o.line.section}</p>}
                 <p className="font-medium">{o.line.text}</p>
                 {o.check && o.check.extra.length > 0 && (
                   <p className="text-xs text-muted-foreground">
@@ -369,7 +369,7 @@ export function PracticeSession({ song, queue }: Props) {
       </div>
 
       <div className="min-h-72 rounded-2xl border bg-card p-6 sm:p-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">
+        <p className="font-extrabold text-[10px] uppercase text-band-text">
           {line.section ?? (line.startsStanza ? "Nueva estrofa" : " ")}
         </p>
         <p className="mt-4 min-h-6 font-serif text-lg italic text-muted-foreground">
@@ -498,7 +498,7 @@ function Header({ song }: { song: PracticeSong }) {
   return (
     <div className="flex items-end justify-between gap-4">
       <div className="min-w-0">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Ensayar letra</p>
+        <p className="font-extrabold text-[10px] uppercase text-muted-foreground">Ensayar letra</p>
         <h1 className="truncate font-display text-4xl uppercase sm:text-5xl">{song.title}</h1>
       </div>
       <div className="shrink-0 text-right">

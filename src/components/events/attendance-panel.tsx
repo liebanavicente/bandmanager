@@ -74,6 +74,7 @@ export function AttendancePanel({ eventId, attendances }: AttendancePanelProps) 
             <div className="flex items-center gap-2">
               <StatusBadge kind="attendance" status={attendance.status} />
               <Select
+                items={attendanceOptions}
                 value={attendance.status}
                 onValueChange={(value) =>
                   handleChange(attendance.userId, value as AttendanceStatus)

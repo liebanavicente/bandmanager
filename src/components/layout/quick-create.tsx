@@ -53,7 +53,7 @@ export function QuickCreate({ role, collaboratorAreas, hasStore, collapsed, clas
         render={
           <Button
             size={collapsed ? "icon" : "lg"}
-            className={cn("w-full font-display text-base uppercase tracking-wider", collapsed && "size-10", className)}
+            className={cn("w-full font-display text-base uppercase", collapsed && "size-10", className)}
             aria-label="Crear nuevo"
           />
         }
@@ -62,7 +62,7 @@ export function QuickCreate({ role, collaboratorAreas, hasStore, collapsed, clas
         {!collapsed && "Crear"}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
-        <DropdownMenuLabel className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <DropdownMenuLabel className="font-extrabold text-[10px] uppercase text-muted-foreground">
           Añadir a la banda
         </DropdownMenuLabel>
         {visible.map((action) => (

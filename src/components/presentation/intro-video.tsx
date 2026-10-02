@@ -72,7 +72,7 @@ export function IntroVideo() {
   }
 
   const control =
-    "rounded-full border border-white/25 bg-black/40 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm transition hover:bg-black/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+    "rounded-full border border-white/25 bg-black/40 px-4 py-2 font-extrabold text-[11px] uppercase text-white/90 backdrop-blur-sm transition hover:bg-black/60 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
   return (
     <div

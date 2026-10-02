@@ -8,8 +8,8 @@ import { EntityActions } from "@/components/shared/entity-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { isActionSuccess } from "@/lib/action-result";
+import { ListPanel, ListRow } from "@/components/shared/list-panel";
 
 export default async function SetlistsPage() {
   const result = await listSetlists();
@@ -36,40 +36,32 @@ export default async function SetlistsPage() {
           description="Crea un setlist con «Nuevo setlist» y vincúlalo a un concierto."
         />
       ) : (
-        <div className="grid gap-3">
+        <ListPanel>
           {setlists.map((setlist) => (
-            <Card key={setlist.id} className="stage-edge relative transition-colors hover:bg-muted/30">
-              <CardContent className="flex items-center gap-3 pt-6">
-                <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <Link
-                      href={`/setlists/${setlist.id}`}
-                      className="font-medium after:absolute after:inset-0 after:content-['']"
-                    >
-                      {setlist.name}
-                    </Link>
-                    {setlist.event && (
-                      <p className="text-sm text-muted-foreground">
-                        {setlist.event.title} ·{" "}
-                        {format(setlist.event.startAt, "d MMM yyyy", { locale: es })}
-                      </p>
-                    )}
-                  </div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {setlist._count.items} elementos
-                  </p>
-                </div>
-                <SetlistPdfMenu setlistId={setlist.id} variant="icon" />
-                <EntityActions
-                  entity="setlist"
-                  id={setlist.id}
-                  name={setlist.name}
-                  editHref={`/setlists/${setlist.id}/edit`}
-                />
-              </CardContent>
-            </Card>
+            <ListRow
+              key={setlist.id}
+              href={`/setlists/${setlist.id}`}
+              title={setlist.name}
+              meta={
+                setlist.event
+                  ? `${setlist.event.title} · ${format(setlist.event.startAt, "d MMM yyyy", { locale: es })}`
+                  : undefined
+              }
+              trailing={<span className="text-[11px] font-extrabold uppercase">{setlist._count.items} elementos</span>}
+              actions={
+                <>
+                  <SetlistPdfMenu setlistId={setlist.id} variant="icon" />
+                  <EntityActions
+                    entity="setlist"
+                    id={setlist.id}
+                    name={setlist.name}
+                    editHref={`/setlists/${setlist.id}/edit`}
+                  />
+                </>
+              }
+            />
           ))}
-        </div>
+        </ListPanel>
       )}
     </div>
   );

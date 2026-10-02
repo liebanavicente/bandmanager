@@ -73,7 +73,7 @@ export function InviteCard({ code, bandName, canRegenerate = false, tone = "card
     >
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-stage-amber">
+          <p className="font-extrabold text-[10px] uppercase text-stage-amber">
             Código de la sala · {bandName}
           </p>
           <p className="mt-1 select-all font-display text-5xl leading-none tracking-[0.12em] sm:text-6xl" aria-label={`Código ${current.split("").join(" ")}`}>

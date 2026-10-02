@@ -9,13 +9,13 @@ import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
 import { fileCategoryLabels } from "@/lib/file-categories";
 import { bandStoragePrefix, getMaxFileSizeBytes, isBlobStorage } from "@/lib/files";
 import { getSessionUser } from "@/lib/session";
 import { FileActions, UploadFileButton } from "@/components/files/file-dialog";
+import { ListPanel, ListRow } from "@/components/shared/list-panel";
 
 const categoryLabels = fileCategoryLabels;
 
@@ -58,29 +58,29 @@ async function FilesList({
   }
 
   return (
-    <div className="grid gap-3">
+    <ListPanel>
       {files.map((file) => (
-        <Card key={file.id} className="stage-edge">
-          <CardContent className="flex items-start gap-4 pt-6">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-band-text">
+        <ListRow
+          key={file.id}
+          leading={
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-band text-band-ink ring-1 ring-ink/10">
               <FileIcon className="size-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-medium">{file.name}</h3>
-                <Badge variant="secondary">{categoryLabels[file.category]}</Badge>
-              </div>
-              {file.description && (
-                <p className="text-sm text-muted-foreground">{file.description}</p>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {formatFileSize(file.sizeBytes)} ·{" "}
-                {file.uploadedBy.profile?.name ?? file.uploadedBy.email} ·{" "}
+            </span>
+          }
+          title={file.name}
+          badges={<Badge variant="outline">{categoryLabels[file.category]}</Badge>}
+          meta={
+            <>
+              {file.description && <p>{file.description}</p>}
+              <p className="text-xs">
+                {formatFileSize(file.sizeBytes)} · {file.uploadedBy.profile?.name ?? file.uploadedBy.email} ·{" "}
                 {format(file.createdAt, "d MMM yyyy", { locale: es })}
                 {file.event && ` · ${file.event.title}`}
               </p>
-            </div>
-            <div className="flex items-center gap-1">
+            </>
+          }
+          actions={
+            <>
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -91,11 +91,11 @@ async function FilesList({
                 <Download />
               </Button>
               <FileActions file={file} />
-            </div>
-          </CardContent>
-        </Card>
+            </>
+          }
+        />
       ))}
-    </div>
+    </ListPanel>
   );
 }
 

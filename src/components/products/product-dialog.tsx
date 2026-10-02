@@ -183,7 +183,7 @@ export function ProductDialog({ product, open, onOpenChange }: ProductDialogProp
           </p>
         ) : (
           <div className="space-y-2">
-            <div className="hidden grid-cols-[1fr_4.5rem_5rem_4.5rem_2rem] gap-2 px-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground sm:grid">
+            <div className="hidden grid-cols-[1fr_4.5rem_5rem_4.5rem_2rem] gap-2 px-1 font-extrabold text-[10px] uppercase text-muted-foreground sm:grid">
               <span>Nombre</span>
               <span>Talla</span>
               <span>Color</span>

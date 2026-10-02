@@ -15,7 +15,7 @@ type StatusKind =
  * alerta/negativo o pendiente de acción, gris = sin estado. */
 const OK = "bg-punk-acid/15 text-punk-acid ring-1 ring-punk-acid/30";
 const PROGRESS = "bg-secondary text-secondary-foreground ring-1 ring-foreground/10";
-const BAD = "bg-punk-red/15 text-punk-red ring-1 ring-punk-red/30";
+const BAD = "bg-destructive/10 text-destructive ring-1 ring-destructive/30";
 const PENDING_STYLE = "bg-punk-red/10 text-punk-red ring-1 ring-punk-red/25";
 const NEUTRAL = "bg-muted text-muted-foreground ring-1 ring-foreground/10";
 
@@ -89,7 +89,7 @@ export function StatusBadge({ kind, status, className }: StatusBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "rounded-sm border-transparent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest",
+        "rounded-sm border-transparent px-2 py-0.5 text-[10px] font-semibold uppercase",
         config.className,
         className,
       )}

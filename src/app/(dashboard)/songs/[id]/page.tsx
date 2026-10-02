@@ -52,33 +52,33 @@ export default async function SongDetailPage({
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-xs text-muted-foreground">Duración</p>
-              <p className="font-medium">{formatDuration(song.durationSeconds)}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Duración</p>
+              <p className="font-semibold">{formatDuration(song.durationSeconds)}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tonalidad</p>
-              <p className="font-medium">{song.keySignature ?? "—"}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Tonalidad</p>
+              <p className="font-semibold">{song.keySignature ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tempo</p>
-              <p className="font-medium">{song.tempo ? `${song.tempo} BPM` : "—"}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Tempo</p>
+              <p className="font-semibold">{song.tempo ? `${song.tempo} BPM` : "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Compás</p>
-              <p className="font-medium">{song.timeSignature ?? "—"}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Compás</p>
+              <p className="font-semibold">{song.timeSignature ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Voz principal</p>
-              <p className="font-medium">{song.leadVocal ?? "—"}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Voz principal</p>
+              <p className="font-semibold">{song.leadVocal ?? "—"}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Instrumentos</p>
-              <p className="font-medium">{song.instruments ?? "—"}</p>
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Instrumentos</p>
+              <p className="font-semibold">{song.instruments ?? "—"}</p>
             </div>
             {song.tags.length > 0 && (
               <div className="sm:col-span-2">
-                <p className="text-xs text-muted-foreground">Etiquetas</p>
-                <p className="font-medium">{song.tags.join(", ")}</p>
+                <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Etiquetas</p>
+                <p className="font-semibold">{song.tags.join(", ")}</p>
               </div>
             )}
           </CardContent>

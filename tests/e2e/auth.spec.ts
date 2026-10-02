@@ -7,7 +7,7 @@ test.describe("Autenticación", () => {
     await page.getByLabel("Contraseña").fill("demo1234");
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page).toHaveURL("/");
-    await expect(page.getByRole("heading", { name: "Panel" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Panel", exact: true })).toHaveAttribute("aria-current", "page");
   });
 
   test("acceso denegado sin sesión", async ({ page }) => {

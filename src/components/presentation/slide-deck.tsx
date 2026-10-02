@@ -16,8 +16,9 @@ import { Button } from "@/components/ui/button";
 import { BmLogo } from "@/components/brand/bm-logo";
 import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { StageLights } from "@/components/art/stage-lights";
-import { BackgroundVideo } from "@/components/art/background-video";
-import { Vinyl } from "@/components/art/vinyl";
+import { RecordDisc } from "@/components/art/record-disc";
+import { StageGlow } from "@/components/glass/stage-glow";
+import { glassCard } from "@/components/glass/glass";
 import { cn } from "@/lib/utils";
 
 export function SlideDeck() {
@@ -64,9 +65,10 @@ export function SlideDeck() {
   }, [isPlaying, isLast, next]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="relative isolate flex min-h-screen flex-col text-foreground">
+      <StageGlow />
       {/* Navbar */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-background/85 px-4 py-3 backdrop-blur-sm sm:px-6">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-hairline bg-white/85 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 sm:px-6">
         <Link href="/presentacion" className="flex items-center gap-2.5">
           <BmLogo size={36} title="" />
           <div className="leading-tight">
@@ -86,11 +88,11 @@ export function SlideDeck() {
           >
             {isPlaying ? <Pause /> : <Play />}
           </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/login" />} aria-label="Entrar">
+          <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/login" />} aria-label="Entrar">
             <LogIn />
             <span className="hidden sm:inline">Entrar</span>
           </Button>
-          <Button size="sm" render={<Link href="/register" />}>
+          <Button size="sm" nativeButton={false} render={<Link href="/register" />}>
             <Sparkles />
             <span className="sm:hidden">Regístrate</span>
             <span className="hidden sm:inline">Registra tu banda</span>
@@ -100,31 +102,15 @@ export function SlideDeck() {
 
       {/* Diapositiva */}
       <main className="relative flex flex-1 flex-col justify-center overflow-hidden px-4 py-10 sm:px-8">
-        {/* Portada: humo con haces de luz, focos y vinilo girando */}
-        {isIntro && (
-          <div aria-hidden="true" className="stage-surface grain absolute inset-0">
-            <BackgroundVideo
-              name="/video/bg-humo"
-              waitForIntro
-              className="absolute inset-0 size-full opacity-70"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-            <StageLights />
-          </div>
-        )}
-        {/* Resto de pistas: vinilo en primer plano, tenue y solo en tema oscuro */}
-        {!isIntro && (
-          <div aria-hidden="true" className="absolute inset-0 hidden dark:block">
-            {/* Volteado: el disco queda a la derecha, lejos del texto */}
-            <BackgroundVideo name="/video/bg-vinilo" className="absolute inset-0 size-full -scale-x-100 opacity-60" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/75 to-transparent" />
-          </div>
-        )}
-        <Vinyl
-          spin={isPlaying}
+        {/* Portada: haces de luz del acento sobre el papel */}
+        {isIntro && <StageLights />}
+        {/* El disco de BandManager girando a la derecha, lejos del texto */}
+        <RecordDisc
+          center={<BmLogo size={120} title="" />}
           className={cn(
-            "pointer-events-none absolute -right-40 top-1/2 size-[30rem] -translate-y-1/2 transition-opacity duration-500 sm:size-[40rem]",
-            isIntro ? "opacity-80" : "opacity-15 dark:opacity-0",
+            "pointer-events-none absolute -right-40 top-1/2 hidden size-[30rem] -translate-y-1/2 transition-opacity duration-500 md:block lg:size-[38rem]",
+            isPlaying && "animate-spin-slow",
+            isIntro ? "opacity-100" : "opacity-25",
           )}
         />
 
@@ -132,41 +118,43 @@ export function SlideDeck() {
           key={slide.id}
           className={cn(
             "relative mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500",
-            isIntro && "text-white",
           )}
         >
           <div className="mb-8 flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-full bg-stage-gradient text-band-ink shadow-poster-red sm:size-14">
+            <div className="flex size-12 items-center justify-center rounded-full bg-band text-band-ink ring-1 ring-ink sm:size-14">
               <Icon className="size-6 sm:size-7" aria-hidden />
             </div>
             <div>
-              <p className={cn("font-serif text-lg italic sm:text-xl", isIntro ? "text-white/75" : "text-muted-foreground")}>
-                {slide.subtitle}
-              </p>
-              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.25em] text-band-text">
+              <p className="font-serif text-lg italic text-muted-foreground sm:text-xl">{slide.subtitle}</p>
+              <p className="eyebrow mt-1">
                 Pista {number} / {String(total).padStart(2, "0")}
               </p>
             </div>
           </div>
 
-          <h1 className="poster-title text-5xl sm:text-7xl lg:text-8xl">
-            {slide.title}
-          </h1>
-          <div className="mt-5 h-1 w-20 rounded-full bg-stage-gradient" aria-hidden="true" />
-          <p className={cn("mt-5 max-w-2xl text-base leading-relaxed sm:text-lg", isIntro ? "text-white/75" : "text-muted-foreground")}>
+          {isIntro ? (
+            <h1>
+              <span className="sr-only">{slide.title}</span>
+              <BmWordmark title="" className="h-12 max-w-full text-ink sm:h-16 lg:h-[4.5rem]" />
+            </h1>
+          ) : (
+            <h1 className="poster-title text-5xl sm:text-7xl lg:text-8xl">{slide.title}</h1>
+          )}
+          <div className="rule mt-5 max-w-2xl" aria-hidden="true" />
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {slide.description}
           </p>
 
-          <ul className="mt-9 grid gap-3 sm:grid-cols-2">
+          <ul className={cn("mt-9 grid max-w-3xl overflow-hidden rounded-xl sm:grid-cols-2", glassCard)}>
             {slide.highlights.map((item, i) => (
               <li
                 key={item}
                 className={cn(
-                  "stage-edge flex items-start gap-3 overflow-hidden rounded-lg bg-card/90 px-4 py-3 text-sm text-card-foreground ring-1 ring-foreground/10 backdrop-blur-sm transition-shadow hover:shadow-poster sm:text-base",
+                  "flex items-start gap-3 border-b border-hairline px-4 py-3.5 text-sm font-medium transition-colors hover:bg-ink hover:text-white sm:text-base sm:even:border-r",
                   i === 0 && "sm:col-span-2",
                 )}
               >
-                <span className="mt-0.5 font-mono text-xs font-semibold text-band-text">
+                <span className="mt-0.5 text-xs font-extrabold text-band-text">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {item}
@@ -178,8 +166,9 @@ export function SlideDeck() {
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Button
                 size="lg"
+                nativeButton={false}
                 render={<Link href="/register" />}
-                className="h-12 px-6 font-display text-lg uppercase tracking-wider"
+                className="h-12 px-6 font-display text-lg uppercase"
               >
                 <Sparkles />
                 Registra tu banda
@@ -187,8 +176,9 @@ export function SlideDeck() {
               <Button
                 size="lg"
                 variant="outline"
+                nativeButton={false}
                 render={<Link href="/register?join=1" />}
-                className={cn("h-12", isIntro && "border-white/25 bg-white/5 text-white hover:bg-white/15 hover:text-white")}
+                className="h-12"
               >
                 <KeyRound />
                 Tengo un código
@@ -204,7 +194,7 @@ export function SlideDeck() {
       </main>
 
       {/* Pie con navegación */}
-      <footer className="border-t px-4 py-4 sm:px-6">
+      <footer className="border-t border-hairline bg-white/80 px-4 py-4 backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2" role="tablist" aria-label="Diapositivas">
             {presentationSlides.map((s, i) => (
@@ -218,12 +208,12 @@ export function SlideDeck() {
                 className={cn(
                   "h-1.5 rounded-full transition-all",
                   i === current
-                    ? "w-8 bg-stage-gradient"
-                    : "w-3 bg-muted-foreground/30 hover:bg-muted-foreground/50",
+                    ? "w-8 bg-band ring-1 ring-ink"
+                    : "w-3 bg-ink/20 hover:bg-ink/40",
                 )}
               />
             ))}
-            <span className="ml-2 font-mono text-xs text-muted-foreground tabular-nums">
+            <span className="ml-2 text-xs font-extrabold text-muted-foreground tabular-nums">
               {current + 1} / {total}
             </span>
           </div>

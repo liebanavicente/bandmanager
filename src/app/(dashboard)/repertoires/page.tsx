@@ -35,13 +35,13 @@ export default async function RepertoiresPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {repertoires.map((rep) => (
-            <Card key={rep.id} className="stage-edge relative h-full transition-colors hover:bg-muted/30">
+            <Card key={rep.id} className="tile-link group relative h-full">
               <CardContent className="space-y-3 pt-6">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <Link
                       href={`/repertoires/${rep.id}`}
-                      className="font-display text-2xl uppercase leading-none after:absolute after:inset-0 after:content-['']"
+                      className="font-display text-3xl uppercase leading-none transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-band-bright"
                     >
                       {rep.name}
                     </Link>
@@ -63,7 +63,7 @@ export default async function RepertoiresPage() {
                 {rep.description && (
                   <p className="line-clamp-2 text-sm text-muted-foreground">{rep.description}</p>
                 )}
-                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                <p className="font-extrabold text-[10px] uppercase text-muted-foreground">
                   {rep.songs.length} canciones · {rep._count.setlists} setlists
                 </p>
               </CardContent>

@@ -35,7 +35,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   if (!token) {
     return (
-      <Card className="stage-edge shadow-poster">
+      <Card className="shadow-poster">
         <CardHeader className="text-center">
           <CardTitle className="poster-title text-3xl">Enlace incompleto</CardTitle>
           <CardDescription>
@@ -43,7 +43,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
-          <Button render={<Link href="/forgot-password" />}>Pedir otro enlace</Button>
+          <Button nativeButton={false} render={<Link href="/forgot-password" />}>Pedir otro enlace</Button>
         </CardFooter>
       </Card>
     );
@@ -51,25 +51,25 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   if (done) {
     return (
-      <Card className="stage-edge shadow-poster">
+      <Card className="shadow-poster">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-band-text">
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-band text-band-ink ring-1 ring-ink">
             <CheckCircle2 className="size-6" />
           </div>
           <CardTitle className="poster-title text-3xl">Contraseña cambiada</CardTitle>
           <CardDescription>Ya puedes entrar con tu nueva contraseña.</CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
-          <Button render={<Link href="/login" />}>Ir al login</Button>
+          <Button nativeButton={false} render={<Link href="/login" />}>Ir al login</Button>
         </CardFooter>
       </Card>
     );
   }
 
   return (
-    <Card className="stage-edge shadow-poster">
+    <Card className="shadow-poster">
       <CardHeader>
-        <CardTitle className="poster-title text-4xl">Nueva contraseña</CardTitle>
+        <CardTitle className="poster-title text-5xl">Nueva contraseña</CardTitle>
         <CardDescription>Elige una contraseña de al menos 8 caracteres.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -104,7 +104,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             {loading && <Loader2 className="animate-spin" />}
             Guardar contraseña
           </Button>
-          <Button variant="ghost" className="w-full" render={<Link href="/login" />}>
+          <Button nativeButton={false} variant="ghost" className="w-full" render={<Link href="/login" />}>
             <ArrowLeft />
             Volver al login
           </Button>

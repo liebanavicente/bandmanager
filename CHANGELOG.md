@@ -1,5 +1,25 @@
 # Changelog
 
+## [Sin publicar]
+
+### Cambiado
+
+- Rediseño editorial de toda la app: papel claro, tinta negra, titulares de
+  cartel (Anton) y texto en Archivo; listas y fichas al estilo de Apuntes.
+- Cada banda elige su color de acento (se propone a partir del logo) y la
+  interfaz entera lo adopta con contraste garantizado.
+- Nueva marca: púa con onda de sonido y logotipo en cursiva.
+- Solo tema claro; la vista de escenario de los setlists sigue en oscuro.
+
+### Añadido
+
+- Página 404 propia.
+
+### Corregido
+
+- Los desplegables de asistencia, filtros y venta rápida muestran la etiqueta
+  en castellano en lugar del valor interno.
+
 ## [0.1.0] - 2026-07-13
 
 ### Añadido

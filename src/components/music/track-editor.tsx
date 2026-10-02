@@ -71,10 +71,10 @@ export function TrackEditor({ songs, tracks, onChange, allowMarkers = false, uni
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-extrabold text-[10px] uppercase text-muted-foreground">
           {tracks.filter((t) => t.type === "SONG").length} canciones
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-extrabold text-[10px] uppercase text-muted-foreground">
           {formatTotalDuration(total)}
         </span>
       </div>

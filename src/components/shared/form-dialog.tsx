@@ -42,7 +42,7 @@ export function FormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "max-h-[calc(100dvh-2rem)] overflow-y-auto border-t-2 border-t-stage-red shadow-poster sm:max-w-lg",
+          "max-h-[calc(100dvh-2rem)] overflow-y-auto border-t-4 border-t-band shadow-poster sm:max-w-lg",
           className,
         )}
       >
@@ -55,11 +55,11 @@ export function FormDialog({
         >
           <DialogHeader>
             {kicker && (
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">{kicker}</p>
+              <p className="eyebrow w-fit">{kicker}</p>
             )}
-            <DialogTitle className="poster-title text-3xl">{title}</DialogTitle>
+            <DialogTitle className="poster-title text-4xl">{title}</DialogTitle>
             {description && (
-              <DialogDescription className="font-serif text-base italic">{description}</DialogDescription>
+              <DialogDescription className="font-serif text-lg italic">{description}</DialogDescription>
             )}
           </DialogHeader>
           <div className="grid gap-4">{children}</div>

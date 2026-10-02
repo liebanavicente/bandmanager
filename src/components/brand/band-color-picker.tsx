@@ -113,7 +113,7 @@ export function BandColorPicker({ value, onChange, suggested, livePreview = true
           onBlur={() => onChange(normalizeHex(value) ?? current)}
           maxLength={7}
           spellCheck={false}
-          className="w-28 font-[family-name:var(--font-code)] uppercase"
+          className="w-28 font-code uppercase"
         />
         <span className="eyebrow">Así se ve</span>
       </div>

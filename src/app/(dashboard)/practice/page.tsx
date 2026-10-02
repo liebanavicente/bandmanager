@@ -71,7 +71,7 @@ export default async function PracticePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Ensayar letras" eyebrow="Música" description="Repasa lo que toca hoy y comprueba si te lo sabes.">
+      <PageHeader title="Ensayar letras" description="Repasa lo que toca hoy y comprueba si te lo sabes.">
         <Button variant="outline" nativeButton={false} render={<Link href="/songs/import" />}>
           <Upload />
           Importar letras
@@ -90,7 +90,7 @@ export default async function PracticePage() {
             <div className="flex flex-wrap items-center gap-4 rounded-xl border border-primary/40 bg-primary/5 p-5">
               <CalendarClock className="size-8 text-band-text" />
               <div className="min-w-0 flex-1">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-band-text">
+                <p className="font-extrabold text-[10px] uppercase text-band-text">
                   Próximo bolo · {formatDistanceToNowStrict(nextGig.startAt, { locale: es, addSuffix: true })}
                 </p>
                 <p className="font-display text-2xl uppercase">{nextGig.title}</p>

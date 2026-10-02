@@ -50,14 +50,14 @@ export function BandBadge({ band, collapsed = false, className }: BandBadgeProps
       </span>
       {!collapsed && (
         <span className="min-w-0">
-          <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-white/55">
+          <span className="block font-extrabold text-[9px] uppercase text-white/55">
             En gira
           </span>
           <span className="block truncate font-serif text-xl italic leading-tight text-white">
             {band.name}
           </span>
           {subtitle && (
-            <span className="block truncate font-mono text-[9px] uppercase tracking-[0.18em] text-stage-amber/80">
+            <span className="block truncate font-extrabold text-[9px] uppercase text-stage-amber/80">
               {subtitle}
             </span>
           )}

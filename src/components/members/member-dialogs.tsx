@@ -195,13 +195,13 @@ export function NewMemberButton() {
       <Dialog open={Boolean(pass)} onOpenChange={(o) => !o && setPass(null)}>
         <DialogContent className="border-t-2 border-t-stage-red sm:max-w-md">
           <DialogHeader>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">Pase all access</p>
+            <p className="font-extrabold text-[10px] uppercase text-band-text">Pase all access</p>
             <DialogTitle className="poster-title text-3xl">{pass?.name}, dentro</DialogTitle>
             <DialogDescription className="font-serif text-base italic">
               Comparte estos datos ahora: la contraseña temporal no se volverá a mostrar.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg bg-muted p-3 font-mono text-sm">
+          <div className="rounded-lg bg-muted p-3 font-code text-sm">
             <p>{pass?.email}</p>
             <p className="text-band-text">{pass?.password}</p>
           </div>

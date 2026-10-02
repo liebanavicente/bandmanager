@@ -59,6 +59,7 @@ export function SearchFilters({
 
       {typeOptions && (
         <Select
+          items={[{ value: "", label: "Todos" }, ...typeOptions]}
           value={searchParams.get(typeParam) ?? ""}
           onValueChange={(value) => updateParams(typeParam, value ?? "")}
         >
@@ -78,6 +79,7 @@ export function SearchFilters({
 
       {statusOptions && (
         <Select
+          items={[{ value: "", label: "Todos" }, ...statusOptions]}
           value={searchParams.get(statusParam) ?? ""}
           onValueChange={(value) => updateParams(statusParam, value ?? "")}
         >

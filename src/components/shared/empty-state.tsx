@@ -25,7 +25,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 px-6 py-16 text-center",
+        "flex flex-col items-center justify-center rounded-xl border border-dashed border-ink/20 bg-white/55 px-6 py-16 text-center backdrop-blur-xl",
         className,
       )}
     >
@@ -35,10 +35,10 @@ export function EmptyState({
           <Icon className="size-[18px]" aria-hidden="true" />
         </div>
       </div>
-      <h3 className="poster-title text-3xl">{title}</h3>
+      <h3 className="poster-title text-4xl">{title}</h3>
       <p className="mt-2 max-w-sm font-serif text-lg italic leading-snug text-muted-foreground">{description}</p>
       {/* Silencio: línea plana */}
-      <span aria-hidden="true" className="mt-5 h-px w-24 bg-gradient-to-r from-transparent via-foreground/30 to-transparent" />
+      <span aria-hidden="true" className="mt-5 h-0.5 w-24 bg-ink" />
       {action && (
         <div className="mt-6">
           {action.href ? (

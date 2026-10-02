@@ -25,7 +25,7 @@ export default async function RepertoireDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={repertoire.name} description={repertoire.description ?? undefined}>
-        <Button variant="ghost" render={<Link href="/repertoires" />}>
+        <Button nativeButton={false} variant="ghost" render={<Link href="/repertoires" />}>
           <ArrowLeft />
           Volver
         </Button>

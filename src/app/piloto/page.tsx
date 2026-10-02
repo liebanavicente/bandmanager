@@ -6,7 +6,11 @@ import { notFound, redirect } from "next/navigation";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import type { FeedbackKind } from "@prisma/client";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
+import { StageGlow } from "@/components/glass/stage-glow";
+import { BmLogo } from "@/components/brand/bm-logo";
+import { BmWordmark } from "@/components/brand/bm-wordmark";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -55,14 +59,20 @@ export default async function PilotPage({
   const activeBands = bands.filter((b) => b.activeMembers > 0).length;
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-8 p-4 sm:p-8">
+    <main className="relative isolate mx-auto w-full max-w-6xl space-y-8 p-4 sm:p-8">
+      <StageGlow />
+      <Link href="/" className="flex w-fit items-center gap-2.5" aria-label="BandManager">
+        <BmLogo size={34} title="" />
+        <BmWordmark title="" className="h-5 text-ink" />
+      </Link>
       <PageHeader
+        eyebrow="Interno · Métricas del piloto"
         title="Piloto"
         description={`${activeBands} de ${bands.length} bandas activas en los últimos 7 días. Objetivo en la semana 6: 3 o más.`}
       >
-        <Link href="/" className="text-sm text-band-text hover:underline">
+        <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
           Volver a mi sala
-        </Link>
+        </Button>
       </PageHeader>
 
       <Card>
@@ -149,7 +159,7 @@ export default async function PilotPage({
                       {item.path && (
                         <>
                           <span>·</span>
-                          <code className="font-mono">{item.path}</code>
+                          <code className="font-code">{item.path}</code>
                         </>
                       )}
                     </div>

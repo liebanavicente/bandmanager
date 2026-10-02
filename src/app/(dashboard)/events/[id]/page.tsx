@@ -37,7 +37,7 @@ export default async function EventDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader title={event.title} description={eventTypeLabels[event.type]}>
-        <Button variant="ghost" render={<Link href="/events" />}>
+        <Button nativeButton={false} variant="ghost" render={<Link href="/events" />}>
           <ArrowLeft />
           Volver
         </Button>
@@ -62,14 +62,14 @@ export default async function EventDetailPage({
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs text-muted-foreground">Inicio</p>
-              <p className="font-medium">
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Inicio</p>
+              <p className="font-semibold">
                 {format(event.startAt, "EEEE d MMM yyyy, HH:mm", { locale: es })}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Fin</p>
-              <p className="font-medium">
+              <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Fin</p>
+              <p className="font-semibold">
                 {format(event.endAt, "EEEE d MMM yyyy, HH:mm", { locale: es })}
               </p>
             </div>
@@ -85,16 +85,16 @@ export default async function EventDetailPage({
             )}
             {event.callTime && (
               <div>
-                <p className="text-xs text-muted-foreground">Call time</p>
-                <p className="font-medium">
+                <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Call time</p>
+                <p className="font-semibold">
                   {format(event.callTime, "HH:mm", { locale: es })}
                 </p>
               </div>
             )}
             {event.expectedFeeCents != null && (
               <div>
-                <p className="text-xs text-muted-foreground">Caché previsto</p>
-                <p className="font-medium">{centsToEuros(event.expectedFeeCents)}</p>
+                <p className="text-[11px] font-extrabold uppercase text-muted-foreground">Caché previsto</p>
+                <p className="font-semibold">{centsToEuros(event.expectedFeeCents)}</p>
               </div>
             )}
             {event.description && (

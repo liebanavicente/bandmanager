@@ -82,13 +82,13 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
   }
 
   return (
-    <Card className="stage-edge shadow-poster">
+    <Card className="shadow-poster">
       <CardHeader>
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-band-text">Tu pase</p>
-        <CardTitle className="poster-title text-4xl">
+        <p className="eyebrow w-fit">Tu pase</p>
+        <CardTitle className="poster-title text-5xl">
           {joining ? "Únete a tu banda" : "Monta tu sala"}
         </CardTitle>
-        <CardDescription className="font-serif text-base italic">
+        <CardDescription className="font-serif text-lg italic">
           {joining
             ? "Pon el código que te ha pasado tu banda y entrarás en su sala: mismo calendario, repertorio y setlists."
             : "Crea la sala de tu banda. Después te daremos un código para que el resto se una."}
@@ -133,7 +133,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
                 required
                 placeholder="VOLT-7K2Q"
                 autoComplete="off"
-                className="h-12 text-center font-mono text-xl tracking-[0.3em] uppercase"
+                className="h-12 text-center font-extrabold text-xl uppercase"
               />
               {checking ? (
                 <p className="text-xs text-muted-foreground">Buscando la sala…</p>
@@ -153,7 +153,7 @@ export function RegisterForm({ initialCode, startJoining, invitedBand }: Registe
                     </span>
                   )}
                   <span className="min-w-0">
-                    <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-white/55">Vas a entrar en</span>
+                    <span className="block font-extrabold text-[9px] uppercase text-white/55">Vas a entrar en</span>
                     <span className="block truncate font-serif text-lg italic">{band.name}</span>
                   </span>
                 </div>

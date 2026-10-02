@@ -42,7 +42,7 @@ export function SetlistPdfMenu({ setlistId, variant = "button", className }: Set
         {variant === "button" && "Imprimir PDF"}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <DropdownMenuLabel className="font-extrabold text-[10px] uppercase text-muted-foreground">
           Exportar a PDF (A4)
         </DropdownMenuLabel>
         <DropdownMenuItem render={<a href={href("stage")} target="_blank" rel="noopener" />}>

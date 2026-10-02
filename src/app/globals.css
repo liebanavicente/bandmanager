@@ -322,6 +322,29 @@
     text-transform: uppercase;
   }
 
+  /* Fila de lista invertida a tinta: el texto secundario y las etiquetas siguen leyéndose */
+  /* Tarjeta enlazada de rejilla: se invierte a tinta como las filas */
+  .tile-link {
+    transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+  }
+  .tile-link:hover {
+    background-color: var(--ink);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+  .list-row-link:hover .text-muted-foreground:not([data-slot="badge"]),
+  .tile-link:hover .text-muted-foreground:not([data-slot="badge"]) {
+    color: rgba(255, 255, 255, 0.68);
+  }
+  .list-row-link:hover [data-slot="badge"],
+  .tile-link:hover [data-slot="badge"] {
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+  .list-row-link:focus-within {
+    outline: 3px solid var(--ink);
+    outline-offset: -3px;
+  }
+
   /* Filete editorial bajo los titulares */
   .rule {
     border-bottom: 2px solid var(--ink);

@@ -131,8 +131,8 @@ export default async function SetlistDetailPage({
                     <span
                       className={
                         tuningChanged
-                          ? "rounded bg-stage-amber px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-band-ink"
-                          : "rounded bg-stage-amber/15 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wider text-stage-amber"
+                          ? "rounded bg-stage-amber px-2 py-0.5 font-extrabold text-[11px] uppercase text-band-ink"
+                          : "rounded bg-stage-amber/15 px-2 py-0.5 font-extrabold text-[11px] uppercase text-stage-amber"
                       }
                       title={tuningChanged ? "Cambia la afinación" : "Afinación"}
                     >

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Suspense } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -9,9 +10,9 @@ import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { NewTaskButton, TaskActions, type Assignee } from "@/components/tasks/task-dialog";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
+import { ListPanel, ListRow } from "@/components/shared/list-panel";
 
 const taskStatusOptions = [
   { value: "PENDING", label: "Pendiente" },
@@ -54,37 +55,31 @@ async function TasksList({
   }
 
   return (
-    <div className="grid gap-3">
+    <ListPanel>
       {tasks.map((task) => (
-        <Card key={task.id} className="stage-edge">
-          <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-medium">{task.title}</h3>
-                <StatusBadge kind="task" status={task.status} />
-              </div>
-              {task.description && (
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {task.description}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground">
+        <ListRow
+          key={task.id}
+          title={task.title}
+          badges={<StatusBadge kind="task" status={task.status} />}
+          meta={
+            <>
+              {task.description && <p className="line-clamp-2">{task.description}</p>}
+              <p className="text-xs">
                 {task.assignee?.profile?.name ?? "Sin asignar"}
-                {task.dueAt &&
-                  ` · Vence ${format(task.dueAt, "d MMM yyyy", { locale: es })}`}
+                {task.dueAt && ` · Vence ${format(task.dueAt, "d MMM yyyy", { locale: es })}`}
                 {task.event && ` · ${task.event.title}`}
               </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                {priorityLabels[task.priority]}
-              </span>
-              <TaskActions task={task} assignees={assignees} />
-            </div>
-          </CardContent>
-        </Card>
+            </>
+          }
+          trailing={
+            <span className={cn("text-[11px] font-extrabold uppercase", task.priority === "URGENT" && "eyebrow")}>
+              {priorityLabels[task.priority]}
+            </span>
+          }
+          actions={<TaskActions task={task} assignees={assignees} />}
+        />
       ))}
-    </div>
+    </ListPanel>
   );
 }
 

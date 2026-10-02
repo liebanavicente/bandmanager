@@ -13,10 +13,10 @@ import { OrderActions } from "@/components/orders/order-actions";
 import { auth } from "@/lib/auth";
 import { canManage } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
 import { centsToEuros } from "@/lib/money";
+import { ListPanel, ListRow } from "@/components/shared/list-panel";
 
 const orderStatusOptions = [
   { value: "PENDING", label: "Pendiente" },
@@ -61,35 +61,33 @@ async function OrdersList({
   }
 
   return (
-    <div className="grid gap-3">
+    <ListPanel>
       {orders.map((order) => (
-        <Card key={order.id} className="stage-edge">
-          <CardContent className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-medium">{order.orderNumber}</h3>
-                <StatusBadge kind="order" status={order.status} />
-              </div>
-              <p className="text-sm text-muted-foreground">
+        <ListRow
+          key={order.id}
+          title={order.orderNumber}
+          badges={<StatusBadge kind="order" status={order.status} />}
+          meta={
+            <>
+              <p>
                 {order.customerName} · {channelLabels[order.channel]} ·{" "}
                 {format(order.createdAt, "d MMM yyyy, HH:mm", { locale: es })}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs">
                 {order.items.length} artículos
-                {order.createdBy?.profile?.name &&
-                  ` · ${order.createdBy.profile.name}`}
+                {order.createdBy?.profile?.name && ` · ${order.createdBy.profile.name}`}
               </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-display text-3xl leading-none">
-                {centsToEuros(order.totalCents)}
-              </span>
-              <OrderActions order={order} canManage={manage} />
-            </div>
-          </CardContent>
-        </Card>
+            </>
+          }
+          trailing={
+            <span className="font-display text-3xl leading-none text-foreground tabular-nums">
+              {centsToEuros(order.totalCents)}
+            </span>
+          }
+          actions={<OrderActions order={order} canManage={manage} />}
+        />
       ))}
-    </div>
+    </ListPanel>
   );
 }
 
@@ -104,7 +102,7 @@ export default function OrdersPage({
         title="Pedidos"
         description="Ventas online, en concierto y directas."
       >
-        <Button render={<Link href="/orders/quick-sale" />}>
+        <Button nativeButton={false} render={<Link href="/orders/quick-sale" />}>
           <Plus />
           Venta rápida
         </Button>

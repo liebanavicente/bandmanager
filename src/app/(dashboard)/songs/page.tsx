@@ -9,10 +9,10 @@ import { PageHeader } from "@/components/shared/page-header";
 import { SearchFilters } from "@/components/shared/search-filters";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActionSuccess } from "@/lib/action-result";
 import { formatDuration } from "@/lib/duration";
+import { ListPanel, ListRow } from "@/components/shared/list-panel";
 
 const songStatusOptions = [
   { value: "PROPOSED", label: "Propuesta" },
@@ -48,41 +48,26 @@ async function SongsList({
   }
 
   return (
-    <div className="grid gap-3">
+    <ListPanel>
       {songs.map((song) => (
-        <Card key={song.id} className="stage-edge relative transition-colors hover:bg-muted/30">
-          <CardContent className="flex items-center gap-3 pt-6">
-            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  {/* Enlace extendido: toda la tarjeta abre la ficha */}
-                  <Link
-                    href={`/songs/${song.id}`}
-                    className="font-medium after:absolute after:inset-0 after:content-['']"
-                  >
-                    {song.title}
-                  </Link>
-                  <StatusBadge kind="song" status={song.status} />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {song.artist ?? "Sin artista"} · {formatDuration(song.durationSeconds)}
-                  {song.keySignature ? ` · ${song.keySignature}` : ""}
-                </p>
-              </div>
-              {song.tags.length > 0 && (
-                <p className="text-xs text-muted-foreground">{song.tags.join(", ")}</p>
-              )}
-            </div>
-            <EntityActions
-              entity="song"
-              id={song.id}
-              name={song.title}
-              editHref={`/songs/${song.id}/edit`}
-            />
-          </CardContent>
-        </Card>
+        <ListRow
+          key={song.id}
+          href={`/songs/${song.id}`}
+          title={song.title}
+          badges={<StatusBadge kind="song" status={song.status} />}
+          meta={
+            <>
+              {song.artist ?? "Sin artista"} · {formatDuration(song.durationSeconds)}
+              {song.keySignature ? ` · ${song.keySignature}` : ""}
+            </>
+          }
+          trailing={song.tags.length > 0 ? <span>{song.tags.join(", ")}</span> : undefined}
+          actions={
+            <EntityActions entity="song" id={song.id} name={song.title} editHref={`/songs/${song.id}/edit`} />
+          }
+        />
       ))}
-    </div>
+    </ListPanel>
   );
 }
 

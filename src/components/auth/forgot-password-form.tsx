@@ -30,9 +30,9 @@ export function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <Card className="stage-edge shadow-poster">
+      <Card className="shadow-poster">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-band-text">
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-band text-band-ink ring-1 ring-ink">
             <Mail className="size-6" />
           </div>
           <CardTitle className="poster-title text-3xl">Revisa tu correo</CardTitle>
@@ -42,7 +42,7 @@ export function ForgotPasswordForm() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
-          <Button variant="outline" render={<Link href="/login" />}>
+          <Button nativeButton={false} variant="outline" render={<Link href="/login" />}>
             <ArrowLeft />
             Volver al login
           </Button>
@@ -52,9 +52,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="stage-edge shadow-poster">
+    <Card className="shadow-poster">
       <CardHeader>
-        <CardTitle className="poster-title text-4xl">Recuperar contraseña</CardTitle>
+        <CardTitle className="poster-title text-5xl">Recuperar contraseña</CardTitle>
         <CardDescription>
           Te enviaremos un enlace para restablecer tu acceso.
         </CardDescription>
@@ -78,7 +78,7 @@ export function ForgotPasswordForm() {
             {loading && <Loader2 className="animate-spin" />}
             Enviar enlace
           </Button>
-          <Button variant="ghost" className="w-full" render={<Link href="/login" />}>
+          <Button nativeButton={false} variant="ghost" className="w-full" render={<Link href="/login" />}>
             <ArrowLeft />
             Volver al login
           </Button>

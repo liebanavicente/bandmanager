@@ -92,7 +92,7 @@ export default function QuickSalePage() {
         title="Venta rápida"
         description="Registra ventas en concierto desde el móvil."
       >
-        <Button variant="outline" size="sm" render={<Link href="/orders" />}>
+        <Button nativeButton={false} variant="outline" size="sm" render={<Link href="/orders" />}>
           <ArrowLeft />
           Pedidos
         </Button>
@@ -114,7 +114,11 @@ export default function QuickSalePage() {
 
             <div className="space-y-2">
               <Label>Producto</Label>
-              <Select value={productId} onValueChange={(v) => setProductId(v ?? "")}>
+              <Select
+                items={products.map((p) => ({ value: p.id, label: `${p.name} — ${centsToEuros(p.priceCents)}` }))}
+                value={productId}
+                onValueChange={(v) => setProductId(v ?? "")}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar producto" />
                 </SelectTrigger>
@@ -131,7 +135,11 @@ export default function QuickSalePage() {
             {selected && selected.variants.length > 0 && (
               <div className="space-y-2">
                 <Label>Variante</Label>
-                <Select value={variantId} onValueChange={(v) => setVariantId(v ?? "")}>
+                <Select
+                  items={selected.variants.map((v) => ({ value: v.id, label: `${v.name} (stock: ${v.stock})` }))}
+                  value={variantId}
+                  onValueChange={(v) => setVariantId(v ?? "")}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Talla / color" />
                   </SelectTrigger>

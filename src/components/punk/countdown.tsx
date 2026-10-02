@@ -88,7 +88,7 @@ export function Countdown({ target, className, tone = "default" }: CountdownProp
             </p>
             <p
               className={cn(
-                "mt-1 font-mono text-[9px] uppercase tracking-[0.2em]",
+                "mt-1 font-extrabold text-[9px] uppercase",
                 stage ? "text-white/55" : "text-muted-foreground",
               )}
             >
