@@ -1,5 +1,9 @@
 # BandManager
 
+**Demo:** [bandmanager-nine.vercel.app](https://bandmanager-nine.vercel.app)
+
+![Captura de bandmanager](docs/captura.jpg)
+
 Plataforma privada para gestionar una banda musical: eventos, repertorio, setlists, tareas, archivos y merchandising.
 
 ## Tecnologías
